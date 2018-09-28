@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Net;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace Uarung.API
 {
@@ -17,8 +11,12 @@ namespace Uarung.API
             CreateWebHostBuilder(args).Build().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
+        {
+            return WebHost
+                .CreateDefaultBuilder(args)
+                .UseKestrel(opt => opt.Listen(IPAddress.Loopback, 5080))
                 .UseStartup<Startup>();
+        }
     }
 }

@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Uarung.API.Utility;
+using Uarung.Data.Contract;
+using Uarung.Data.DataAccess;
 using Uarung.Data.Provider;
 
 namespace Uarung.API
@@ -22,7 +18,7 @@ namespace Uarung.API
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -31,7 +27,17 @@ namespace Uarung.API
             services.AddDbContext<DataContext>(opt => 
                 opt.UseMySql(sqlConnectionString, b => b.MigrationsAssembly("Uarung.API")));
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddScoped<IDacUser, DacUser>();
+            services.AddScoped<IDacProduct, DacProduct>();
+            services.AddScoped<IDacProductCategory, DacProductCategory>();
+            services.AddScoped<IDacDiscount, DacDiscount>();
+            services.AddScoped<IDacSelectedProduct, DacSelectedProduct>();
+            services.AddScoped<IDacTransaction, DacTransaction>();
+            services.AddScoped<IDacDiscount, DacDiscount>();
+            
+            services
+                .AddMvc(opt => opt.Filters.Add(new Authorize(Configuration)))
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -41,7 +47,6 @@ namespace Uarung.API
             else
                 app.UseHsts();
 
-            app.UseHttpsRedirection();
             app.UseMvc();
         }
     }
