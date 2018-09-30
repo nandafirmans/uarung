@@ -1,4 +1,4 @@
-namespace Uarung.API.Model
+namespace Uarung.Model
 {
     public class LoginResponse : BaseReponse
     {

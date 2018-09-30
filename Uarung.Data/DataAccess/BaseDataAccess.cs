@@ -30,12 +30,12 @@ namespace Uarung.Data.DataAccess
 
         public T Single(string id)
         {
-            return _context.Set<T>().FirstOrDefault(entity => ((IEntityBase) entity).Id.ToString() == id);
+            return _context.Set<T>().FirstOrDefault(e => ((IEntityBase) e).Id.Equals(id));
         }
 
         public Task<T> SingleAsync(string id)
         {
-            return _context.Set<T>().FirstOrDefaultAsync(entity => ((IEntityBase)entity).Id.ToString() == id);
+            return _context.Set<T>().FirstOrDefaultAsync(e => ((IEntityBase) e).Id.Equals(id));
         }
 
         public T Single(Expression<Func<T, bool>> predicate)
@@ -82,9 +82,7 @@ namespace Uarung.Data.DataAccess
             var entities = _context.Set<T>().Where(predicate);
 
             foreach (var entity in entities)
-            {
                 _context.Entry(entity).State = EntityState.Deleted;
-            }
         }
 
         public void Commit()

@@ -1,20 +1,21 @@
 using System;
-using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Configuration;
-using Uarung.API.Model;
 using Uarung.API.Utility;
+using Uarung.Data.Contract;
+using Uarung.Model;
 
 namespace Uarung.API.Controllers
 {
     public class LoginController : BaseController
     {
-        private readonly RedisManager _redisManager;
+        private readonly IDacUser _dacUser;
+        private readonly RedisManager _distributedCache;
 
-        public LoginController(IConfiguration configuration)
+        public LoginController(IDistributedCache distributedCache, IDacUser dacUser)
         {
-            _redisManager = new RedisManager(configuration);
+            _dacUser = dacUser;
+            _distributedCache = new RedisManager(distributedCache);
         }
 
         [HttpPost]
@@ -25,18 +26,17 @@ namespace Uarung.API.Controllers
 
             try
             {
-                if (request.Username != "admin" || request.Password != "admin")
-                    throw new Exception("");
+                var passwordHashed = Crypt.ToSHA256(request.Password);
+                var user = _dacUser.Single(u => u.Username.Equals(request.Username) && u.Password.Equals(passwordHashed));
+
+                if (user == null)
+                    throw new Exception("username or password doesn't match");
                 
-                var keys = Guid.NewGuid().ToString("N");
+                var key = Guid.NewGuid().ToString("N");
 
-                _redisManager.Set(
-                    $"{Constant.Session.RedisNamespace}:{keys}", 
-                    request.Username, 
-                    TimeSpan.FromMinutes(1));
+                SetSessionIdCache(key, request.Username, TimeSpan.FromMinutes(20));
 
-                response.SessionId = keys;
-
+                response.SessionId = key;
                 response.Status.SetSuccess();
             }
             catch (Exception e)
@@ -45,6 +45,11 @@ namespace Uarung.API.Controllers
             }
 
             return response;
+        }
+
+        private void SetSessionIdCache(string key, string value, TimeSpan? lifeTime)
+        {
+            _distributedCache.Set($"{Constant.Session.RedisNamespace}:{key}", value, lifeTime); 
         }
     }
 }

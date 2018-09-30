@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +10,9 @@ namespace Uarung.Data.Provider
 {
     public class DataContext : DbContext
     {
-        public DataContext(DbContextOptions options) : base(options) { }
+        public DataContext(DbContextOptions options) : base(options)
+        {
+        }
 
         public DbSet<User> Users { get; set; }
 
@@ -28,7 +28,7 @@ namespace Uarung.Data.Provider
 
         public DbSet<Discount> Discounts { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SelectedProduct>()
                 .HasOne(s => s.Product)
@@ -69,13 +69,6 @@ namespace Uarung.Data.Provider
             return base.SaveChanges();
         }
 
-        public override int SaveChanges(bool acceptAllChangesOnSuccess)
-        {
-            UpdateSignature();
-
-            return base.SaveChanges(acceptAllChangesOnSuccess);
-        }
-
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             UpdateSignature();
@@ -83,26 +76,17 @@ namespace Uarung.Data.Provider
             return base.SaveChangesAsync(cancellationToken);
         }
 
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
-        {
-            UpdateSignature();
-
-            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-        }
-
-        private void UpdateSignature() 
+        private void UpdateSignature()
         {
             var entries = ChangeTracker.Entries()
-                .Where(e => e.Entity is IEntityBase 
-                    && e.State == EntityState.Added 
-                    && e.State == EntityState.Modified)
+                .Where(e => e.Entity is IEntityBase && (e.State == EntityState.Added || e.State == EntityState.Modified))
                 .ToList();
 
             if (!entries.Any()) return;
 
             foreach (var entry in entries)
             {
-                if(entry.State == EntityState.Added)
+                if (entry.State == EntityState.Added)
                     ((IEntityBase) entry.Entity).CreatedDate = DateTime.Now;
 
                 ((IEntityBase) entry.Entity).UpdatedDate = DateTime.Now;

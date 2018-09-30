@@ -2,6 +2,11 @@ D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.API.d
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.API.runtimeconfig.json
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.API.runtimeconfig.dev.json
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.API.dll
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.API.pdb
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.Data.dll
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.Model.dll
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.Data.pdb
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.Model.pdb
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\obj\Debug\netcoreapp2.1\Uarung.API.csprojAssemblyReference.cache
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\obj\Debug\netcoreapp2.1\Uarung.API.csproj.CoreCompileInputs.cache
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\obj\Debug\netcoreapp2.1\Uarung.API.RazorAssemblyInfo.cache
@@ -9,9 +14,6 @@ D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\obj\Debug\netcoreapp2.1\Uarung.API.R
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\obj\Debug\netcoreapp2.1\Uarung.API.AssemblyInfoInputs.cache
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\obj\Debug\netcoreapp2.1\Uarung.API.AssemblyInfo.cs
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\obj\Debug\netcoreapp2.1\Uarung.API.RazorTargetAssemblyInfo.cache
-D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.API.pdb
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\obj\Debug\netcoreapp2.1\Uarung.API.csproj.CopyComplete
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\obj\Debug\netcoreapp2.1\Uarung.API.dll
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\obj\Debug\netcoreapp2.1\Uarung.API.pdb
-D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.Data.dll
-D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\bin\Debug\netcoreapp2.1\Uarung.Data.pdb
-D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.API\obj\Debug\netcoreapp2.1\Uarung.API.csproj.CopyComplete

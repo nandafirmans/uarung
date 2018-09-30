@@ -5,12 +5,12 @@ using Uarung.Data.Contract;
 
 namespace Uarung.API.Controllers
 {
-    public class ValuesController : BaseController
+    public class TestController : BaseController
     {
         private readonly IDacProduct _dacProduct;
         private readonly IDacUser _dacUser;
 
-        public ValuesController(
+        public TestController(
             IDacUser dacUser,
             IDacProduct dacProduct,
             IDistributedCache distributedCache
@@ -20,9 +20,11 @@ namespace Uarung.API.Controllers
             _dacProduct = dacProduct;
         }
         
+        [HttpGet("{id}")]
+        [UnAuthorize]
         public ActionResult<string> Insert(string id)
         {
-            return "testing";
+            return Crypt.ToMD5(id);
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using Uarung.API.Model;
 
 namespace Uarung.API.Controllers
 {
@@ -9,9 +7,9 @@ namespace Uarung.API.Controllers
     [Route("[controller]")]
     public class BaseController : ControllerBase
     {
-        protected void Authorize(string sessionId)
+        protected static string GenerateId()
         {
-            
+            return Guid.NewGuid().ToString("N");
         }
     }
 }

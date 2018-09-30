@@ -22,10 +22,12 @@ namespace Uarung.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var sqlConnectionString = Configuration.GetConnectionString("DataAccessMySqlProvider");
+            var redisOption = Configuration.GetValue<string>("RedisOption");
+            var sqlConnectionString = Configuration.GetConnectionString("DataAccessPostgreSqlProvider");
 
-            services.AddDbContext<DataContext>(opt => 
-                opt.UseMySql(sqlConnectionString, b => b.MigrationsAssembly("Uarung.API")));
+            services.AddDistributedRedisCache(opt => opt.Configuration = redisOption);
+            services.AddDbContext<DataContext>(opt =>
+                opt.UseNpgsql(sqlConnectionString, b => b.MigrationsAssembly("Uarung.API")));
 
             services.AddScoped<IDacUser, DacUser>();
             services.AddScoped<IDacProduct, DacProduct>();
@@ -36,7 +38,7 @@ namespace Uarung.API
             services.AddScoped<IDacDiscount, DacDiscount>();
             
             services
-                .AddMvc(opt => opt.Filters.Add(new Authorize(Configuration)))
+                .AddMvc(opt => opt.Filters.Add(typeof(Authorize)))
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 

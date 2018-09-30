@@ -1,26 +1,16 @@
 using System;
 using System.Text;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Redis;
-using Microsoft.Extensions.Configuration;
 
 namespace Uarung.API.Utility
 {
     public class RedisManager
     {
-        private readonly RedisCache _redisCache;
+        private readonly IDistributedCache _distributedCache;
 
-        public RedisManager(IConfiguration configuration)
+        public RedisManager(IDistributedCache distributedCache)
         {
-            var redisConfig = configuration.GetValue<string>("RedisOption");
-
-            if(string.IsNullOrEmpty(redisConfig))
-                throw new Exception("fail to get redis option");
-
-            _redisCache = new RedisCache(new RedisCacheOptions()
-            {
-                Configuration = redisConfig
-            });
+            _distributedCache = distributedCache;
         }
 
         public void Set(string key, string value, TimeSpan? lifeTime = null)
@@ -28,24 +18,21 @@ namespace Uarung.API.Utility
             var valueBytes = Encoding.Default.GetBytes(value);
 
             if(lifeTime != null)
-                _redisCache.Set(key, valueBytes, new DistributedCacheEntryOptions()
+                _distributedCache.Set(key, valueBytes, new DistributedCacheEntryOptions()
                 {
                     AbsoluteExpirationRelativeToNow = lifeTime
                 });
-
-            _redisCache.Set(key, valueBytes);
+            else
+                _distributedCache.Set(key, valueBytes);
         }
 
         public string Get(string key)
         {
-            try
-            {
-                return Encoding.Default.GetString(_redisCache.Get(key));
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
+            var valueBytes = _distributedCache.Get(key);
+
+            return valueBytes == null 
+                ? null 
+                : Encoding.Default.GetString(valueBytes);
         }
     }
 }

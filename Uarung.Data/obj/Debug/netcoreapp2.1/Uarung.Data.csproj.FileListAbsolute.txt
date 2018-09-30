@@ -1,9 +1,8 @@
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\bin\Debug\netcoreapp2.1\Uarung.Data.deps.json
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\bin\Debug\netcoreapp2.1\Uarung.Data.dll
-D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\obj\Debug\netcoreapp2.1\Uarung.Data.csprojAssemblyReference.cache
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\bin\Debug\netcoreapp2.1\Uarung.Data.pdb
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\obj\Debug\netcoreapp2.1\Uarung.Data.csproj.CoreCompileInputs.cache
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\obj\Debug\netcoreapp2.1\Uarung.Data.AssemblyInfoInputs.cache
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\obj\Debug\netcoreapp2.1\Uarung.Data.AssemblyInfo.cs
-D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\bin\Debug\netcoreapp2.1\Uarung.Data.pdb
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\obj\Debug\netcoreapp2.1\Uarung.Data.dll
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\obj\Debug\netcoreapp2.1\Uarung.Data.pdb

@@ -11,11 +11,11 @@ namespace Uarung.API
             CreateWebHostBuilder(args).Build().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
+        private static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             return WebHost
                 .CreateDefaultBuilder(args)
-                .UseKestrel(opt => opt.Listen(IPAddress.Loopback, 5080))
+                .UseKestrel(opt => opt.Listen(IPAddress.Loopback, 5001))
                 .UseStartup<Startup>();
         }
     }

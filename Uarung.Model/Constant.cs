@@ -1,5 +1,5 @@
 ﻿
-namespace Uarung.API.Model
+namespace Uarung.Model
 {
     public static class Constant
     {

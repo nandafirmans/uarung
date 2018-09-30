@@ -1,19 +1,20 @@
 using System.Linq;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
-using Uarung.API.Model;
+using Uarung.Model;
 
 namespace Uarung.API.Utility
 {
     public class Authorize : IActionFilter
     {
-        private readonly RedisManager _redisManager;
+        private readonly RedisManager _distributedCache;
 
-        public Authorize(IConfiguration configuration)
+        public Authorize(IDistributedCache distributedCache)
         {
-            _redisManager = new RedisManager(configuration);
+            _distributedCache = new RedisManager(distributedCache);
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
@@ -22,20 +23,18 @@ namespace Uarung.API.Utility
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            var isAuth = context.ActionDescriptor.FilterDescriptors
+            var isUnAuth = context.ActionDescriptor.FilterDescriptors
                 .Any(f => f.Filter.GetType() == typeof(UnAuthorize));
 
-            if (isAuth) return;
+            if (isUnAuth) return;
 
             context.HttpContext.Request.Headers
                 .TryGetValue(Constant.RequestKey.SessionId, out var sessionId);
 
-            var sessionIdCache = _redisManager.Get($"{Constant.Session.RedisNamespace}:{sessionId}");
-
-            if (!string.IsNullOrEmpty(sessionIdCache)) return;
+            if (!string.IsNullOrEmpty(GetSessionIdCache(sessionId)))
+                return;
 
             var response = new BaseReponse();
-
             response.Status.SetError("session id required");
 
             context.Result = new ContentResult
@@ -43,6 +42,11 @@ namespace Uarung.API.Utility
                 Content = JsonConvert.SerializeObject(response),
                 ContentType = "application/json"
             };
+        }
+
+        private string GetSessionIdCache(string key)
+        {
+            return _distributedCache.Get($"{Constant.Session.RedisNamespace}:{key}");
         }
     }
 }

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Uarung.API.Model
+namespace Uarung.Model
 {
     public class Status
     {

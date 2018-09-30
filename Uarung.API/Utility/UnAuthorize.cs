@@ -1,6 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Uarung.API.Model;
+using Uarung.Model;
 
 namespace Uarung.API.Utility
 {
