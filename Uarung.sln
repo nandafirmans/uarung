@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uarung.API", "Uarung.API\Uarung.API.csproj", "{69CB017A-B4C9-42FF-90CE-2054A8048C42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Uarung.API", "Uarung.API\Uarung.API.csproj", "{69CB017A-B4C9-42FF-90CE-2054A8048C42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uarung.Data", "Uarung.Data\Uarung.Data.csproj", "{6A22B464-63F7-45AE-ACEC-FA1861ADA960}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Uarung.Data", "Uarung.Data\Uarung.Data.csproj", "{6A22B464-63F7-45AE-ACEC-FA1861ADA960}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Uarung.Model", "Uarung.Model\Uarung.Model.csproj", "{BE2DAF6F-E7BD-438B-AC53-364DFEDC60B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uarung.Web", "Uarung.Web\Uarung.Web.csproj", "{D1A86FDD-256E-403C-ADB9-8A55AE616A12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{6A22B464-63F7-45AE-ACEC-FA1861ADA960}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A22B464-63F7-45AE-ACEC-FA1861ADA960}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A22B464-63F7-45AE-ACEC-FA1861ADA960}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE2DAF6F-E7BD-438B-AC53-364DFEDC60B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE2DAF6F-E7BD-438B-AC53-364DFEDC60B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE2DAF6F-E7BD-438B-AC53-364DFEDC60B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE2DAF6F-E7BD-438B-AC53-364DFEDC60B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1A86FDD-256E-403C-ADB9-8A55AE616A12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1A86FDD-256E-403C-ADB9-8A55AE616A12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1A86FDD-256E-403C-ADB9-8A55AE616A12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1A86FDD-256E-403C-ADB9-8A55AE616A12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
