@@ -1,0 +1,35 @@
+﻿@using Uarung.Model
+@{
+    var errorMessage = (string) ViewData[Constant.ViewDataKey.ErrorMessage];
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Uarung.Web</title>
+    <partial name="../Shared/_ScriptHeader.cshtml"/>
+    <link href="~/css/style-login.css" rel="stylesheet"/>
+</head>
+<body class="text-center">
+<form class="form-signin" action="@Url.Action("Start", "Login")" method="post">
+    <img class="mb-4 rounded-circle" src="https://picsum.photos/100" alt="" width="72" height="72">
+    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger p-2 mb-1">@errorMessage</p>
+    }
+
+    <div class="form-group">
+        <input type="text" name="username" id="inputEmail" class="form-control" placeholder="Username" required autofocus/>
+        <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required/>
+    </div>
+
+    <button class="btn btn-lg btn-primary btn-block mt-3" type="submit">Sign in</button>
+    <p class="mt-5 mb-3 text-muted">© @DateTime.Now.AddYears(-1).ToString("yyyy") - @DateTime.Now.ToString("yyyy")</p>
+</form>
+<partial name="../Shared/_ScriptFooter.cshtml"/>
+</body>
+</html>

@@ -41,7 +41,7 @@ namespace Uarung.API.Controllers
             }
             catch (Exception e)
             {
-                response.Status.SetError(e);
+                response.Status.SetError(e.Message);
             }
 
             return response;

@@ -6,3 +6,4 @@ D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\obj\Debug\netcoreapp2.1\Uarung.Data
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\obj\Debug\netcoreapp2.1\Uarung.Data.AssemblyInfo.cs
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\obj\Debug\netcoreapp2.1\Uarung.Data.dll
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\obj\Debug\netcoreapp2.1\Uarung.Data.pdb
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Data\obj\Debug\netcoreapp2.1\Uarung.Data.csprojAssemblyReference.cache

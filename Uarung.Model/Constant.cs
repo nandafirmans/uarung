@@ -19,5 +19,16 @@ namespace Uarung.Model
             public const string SessionId = "sessionId";
             public const string UnAuth = "unAuth";
         }
+
+        public static class ConfigKey
+        {
+            public const string ApiHost = "ApiHost";
+            public const string ApiLogin = "ApiLogin";
+        }
+
+        public static class ViewDataKey
+        {
+            public const string ErrorMessage = "ErrorMessage";
+        }
     }
 }
