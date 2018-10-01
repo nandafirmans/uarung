@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Uarung.Data", "Uarung.Data\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Uarung.Model", "Uarung.Model\Uarung.Model.csproj", "{BE2DAF6F-E7BD-438B-AC53-364DFEDC60B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uarung.Web", "Uarung.Web\Uarung.Web.csproj", "{D1A86FDD-256E-403C-ADB9-8A55AE616A12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Uarung.Web", "Uarung.Web\Uarung.Web.csproj", "{D1A86FDD-256E-403C-ADB9-8A55AE616A12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
