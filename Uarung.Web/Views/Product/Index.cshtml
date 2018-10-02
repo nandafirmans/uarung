@@ -1,0 +1,43 @@
+﻿@model List<Uarung.Model.Product>
+
+@{
+    ViewData["Title"] = "Product";
+}
+
+<div class="d-flex mb-5">
+    <h3 class="mr-auto">Product</h3>
+    <a class="btn btn-primary mr-2" asp-controller="Product" asp-action="Category">
+        Product Category
+    </a>
+    <button class="btn btn-outline-primary">
+        Add Product
+    </button>
+</div>
+
+<table class="table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (Model != null)
+    {
+        var i = 0;
+        foreach (var product in Model)
+        {
+            <tr>
+                <td>@i</td>
+                <td>@product.Id</td>
+                <td>@product.Name</td>
+                <td>@product.Price</td>
+            </tr>
+
+            i++;
+        }
+    }
+    </tbody>
+</table>

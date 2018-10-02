@@ -14,10 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Views\Home\ProductCategory.cshtml">
+    <Content Update="Views\Product\Category.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Update="Views\Home\Product.cshtml">
+    <Content Update="Views\Product\Index.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="Views\Home\Index.cshtml">

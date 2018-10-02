@@ -22,13 +22,4 @@ namespace Uarung.Model
         [JsonProperty("images")]
         public List<string> Images { get; set; }
     }
-
-    public class ProductRequest : Product
-    {
-        [JsonProperty("userId")]
-        public string UserId { get; set; }
-
-        [JsonProperty("categoryId")]
-        public string CategoryId { get; set; }
-    }
 }

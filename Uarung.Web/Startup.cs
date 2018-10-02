@@ -1,10 +1,10 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Uarung.Model;
 
 namespace Uarung.Web
 {
@@ -19,7 +19,10 @@ namespace Uarung.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSession(opt => opt.IdleTimeout = TimeSpan.FromMinutes(5));
+            var ltInMinutes = TimeSpan.FromMinutes(
+                Configuration.GetValue<int>(Constant.ConfigKey.SessionIdLifeTime));
+
+            services.AddSession(opt => opt.IdleTimeout = ltInMinutes);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 

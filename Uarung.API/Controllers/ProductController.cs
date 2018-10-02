@@ -2,24 +2,23 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Uarung.Data.Contract;
+using Uarung.Data.Entity;
 using Uarung.Model;
+using Product = Uarung.Model.Product;
 
 namespace Uarung.API.Controllers
 {
     public class ProductController : BaseController
     {
         private readonly IDacProduct _dacProduct;
-        private readonly IDacProductCategory _dacProductCategory;
         private readonly IDacProductImage _dacProductImage;
         private readonly IDacUser _dacUser;
 
-        public ProductController(IDacProduct dacProduct, IDacUser dacUser, IDacProductImage dacProductImage,
-            IDacProductCategory dacProductCategory)
+        public ProductController(IDacProduct dacProduct, IDacUser dacUser, IDacProductImage dacProductImage)
         {
             _dacProduct = dacProduct;
             _dacUser = dacUser;
             _dacProductImage = dacProductImage;
-            _dacProductCategory = dacProductCategory;
         }
 
         [HttpPost]
@@ -41,7 +40,7 @@ namespace Uarung.API.Controllers
 
                 if (request.Images.Any())
                     product.ProductImages = request.Images
-                        .Select(i => new Data.Entity.ProductImage
+                        .Select(i => new ProductImage
                         {
                             Id = GenerateId(),
                             ProductId = productId,
@@ -62,7 +61,7 @@ namespace Uarung.API.Controllers
             return response;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id=}")]
         public ActionResult<CollectionResponse<Product>> Get(string id)
         {
             var response = new CollectionResponse<Product>();
@@ -84,61 +83,6 @@ namespace Uarung.API.Controllers
                             .Where(pi => pi.ProductId.Equals(p.Id))
                             .Select(pi => pi.Url)
                             .ToList()
-                    })
-                    .ToList();
-
-                response.Status.SetSuccess();
-            }
-            catch (Exception e)
-            {
-                response.Status.SetError(e);
-            }
-
-            return response;
-        }
-
-        [HttpPost("category")]
-        public ActionResult<BaseReponse> CreateCategory(ProductCategory request)
-        {
-            var response = new BaseReponse();
-            try
-            {
-                var category = new Data.Entity.ProductCategory
-                {
-                    Id = GenerateId(),
-                    Name = request.Name
-                };
-
-                _dacProductCategory.Insert(category);
-                _dacProductCategory.Commit();
-
-                response.Status.SetSuccess();
-            }
-            catch (Exception e)
-            {
-                response.Status.SetError(e);
-            }
-
-            return response;
-        }
-
-        [HttpGet("category/{id}")]
-        public ActionResult<CollectionResponse<ProductCategory>> GetCategory(string id)
-        {
-            var response = new CollectionResponse<ProductCategory>();
-
-            try
-            {
-                var categories = (string.IsNullOrEmpty(id)
-                        ? _dacProductCategory.All()
-                        : new[] { _dacProductCategory.Single(id) })
-                    .ToList();
-
-                response.Collection = categories
-                    .Select(c => new ProductCategory()
-                    {
-                        Id = c.Id,
-                        Name = c.Name,
                     })
                     .ToList();
 

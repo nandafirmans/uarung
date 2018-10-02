@@ -20,6 +20,7 @@ namespace Uarung.Model
             public const string ApiHost = "ApiHost";
             public const string ApiLogin = "ApiLogin";
             public const string ApiProduct = "ApiProduct";
+            public const string ApiProductCategory = "ApiProductCategory";
             public const string SessionIdLifeTime = "SessionIdLifeTime";
         }
 

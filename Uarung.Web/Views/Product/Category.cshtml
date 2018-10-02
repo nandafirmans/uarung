@@ -1,0 +1,69 @@
+﻿@model List<Uarung.Model.ProductCategory>
+
+@{
+    ViewData["Title"] = "Product Category";
+}
+
+<div class="d-flex mb-5">
+    <h3>Product Category</h3>
+    <button class="btn btn-outline-primary ml-auto" data-toggle="modal" data-target="#form-modal">
+        Add Category
+    </button>
+</div>
+
+<table class="table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Id</th>
+        <th scope="col">Product Category Name</th>
+        <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (Model != null)
+    {
+        var i = 1;
+        foreach (var category in Model)
+        {
+            <tr>
+                <td>@i</td>
+                <td>@category.Id</td>
+                <td>@category.Name</td>
+                <td>
+                    <form action="@Url.Action("DeleteCategory", "Product")/@category.Id">
+                        <button class="btn btn-danger btn-sm" type="submit">
+                            delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+
+            i++;
+        }
+    }
+    </tbody>
+</table>
+
+<div class="modal fade" id="form-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="@Url.Action("InsertCategory", "Product")" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Product Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label>Category Name</label>
+                    <input class="form-control" type="text" name="name" required/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
