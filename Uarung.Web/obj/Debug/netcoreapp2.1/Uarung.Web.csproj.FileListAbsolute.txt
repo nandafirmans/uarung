@@ -27,6 +27,8 @@ D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Uarung.Web.p
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Uarung.Web.csproj.CopyComplete
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\bin\Debug\netcoreapp2.1\Uarung.Model.dll
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\bin\Debug\netcoreapp2.1\Uarung.Model.pdb
-D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Login\Index.g.cshtml.cs
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Shared\_ScriptFooter.g.cshtml.cs
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Shared\_ScriptHeader.g.cshtml.cs
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Auth\Login.g.cshtml.cs
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Home\Product.g.cshtml.cs
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Home\ProductCategory.g.cshtml.cs
