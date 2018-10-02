@@ -19,12 +19,6 @@ namespace Uarung.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-
             services.AddSession(opt => opt.IdleTimeout = TimeSpan.FromMinutes(5));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -11,10 +12,16 @@ namespace Uarung.Web.Utility
     public class Requestor
     {
         private readonly HttpClient _client;
+        private readonly Dictionary<string, string> _httpHeaders;
 
         public Requestor()
         {
             _client = new HttpClient();
+        }
+
+        public Requestor(Dictionary<string, string> httpHeaders) : this()
+        {
+            _httpHeaders = httpHeaders;
         }
 
         public string Post(string url, object payload)
@@ -42,7 +49,7 @@ namespace Uarung.Web.Utility
             return GetExec(HttpType.Get, url, payload);
         }
 
-        public T Get<T>(string url, object payload) where T : class
+        public T Get<T>(string url, object payload = null) where T : class
         {
             return JsonConvert.DeserializeObject<T>(Get(url, payload));
         }
@@ -52,7 +59,7 @@ namespace Uarung.Web.Utility
             return GetExec(HttpType.Delete, url, payload);
         }
 
-        public T Delete<T>(string url, object payload) where T : class
+        public T Delete<T>(string url, object payload = null) where T : class
         {
             return JsonConvert.DeserializeObject<T>(Delete(url, payload));
         }
@@ -71,6 +78,10 @@ namespace Uarung.Web.Utility
             var content = payload != null
                 ? new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json")
                 : null;
+
+            if (_httpHeaders != null)
+                foreach (var header in _httpHeaders)
+                    _client.DefaultRequestHeaders.Add(header.Key, header.Value);
 
             switch (type)
             {
@@ -108,7 +119,7 @@ namespace Uarung.Web.Utility
             var strPayload = payload.GetType().GetProperties()
                 .Where(p => p.GetValue(payload, null) != null)
                 .Select(p => $"{Uri.EscapeDataString(p.Name)}={Uri.EscapeDataString(p.GetValue(payload).ToString())}");
-            
+
             return $"?{string.Join("&", strPayload)}";
         }
 

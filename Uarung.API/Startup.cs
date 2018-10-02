@@ -32,6 +32,7 @@ namespace Uarung.API
             services.AddScoped<IDacUser, DacUser>();
             services.AddScoped<IDacProduct, DacProduct>();
             services.AddScoped<IDacProductCategory, DacProductCategory>();
+            services.AddScoped<IDacProductImage, DacProductImage>();
             services.AddScoped<IDacDiscount, DacDiscount>();
             services.AddScoped<IDacSelectedProduct, DacSelectedProduct>();
             services.AddScoped<IDacTransaction, DacTransaction>();

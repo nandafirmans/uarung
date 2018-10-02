@@ -14,10 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Login\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <Content Update="Views\Home\ProductCategory.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Home\Product.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\Home\Index.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

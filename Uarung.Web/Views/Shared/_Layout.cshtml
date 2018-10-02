@@ -12,7 +12,7 @@
     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Company name</a>
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
-            <a class="nav-link" href="#">Sign out</a>
+            <a class="nav-link" asp-controller="Auth" asp-action="Logout">Sign out</a>
         </li>
     </ul>
 </nav>
@@ -31,11 +31,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">
                             <span data-feather="file"></span>
-                            Orders
+                            Sales Register
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" asp-controller="Home" asp-action="Product">
                             <span data-feather="shopping-cart"></span>
                             Products
                         </a>

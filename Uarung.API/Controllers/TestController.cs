@@ -21,7 +21,6 @@ namespace Uarung.API.Controllers
         }
         
         [HttpGet("{id}")]
-        [UnAuthorize]
         public ActionResult<string> Insert(string id)
         {
             return Crypt.ToMD5(id);

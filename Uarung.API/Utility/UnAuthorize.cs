@@ -12,7 +12,7 @@ namespace Uarung.API.Utility
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
-            context.HttpContext.Request.Headers.Add(Constant.RequestKey.UnAuth, $"{Guid.NewGuid():N}");
+            context.HttpContext.Request.Headers.Add("unAuth", $"{Guid.NewGuid():N}");
         }
     }
 }

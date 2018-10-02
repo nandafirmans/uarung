@@ -1,6 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 using Uarung.API.Utility;
 using Uarung.Data.Contract;
 using Uarung.Model;
@@ -10,11 +11,13 @@ namespace Uarung.API.Controllers
     public class LoginController : BaseController
     {
         private readonly IDacUser _dacUser;
+        private readonly IConfiguration _configuration;
         private readonly RedisManager _distributedCache;
 
-        public LoginController(IDistributedCache distributedCache, IDacUser dacUser)
+        public LoginController(IDistributedCache distributedCache, IDacUser dacUser, IConfiguration configuration)
         {
             _dacUser = dacUser;
+            _configuration = configuration;
             _distributedCache = new RedisManager(distributedCache);
         }
 
@@ -34,7 +37,7 @@ namespace Uarung.API.Controllers
                 
                 var key = Guid.NewGuid().ToString("N");
 
-                SetSessionIdCache(key, request.Username, TimeSpan.FromMinutes(20));
+                SetSessionIdCache(key, request.Username);
 
                 response.SessionId = key;
                 response.Status.SetSuccess();
@@ -47,9 +50,12 @@ namespace Uarung.API.Controllers
             return response;
         }
 
-        private void SetSessionIdCache(string key, string value, TimeSpan? lifeTime)
+        private void SetSessionIdCache(string key, string value)
         {
-            _distributedCache.Set($"{Constant.Session.RedisNamespace}:{key}", value, lifeTime); 
+            var ltInMinutes = TimeSpan.FromMinutes(
+                _configuration.GetValue<int>(Constant.ConfigKey.SessionIdLifeTime));
+
+            _distributedCache.Set($"{Constant.SessionKey.RedisNamespace}:{key}", value, ltInMinutes); 
         }
     }
 }

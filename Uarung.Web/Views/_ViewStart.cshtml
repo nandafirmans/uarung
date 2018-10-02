@@ -1,7 +1,7 @@
 ﻿@{
     var controllerName = ViewContext.RouteData.Values["controller"].ToString();
     
-    if (!controllerName.Equals("login", StringComparison.OrdinalIgnoreCase))
+    if (!controllerName.Equals("Auth", StringComparison.OrdinalIgnoreCase))
     {
         Layout = "_Layout";
     }

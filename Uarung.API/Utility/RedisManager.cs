@@ -34,5 +34,10 @@ namespace Uarung.API.Utility
                 ? null 
                 : Encoding.Default.GetString(valueBytes);
         }
+
+        public void Remove(string key)
+        {
+            _distributedCache.Remove(key);
+        }
     }
 }
