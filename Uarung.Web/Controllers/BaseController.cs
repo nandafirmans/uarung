@@ -9,11 +9,11 @@ namespace Uarung.Web.Controllers
 {
     public class BaseController : Controller
     {
-        protected readonly IConfiguration Configuration;
+        private readonly IConfiguration _configuration;
 
         public BaseController(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
 
         public string CreateServiceUrl(string urlConfigKeys)
@@ -23,17 +23,24 @@ namespace Uarung.Web.Controllers
 
         public string GetConfigValue(string key)
         {
-            return Configuration.GetValue<string>(key);
+            return _configuration.GetValue<string>(key);
         }
 
-        public Dictionary<string, string> GetSessionHeaderId()
+        public Dictionary<string, string> GetApiSessionIdHeader()
         {
-            var sessionIdBytes = HttpContext.Session.Get(Constant.SessionKey.Id);
-            var sessionId = sessionIdBytes != null
-                ? Encoding.Default.GetString(sessionIdBytes)
-                : string.Empty;
+            const string sessionIdKey = Constant.SessionKey.SessionId;
+            var sessionId = GetSessionValue(sessionIdKey);
 
-            return new Dictionary<string, string> {{Constant.SessionKey.Id, sessionId}};
+            return new Dictionary<string, string> {{sessionIdKey, sessionId}};
+        }
+
+        public string GetSessionValue(string key)
+        {
+            var sessionValueBytes = HttpContext.Session.Get(key);
+
+            return sessionValueBytes != null
+                ? Encoding.Default.GetString(sessionValueBytes)
+                : string.Empty;
         }
     }
 }

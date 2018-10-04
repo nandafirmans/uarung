@@ -6,7 +6,8 @@ namespace Uarung.Model
         public static class SessionKey
         {
             public const string RedisNamespace = "session";
-            public const string Id = "sessionId";
+            public const string SessionId = "sessionId";
+            public const string UserId = "userId";
         }
 
         public static class Status
@@ -18,9 +19,10 @@ namespace Uarung.Model
         public static class ConfigKey
         {
             public const string ApiHost = "ApiHost";
-            public const string ApiLogin = "ApiLogin";
-            public const string ApiProduct = "ApiProduct";
-            public const string ApiProductCategory = "ApiProductCategory";
+            public const string ApiUrlLogin = "ApiUrlLogin";
+            public const string ApiUrlProduct = "ApiUrlProduct";
+            public const string ApiUrlProductCategory = "ApiUrlProductCategory";
+            public const string ApiUrlFileUpload = "ApiUrlFileUpload";
             public const string SessionIdLifeTime = "SessionIdLifeTime";
         }
 

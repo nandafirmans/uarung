@@ -9,25 +9,28 @@ namespace Uarung.Web.Utility
     {
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var sessionIdBytes = context.HttpContext.Session
-                .Get(Constant.SessionKey.Id);
-
-            var sessionId = sessionIdBytes != null 
-                ? Encoding.Default.GetString(sessionIdBytes) 
-                : null;
+            var session = context.HttpContext.Session;
+            
+            var sessionId = GetSessionValue(Constant.SessionKey.SessionId, context.HttpContext);
 
             if(string.IsNullOrEmpty(sessionId))
-                context.HttpContext.Response
-                    .Redirect("/Auth/Login");
+                context.HttpContext.Response.Redirect("/Auth/Login");
             else
             {
-                context.HttpContext.Session
-                    .Remove(Constant.SessionKey.Id);
-                context.HttpContext.Session
-                    .Set(Constant.SessionKey.Id, sessionIdBytes);
+                session.Clear();
+                session.Set(Constant.SessionKey.SessionId, Encoding.Default.GetBytes(sessionId));
             }
 
             base.OnActionExecuting(context);
+        }
+
+        private static string GetSessionValue(string key, HttpContext context)
+        {
+            var sessionValueBytes = context.Session.Get(key);
+
+            return sessionValueBytes != null
+                ? Encoding.Default.GetString(sessionValueBytes)
+                : string.Empty;
         }
     }
 }

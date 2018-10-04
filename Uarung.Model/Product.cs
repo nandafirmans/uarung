@@ -21,5 +21,8 @@ namespace Uarung.Model
 
         [JsonProperty("images")]
         public List<string> Images { get; set; }
+
+        [JsonProperty("categoryName")]
+        public string CategoryName { get; set; }
     }
 }

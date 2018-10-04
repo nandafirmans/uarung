@@ -17,6 +17,9 @@
     <Content Update="Views\Product\Category.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Views\Product\Add.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\Product\Index.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

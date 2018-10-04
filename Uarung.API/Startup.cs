@@ -37,7 +37,7 @@ namespace Uarung.API
             services.AddScoped<IDacSelectedProduct, DacSelectedProduct>();
             services.AddScoped<IDacTransaction, DacTransaction>();
             services.AddScoped<IDacDiscount, DacDiscount>();
-            
+
             services
                 .AddMvc(opt => opt.Filters.Add(typeof(Authorize)))
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -51,6 +51,7 @@ namespace Uarung.API
                 app.UseHsts();
 
             app.UseMvc();
+            app.UseStaticFiles();
         }
     }
 }

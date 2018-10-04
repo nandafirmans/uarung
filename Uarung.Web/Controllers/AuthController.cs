@@ -30,7 +30,7 @@ namespace Uarung.Web.Controllers
 
             try
             {
-                var url = CreateServiceUrl(Constant.ConfigKey.ApiLogin);
+                var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlLogin);
                 response = new Requestor().Post<LoginResponse>(url, request);
             }
             catch (Exception e)
@@ -40,10 +40,9 @@ namespace Uarung.Web.Controllers
 
             if (response.Status.Type.Equals(Constant.Status.TypeError))
                 return RedirectToAction("Login", new {err = response.Status.Message});
-
-
+            
             HttpContext.Session.Set(
-                Constant.SessionKey.Id,
+                Constant.SessionKey.SessionId,
                 Encoding.Default.GetBytes(response.SessionId));
 
             return RedirectToAction("Index", "Home");

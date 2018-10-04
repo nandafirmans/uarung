@@ -9,9 +9,9 @@
     <a class="btn btn-primary mr-2" asp-controller="Product" asp-action="Category">
         Product Category
     </a>
-    <button class="btn btn-outline-primary">
+    <a class="btn btn-outline-primary" asp-controller="Product" asp-action="Add">
         Add Product
-    </button>
+    </a>
 </div>
 
 <table class="table">
@@ -20,6 +20,7 @@
         <th scope="col">#</th>
         <th scope="col">Id</th>
         <th scope="col">Name</th>
+        <th scope="col">Category</th>
         <th scope="col">Price</th>
     </tr>
     </thead>
@@ -33,7 +34,8 @@
                 <td>@i</td>
                 <td>@product.Id</td>
                 <td>@product.Name</td>
-                <td>@product.Price</td>
+                <td>@product.CategoryName</td>
+                <td>@product.Price.ToString("N0")</td>
             </tr>
 
             i++;

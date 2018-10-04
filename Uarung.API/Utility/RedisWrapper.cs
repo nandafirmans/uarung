@@ -4,11 +4,11 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace Uarung.API.Utility
 {
-    public class RedisManager
+    public class RedisWrapper
     {
         private readonly IDistributedCache _distributedCache;
 
-        public RedisManager(IDistributedCache distributedCache)
+        public RedisWrapper(IDistributedCache distributedCache)
         {
             _distributedCache = distributedCache;
         }

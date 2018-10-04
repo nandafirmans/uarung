@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Distributed;
@@ -13,12 +12,12 @@ namespace Uarung.API.Utility
     public class Authorize : IActionFilter
     {
         private readonly IConfiguration _configuration;
-        private readonly RedisManager _distributedCache;
+        private readonly RedisWrapper _redisWrapper;
 
         public Authorize(IDistributedCache distributedCache, IConfiguration configuration)
         {
             _configuration = configuration;
-            _distributedCache = new RedisManager(distributedCache);
+            _redisWrapper = new RedisWrapper(distributedCache);
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
@@ -33,18 +32,18 @@ namespace Uarung.API.Utility
             if (isUnAuth) return;
 
             context.HttpContext.Request.Headers
-                .TryGetValue(Constant.SessionKey.Id, out var sessionIdRequest);
+                .TryGetValue(Constant.SessionKey.SessionId, out var sessionIdRequest);
 
             var sessionIdKey = $"{Constant.SessionKey.RedisNamespace}:{sessionIdRequest}";
-            var sessionIdCacheValue = _distributedCache.Get(sessionIdKey);
+            var sessionIdCacheValue = _redisWrapper.Get(sessionIdKey);
 
             if (!string.IsNullOrEmpty(sessionIdCacheValue))
             {
                 var ltInMinutes = TimeSpan.FromMinutes(
                     _configuration.GetValue<int>(Constant.ConfigKey.SessionIdLifeTime));
 
-                _distributedCache.Remove(sessionIdKey);
-                _distributedCache.Set(sessionIdKey, sessionIdCacheValue, ltInMinutes);
+                _redisWrapper.Remove(sessionIdKey);
+                _redisWrapper.Set(sessionIdKey, sessionIdCacheValue, ltInMinutes);
 
                 return;
             }

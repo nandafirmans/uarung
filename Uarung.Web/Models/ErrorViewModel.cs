@@ -1,5 +1,3 @@
-using System;
-
 namespace Uarung.Web.Models
 {
     public class ErrorViewModel

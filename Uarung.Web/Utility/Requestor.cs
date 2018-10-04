@@ -19,6 +19,85 @@ namespace Uarung.Web.Utility
             _client = new HttpClient();
         }
 
+        private string GetExec(HttpType type, string url, object payload)
+        {
+            if (payload != null)
+                url += ToQueryString(payload);
+
+            return Exec(type, url).Result;
+        }
+
+        private static async Task<string> ReadResponse(HttpResponseMessage response)
+        {
+            using (var reader = new StreamReader(await response.Content.ReadAsStreamAsync()))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
+        private void IncludeHeader()
+        {
+            if (_httpHeaders == null) return;
+
+            foreach (var header in _httpHeaders)
+                _client.DefaultRequestHeaders.Add(header.Key, header.Value);
+        }
+
+        private async Task<string> Exec(HttpType type, string url, object payload = null)
+        {
+            HttpResponseMessage response;
+            
+            var content = payload != null
+                ? new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json")
+                : null;
+
+            IncludeHeader();
+
+            switch (type)
+            {
+                case HttpType.Post:
+                    response = await _client.PostAsync(url, content);
+                    break;
+
+                case HttpType.Get:
+                    response = await _client.GetAsync(url);
+                    break;
+
+                case HttpType.Put:
+                    response = await _client.PutAsync(url, content);
+                    break;
+
+                case HttpType.Delete:
+                    response = await _client.DeleteAsync(url);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+
+            return await ReadResponse(response);
+        }
+
+        private static string ToQueryString(object payload)
+        {
+            if (payload == null)
+                return string.Empty;
+
+            var strPayload = payload.GetType().GetProperties()
+                .Where(p => p.GetValue(payload, null) != null)
+                .Select(p => $"{Uri.EscapeDataString(p.Name)}={Uri.EscapeDataString(p.GetValue(payload).ToString())}");
+
+            return $"?{string.Join("&", strPayload)}";
+        }
+
+        private enum HttpType
+        {
+            Post,
+            Get,
+            Put,
+            Delete
+        }
+
         public Requestor(Dictionary<string, string> httpHeaders) : this()
         {
             _httpHeaders = httpHeaders;
@@ -64,71 +143,20 @@ namespace Uarung.Web.Utility
             return JsonConvert.DeserializeObject<T>(Delete(url, payload));
         }
 
-        private string GetExec(HttpType type, string url, object payload)
+        public async Task<string> PostContent(string url, MultipartFormDataContent content)
         {
-            if (payload != null)
-                url += ToQueryString(payload);
+            IncludeHeader();
 
-            return Exec(type, url).Result;
+            var response = await _client.PostAsync(url, content);
+
+            return await ReadResponse(response);
         }
 
-        private async Task<string> Exec(HttpType type, string url, object payload = null)
+        public T PostContent<T>(string url, MultipartFormDataContent content) where T : class
         {
-            HttpResponseMessage request;
-            var content = payload != null
-                ? new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json")
-                : null;
+            var jsonReponse = PostContent(url, content).Result;
 
-            if (_httpHeaders != null)
-                foreach (var header in _httpHeaders)
-                    _client.DefaultRequestHeaders.Add(header.Key, header.Value);
-
-            switch (type)
-            {
-                case HttpType.Post:
-                    request = await _client.PostAsync(url, content);
-                    break;
-
-                case HttpType.Get:
-                    request = await _client.GetAsync(url);
-                    break;
-
-                case HttpType.Put:
-                    request = await _client.PutAsync(url, content);
-                    break;
-
-                case HttpType.Delete:
-                    request = await _client.DeleteAsync(url);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
-
-            using (var reader = new StreamReader(await request.Content.ReadAsStreamAsync()))
-            {
-                return reader.ReadToEnd();
-            }
-        }
-
-        private static string ToQueryString(object payload)
-        {
-            if (payload == null)
-                return string.Empty;
-
-            var strPayload = payload.GetType().GetProperties()
-                .Where(p => p.GetValue(payload, null) != null)
-                .Select(p => $"{Uri.EscapeDataString(p.Name)}={Uri.EscapeDataString(p.GetValue(payload).ToString())}");
-
-            return $"?{string.Join("&", strPayload)}";
-        }
-
-        private enum HttpType
-        {
-            Post,
-            Get,
-            Put,
-            Delete
+            return JsonConvert.DeserializeObject<T>(jsonReponse);
         }
     }
 }

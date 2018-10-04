@@ -12,13 +12,13 @@ namespace Uarung.API.Controllers
     {
         private readonly IDacUser _dacUser;
         private readonly IConfiguration _configuration;
-        private readonly RedisManager _distributedCache;
+        private readonly RedisWrapper _redisWrapper;
 
         public LoginController(IDistributedCache distributedCache, IDacUser dacUser, IConfiguration configuration)
         {
             _dacUser = dacUser;
             _configuration = configuration;
-            _distributedCache = new RedisManager(distributedCache);
+            _redisWrapper = new RedisWrapper(distributedCache);
         }
 
         [HttpPost]
@@ -37,9 +37,10 @@ namespace Uarung.API.Controllers
                 
                 var key = Guid.NewGuid().ToString("N");
 
-                SetSessionIdCache(key, request.Username);
+                SetSessionIdCache(key, user.Id);
 
                 response.SessionId = key;
+                response.UserId = user.Id;
                 response.Status.SetSuccess();
             }
             catch (Exception e)
@@ -55,7 +56,7 @@ namespace Uarung.API.Controllers
             var ltInMinutes = TimeSpan.FromMinutes(
                 _configuration.GetValue<int>(Constant.ConfigKey.SessionIdLifeTime));
 
-            _distributedCache.Set($"{Constant.SessionKey.RedisNamespace}:{key}", value, ltInMinutes); 
+            _redisWrapper.Set($"{Constant.SessionKey.RedisNamespace}:{key}", value, ltInMinutes); 
         }
     }
 }

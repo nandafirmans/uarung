@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using Uarung.API.Utility;
 using Uarung.Data.Contract;
 using Uarung.Data.Entity;
 using Uarung.Model;
@@ -12,13 +14,17 @@ namespace Uarung.API.Controllers
     {
         private readonly IDacProduct _dacProduct;
         private readonly IDacProductImage _dacProductImage;
+        private readonly IDacProductCategory _dacProductCategory;
         private readonly IDacUser _dacUser;
+        private readonly RedisWrapper _redisWrapper;
 
-        public ProductController(IDacProduct dacProduct, IDacUser dacUser, IDacProductImage dacProductImage)
+        public ProductController(IDacProduct dacProduct, IDacUser dacUser, IDacProductImage dacProductImage, IDacProductCategory dacProductCategory, IDistributedCache distributedCache)
         {
             _dacProduct = dacProduct;
             _dacUser = dacUser;
             _dacProductImage = dacProductImage;
+            _dacProductCategory = dacProductCategory;
+            _redisWrapper = new RedisWrapper(distributedCache);
         }
 
         [HttpPost]
@@ -29,11 +35,14 @@ namespace Uarung.API.Controllers
             try
             {
                 var productId = GenerateId();
+                var sessionId = Request.Headers[Constant.SessionKey.SessionId];
+                var userId = GetUserId(sessionId, _redisWrapper);
+
                 var product = new Data.Entity.Product
                 {
                     Id = productId,
+                    UserId = userId,
                     CategoryId = request.CategoryId,
-                    UserId = request.UserId,
                     Name = request.Name,
                     Price = request.Price
                 };
@@ -72,6 +81,7 @@ namespace Uarung.API.Controllers
                         ? _dacProduct.All()
                         : new[] {_dacProduct.Single(id)})
                     .ToList();
+                var categories = _dacProductCategory.All();
 
                 response.Collection = products
                     .Select(p => new Product
@@ -82,7 +92,10 @@ namespace Uarung.API.Controllers
                         Images = _dacProductImage
                             .Where(pi => pi.ProductId.Equals(p.Id))
                             .Select(pi => pi.Url)
-                            .ToList()
+                            .ToList(),
+                        CategoryName = categories
+                            .FirstOrDefault(c => c.Id == p.CategoryId)?
+                            .Name ?? string.Empty
                     })
                     .ToList();
 
