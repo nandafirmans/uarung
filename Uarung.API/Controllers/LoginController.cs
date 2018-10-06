@@ -10,8 +10,8 @@ namespace Uarung.API.Controllers
 {
     public class LoginController : BaseController
     {
-        private readonly IDacUser _dacUser;
         private readonly IConfiguration _configuration;
+        private readonly IDacUser _dacUser;
         private readonly RedisWrapper _redisWrapper;
 
         public LoginController(IDistributedCache distributedCache, IDacUser dacUser, IConfiguration configuration)
@@ -30,17 +30,28 @@ namespace Uarung.API.Controllers
             try
             {
                 var passwordHashed = Crypt.ToSHA256(request.Password);
-                var user = _dacUser.Single(u => u.Username.Equals(request.Username) && u.Password.Equals(passwordHashed));
+                var user = _dacUser.Single(
+                    u => u.Username.Equals(request.Username) && u.Password.Equals(passwordHashed));
 
                 if (user == null)
                     throw new Exception("username or password doesn't match");
-                
+
                 var key = Guid.NewGuid().ToString("N");
 
                 SetSessionIdCache(key, user.Id);
 
                 response.SessionId = key;
-                response.UserId = user.Id;
+                response.User = new User
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Gender = user.Gender,
+                    Name = user.Name,
+                    Role = user.Role,
+                    Username = user.Username,
+                    Phone = user.Phone
+                };
+
                 response.Status.SetSuccess();
             }
             catch (Exception e)
@@ -56,7 +67,7 @@ namespace Uarung.API.Controllers
             var ltInMinutes = TimeSpan.FromMinutes(
                 _configuration.GetValue<int>(Constant.ConfigKey.SessionIdLifeTime));
 
-            _redisWrapper.Set($"{Constant.SessionKey.RedisNamespace}:{key}", value, ltInMinutes); 
+            _redisWrapper.Set($"{Constant.SessionKey.RedisNamespace}:{key}", value, ltInMinutes);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Uarung.Model;
 using Uarung.Web.Utility;
 
@@ -40,10 +41,16 @@ namespace Uarung.Web.Controllers
 
             if (response.Status.Type.Equals(Constant.Status.TypeError))
                 return RedirectToAction("Login", new {err = response.Status.Message});
-            
+
+            var jsonUser = JsonConvert.SerializeObject(response.User);
+
             HttpContext.Session.Set(
                 Constant.SessionKey.SessionId,
                 Encoding.Default.GetBytes(response.SessionId));
+
+            HttpContext.Session.Set(
+                Constant.SessionKey.JsonUser, 
+                Encoding.Default.GetBytes(jsonUser));
 
             return RedirectToAction("Index", "Home");
 

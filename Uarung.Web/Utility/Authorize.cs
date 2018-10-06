@@ -10,18 +10,18 @@ namespace Uarung.Web.Utility
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             var session = context.HttpContext.Session;
-            
             var sessionId = GetSessionValue(Constant.SessionKey.SessionId, context.HttpContext);
+            var userJson = GetSessionValue(Constant.SessionKey.JsonUser, context.HttpContext);
 
-            if(string.IsNullOrEmpty(sessionId))
+            if (string.IsNullOrEmpty(sessionId) || string.IsNullOrEmpty(userJson))
             {
                 context.HttpContext.Response.Redirect("/Auth/Login");
-
                 return;
             }
-            
+
             session.Clear();
             session.Set(Constant.SessionKey.SessionId, Encoding.Default.GetBytes(sessionId));
+            session.Set(Constant.SessionKey.JsonUser, Encoding.Default.GetBytes(userJson));
 
             base.OnActionExecuting(context);
         }

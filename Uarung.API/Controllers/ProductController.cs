@@ -37,8 +37,7 @@ namespace Uarung.API.Controllers
             try
             {
                 var productId = GenerateId();
-                var sessionId = Request.Headers[Constant.SessionKey.SessionId];
-                var userId = GetUserId(sessionId, _redisWrapper);
+                var userId = GetUserId(Request, _redisWrapper);
 
                 var product = new Data.Entity.Product
                 {
@@ -78,7 +77,6 @@ namespace Uarung.API.Controllers
                         ? _dacProduct.All()
                         : new[] {_dacProduct.Single(id)})
                     .ToList();
-                var categories = _dacProductCategory.All();
 
                 response.Collection = products
                     .Select(p => new Product
@@ -90,9 +88,8 @@ namespace Uarung.API.Controllers
                             .Where(pi => pi.ProductId.Equals(p.Id))
                             .Select(pi => pi.Url)
                             .ToList(),
-                        CategoryName = categories
-                                           .FirstOrDefault(c => c.Id == p.CategoryId)?
-                                           .Name ?? string.Empty
+                        CategoryName = _dacProductCategory.Single(p.CategoryId)?
+                            .Name ?? string.Empty
                     })
                     .ToList();
 

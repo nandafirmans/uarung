@@ -8,6 +8,7 @@ namespace Uarung.Model
             public const string RedisNamespace = "session";
             public const string SessionId = "sessionId";
             public const string UserId = "userId";
+            public const string JsonUser = "jsonUser";
         }
 
         public static class Status
@@ -30,6 +31,25 @@ namespace Uarung.Model
         {
             public const string ErrorMessage = "ErrorMessage";
             public const string Title = "Title";
+            public const string UserName = "UserName";
+        }
+
+        public static class TransactionType
+        {
+            public const string Cash = "Cash";
+            public const string CreditOrDebit = "CreditOrDebit";
+        }
+
+        public static class TransactionStatus
+        {
+            public const string Hold = "Hold";
+            public const string Paid = "Paid";
+        }
+
+        public static class DiscountType
+        {
+            public const string Percentage = "Percentage";
+            public const string Amount = "Amount"; 
         }
     }
 }

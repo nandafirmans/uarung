@@ -1,6 +1,9 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Uarung.Model;
 using Uarung.Web.Models;
 using Uarung.Web.Utility;
 
@@ -16,6 +19,21 @@ namespace Uarung.Web.Controllers
         
         public IActionResult Index()
         {
+             var userName = string.Empty;
+
+            try
+            {
+                var jsonUser = GetSessionValue(Constant.SessionKey.JsonUser);
+
+                userName = JsonConvert.DeserializeObject<User>(jsonUser).Name;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            ViewData[Constant.ViewDataKey.UserName] = userName;
+
             return View();
         }
 

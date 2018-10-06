@@ -26,18 +26,17 @@ namespace Uarung.API.Controllers
             {
                 var users = string.IsNullOrEmpty(id)
                     ? _dacUser.All()
-                    : new [] { _dacUser.Single(id) };
+                    : new[] {_dacUser.Single(id)};
 
                 response.Collection = users
-                    .Select(u => new User()
+                    .Select(u => new User
                     {
                         Email = u.Email,
                         Username = u.Username,
-                        Password = u.Password,
                         Name = u.Name,
                         Gender = u.Gender,
                         Phone = u.Phone,
-                        Role = u.Role,
+                        Role = u.Role
                     })
                     .ToList();
 
@@ -52,7 +51,7 @@ namespace Uarung.API.Controllers
         }
 
         [HttpPut]
-        public ActionResult<BaseReponse> Update(User request)
+        public ActionResult<BaseReponse> Update(UserRequest request)
         {
             var response = new BaseReponse();
 
@@ -82,7 +81,7 @@ namespace Uarung.API.Controllers
         }
 
         [HttpPost]
-        public ActionResult<BaseReponse> Create(User request)
+        public ActionResult<BaseReponse> Create(UserRequest request)
         {
             var response = new BaseReponse();
 
@@ -135,7 +134,7 @@ namespace Uarung.API.Controllers
             }
             catch (Exception e)
             {
-                response.Status.SetError(e);    
+                response.Status.SetError(e);
             }
 
             return response;

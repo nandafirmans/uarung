@@ -19,8 +19,11 @@ namespace Uarung.API.Controllers
         public ActionResult<BaseReponse> Create(ProductCategory request)
         {
             var response = new BaseReponse();
+
             try
             {
+                CheckingCategoryName(request);
+
                 var category = new Data.Entity.ProductCategory
                 {
                     Id = GenerateId(),
@@ -28,6 +31,33 @@ namespace Uarung.API.Controllers
                 };
 
                 _dacProductCategory.Insert(category);
+                _dacProductCategory.Commit();
+
+                response.Status.SetSuccess();
+            }
+            catch (Exception e)
+            {
+                response.Status.SetError(e);
+            }
+
+            return response;
+        }
+
+        [HttpPut]
+        public ActionResult<BaseReponse> Update(ProductCategory request)
+        {
+            var response = new BaseReponse();
+
+            try
+            {
+                CheckingCategoryName(request);
+
+                var category = _dacProductCategory.Single(request.Id);
+
+                if (category.Name != request.Name)
+                    category.Name = request.Name;
+
+                _dacProductCategory.Update(category);
                 _dacProductCategory.Commit();
 
                 response.Status.SetSuccess();
@@ -52,8 +82,8 @@ namespace Uarung.API.Controllers
                         : new[] {_dacProductCategory.Single(id)})
                     .ToList();
 
-                if(!categories.Any())
-                    throw new Exception("result empty");    
+                if (!categories.Any())
+                    throw new Exception("result empty");
 
                 response.Collection = categories
                     .Select(c => new ProductCategory
@@ -74,7 +104,7 @@ namespace Uarung.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<BaseReponse> Delete(string id) 
+        public ActionResult<BaseReponse> Delete(string id)
         {
             var response = new BaseReponse();
             try
@@ -95,6 +125,14 @@ namespace Uarung.API.Controllers
             }
 
             return response;
+        }
+
+        private void CheckingCategoryName(ProductCategory request)
+        {
+            var category = _dacProductCategory.Single(c => c.Name.Equals(request.Name));
+
+            if (category != null)
+                throw new Exception("name should be unique");
         }
     }
 }

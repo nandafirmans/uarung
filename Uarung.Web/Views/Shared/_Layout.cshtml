@@ -4,12 +4,11 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Uarung.Web</title>
-
     <partial name="_ScriptHeader.cshtml"/>
     @RenderSection("ScriptHeader", false)
 </head>
 <body>
-<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0">
+<nav class="navbar navbar-dark fixed-top bg-primary flex-md-nowrap p-0">
     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Company name</a>
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
@@ -22,43 +21,39 @@
     <div class="row">
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
             <div class="sidebar-sticky">
+                @{
+                    var menus = new List<dynamic>()
+                    {
+                        new
+                        {
+                            Name = "Dashboard",
+                            FeatherIcon = "home",
+                            RoutePath = Url.Action("Index", "Home")
+                        },
+                        new
+                        {
+                            Name = "Sales Register",
+                            FeatherIcon = "shopping-cart",
+                            RoutePath = Url.Action("SalesRegister", "Transaction")
+                        },
+                        new
+                        {
+                            Name = "Product",
+                            FeatherIcon = "file",
+                            RoutePath = Url.Action("Index", "Product")
+                        },
+                    };
+                }
                 <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">
-                            <span data-feather="home"></span>
-                            Dashboard <span class="sr-only">(current)</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="file"></span>
-                            Sales Register
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Product" asp-action="Index">
-                            <span data-feather="shopping-cart"></span>
-                            Products
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="users"></span>
-                            Customers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="bar-chart-2"></span>
-                            Reports
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="layers"></span>
-                            Integrations
-                        </a>
-                    </li>
+                    @foreach (var menu in menus)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="@menu.RoutePath">
+                                <span data-feather="@menu.FeatherIcon"></span>
+                                @menu.Name
+                            </a>
+                        </li>
+                    }
                 </ul>
             </div>
         </nav>

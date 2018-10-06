@@ -12,10 +12,7 @@ namespace Uarung.Model
 
         [JsonProperty("username")]
         public string Username { get; set; }
-
-        [JsonProperty("password")]
-        public string Password { get; set; }
-
+        
         [JsonProperty("role")]
         public string Role { get; set; }
 

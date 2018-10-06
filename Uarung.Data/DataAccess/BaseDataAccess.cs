@@ -20,7 +20,7 @@ namespace Uarung.Data.DataAccess
 
         public IEnumerable<T> All()
         {
-            return _context.Set<T>().AsEnumerable();
+            return _context.Set<T>();
         }
 
         public int Count()
