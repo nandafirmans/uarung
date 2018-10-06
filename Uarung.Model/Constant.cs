@@ -29,6 +29,7 @@ namespace Uarung.Model
         public static class ViewDataKey
         {
             public const string ErrorMessage = "ErrorMessage";
+            public const string Title = "Title";
         }
     }
 }

@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - Uarung.Web</title>
 
     <partial name="_ScriptHeader.cshtml"/>
+    @RenderSection("ScriptHeader", false)
 </head>
 <body>
 <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0">
@@ -69,6 +70,6 @@
 </div>
 
 <partial name="_ScriptFooter.cshtml"/>
-@RenderSection("Scripts", false)
+@RenderSection("ScriptFooter", false)
 </body>
 </html>

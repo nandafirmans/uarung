@@ -1,7 +1,7 @@
-﻿@model List<Uarung.Model.Product>
+﻿@model List<Product>
 
 @{
-    ViewData["Title"] = "Product";
+    ViewData[Constant.ViewDataKey.Title] = "Product";
 }
 
 <div class="d-flex mb-5">
@@ -18,24 +18,37 @@
     <thead class="thead-light">
     <tr>
         <th scope="col">#</th>
-        <th scope="col">Id</th>
+        <th scope="col" style="width: 20px">Id</th>
         <th scope="col">Name</th>
         <th scope="col">Category</th>
         <th scope="col">Price</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
     @if (Model != null)
     {
-        var i = 0;
+        var i = 1;
         foreach (var product in Model)
         {
             <tr>
                 <td>@i</td>
-                <td>@product.Id</td>
+                <td>
+                    <a href="@Url.Action("Edit", new {id = product.Id})">
+                        @product.Id
+                    </a>
+                </td>
                 <td>@product.Name</td>
                 <td>@product.CategoryName</td>
                 <td>@product.Price.ToString("N0")</td>
+                <td>
+                    <form action="@Url.Action("Delete", new { id = product.Id })">
+                        <button type="submit" class="btn btn-danger btn-sm p-0 lh-0 rounded-circle">
+                            <span data-feather="x"></span>
+                        </button>
+                    </form>
+
+                </td>
             </tr>
 
             i++;

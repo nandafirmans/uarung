@@ -1,7 +1,7 @@
 ﻿@model ProductAddViewModel
 
 @{
-    ViewData["Title"] = "Add Product";
+    ViewData[Constant.ViewDataKey.Title] = "Add Product";
 }
 
 <div class="d-flex mb-5">
@@ -33,12 +33,14 @@
                 <input type="number" name="price" class="form-control" required/>
             </div>
             <div class="form-group">
-                <label>images</label>
+                <label>Images</label>
                 <input type="file" class="form-control pt-1 pl-1" name="images" accept="image/png, image/jpeg, image/jpg" multiple/>
             </div>
-            <button class="btn btn-primary" type="submit">
-                Submit
-            </button>
+            <div class="d-flex">
+                <button class="btn btn-primary ml-auto mt-1" type="submit">
+                    Submit
+                </button>
+            </div>
         </form>
     </div>
 </div>

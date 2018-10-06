@@ -1,7 +1,7 @@
-﻿@model List<Uarung.Model.ProductCategory>
+﻿@model List<ProductCategory>
 
 @{
-    ViewData["Title"] = "Product Category";
+    ViewData[Constant.ViewDataKey.Title] = "Product Category";
 }
 
 <div class="d-flex mb-5">
@@ -32,8 +32,8 @@
                 <td>@category.Name</td>
                 <td>
                     <form action="@Url.Action("DeleteCategory", "Product")/@category.Id">
-                        <button class="btn btn-danger btn-sm" type="submit">
-                            delete
+                        <button type="submit" class="btn btn-danger btn-sm p-0 lh-0 rounded-circle">
+                            <span data-feather="x"></span>
                         </button>
                     </form>
                 </td>

@@ -1,0 +1,107 @@
+﻿@model ProductEditViewModel
+
+@{
+    ViewData[Constant.ViewDataKey.Title] = "Add Product";
+
+    var apiHost = ViewData[Constant.ConfigKey.ApiHost];
+}
+
+@section ScriptHeader
+{
+    <style>
+        .list-product-image-item {
+            background-size: cover;
+            background-position: center;
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+        .list-product-image-item .btn {
+            line-height: 0;
+            position: absolute;
+            right: -8px;
+            top: -8px;
+        }
+    </style>    
+}
+
+@section ScriptFooter
+{ 
+    <script type="text/javascript">
+        $("[name='categoryId']").val($("[data-selected='true']").attr("value"));
+
+        $("[data-updatedImg-remove]").click(function () {
+            const targetField = $("[name='updatedImages']");
+            const imgPath = $(this).attr("data-updatedImg-remove");
+            const imagesVal = targetField.val();
+
+            if (imagesVal === undefined || imagesVal === null) return;
+
+            const arrImages = imagesVal.split("||")
+                .filter(function (img) { return img !== "" && img !== imgPath });
+
+            targetField.val(arrImages.join("||"));
+
+            $(this).parent("li").remove();
+        });
+    </script>
+}
+
+<div class="d-flex mb-5">
+    <h3 class="mr-auto">Add Product</h3>
+</div>
+
+<div class="row">
+    <div class="col-6">
+        <form action="@Url.Action("Update")" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="id" value="@Model.Product.Id"/>
+            <div class="form-group">
+                <label>Category</label>
+                <select class="form-control" name="categoryId" required="">
+                    <option value=""></option>
+                    @if (Model.Categories.Any())
+                    {
+                        foreach (var category in Model.Categories)
+                        {
+                            var selected = category.Name.Equals(Model.Product.CategoryName);
+
+                            <option value="@category.Id" data-selected="@(selected ? "true" : "")">
+                                @category.Name
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" class="form-control" value="@Model.Product.Name" required/>
+            </div>
+            <div class="form-group">
+                <label>Price</label>
+                <input type="number" name="price" class="form-control" value="@Model.Product.Price" required/>
+            </div>
+            <div class="form-group">
+                <label>Images</label>
+                <input type="hidden" name="updatedImages" value="@string.Join("||", Model.Product.Images)" />
+                <ul class="list-inline">
+                    
+                    @foreach (var img in Model.Product.Images)
+                    {
+                        <li class="list-inline-item list-product-image-item rounded border border-dark"
+                            style="background-image: url('@($"{apiHost}/{img}")')">
+                            <button class="btn btn-danger btn-sm rounded-circle p-0" type="button" data-updatedImg-remove="@img">
+                                <span data-feather="x"></span>
+                            </button>
+                        </li>
+                    }
+                </ul>
+                <input type="file" class="form-control pt-1 pl-1" name="images" accept="image/png, image/jpeg, image/jpg" multiple/>
+            </div>
+            <div class="d-flex">
+                <button class="btn btn-primary ml-auto mt-1" type="submit">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

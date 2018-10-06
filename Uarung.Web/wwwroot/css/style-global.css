@@ -8,6 +8,9 @@
     vertical-align: text-bottom;
 }
 
+.lh-0 {
+    line-height: 0
+}
 /*
  * Sidebar
  */

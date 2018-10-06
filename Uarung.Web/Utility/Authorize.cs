@@ -14,12 +14,14 @@ namespace Uarung.Web.Utility
             var sessionId = GetSessionValue(Constant.SessionKey.SessionId, context.HttpContext);
 
             if(string.IsNullOrEmpty(sessionId))
-                context.HttpContext.Response.Redirect("/Auth/Login");
-            else
             {
-                session.Clear();
-                session.Set(Constant.SessionKey.SessionId, Encoding.Default.GetBytes(sessionId));
+                context.HttpContext.Response.Redirect("/Auth/Login");
+
+                return;
             }
+            
+            session.Clear();
+            session.Set(Constant.SessionKey.SessionId, Encoding.Default.GetBytes(sessionId));
 
             base.OnActionExecuting(context);
         }

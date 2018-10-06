@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
@@ -13,12 +14,13 @@ namespace Uarung.API.Controllers
     public class ProductController : BaseController
     {
         private readonly IDacProduct _dacProduct;
-        private readonly IDacProductImage _dacProductImage;
         private readonly IDacProductCategory _dacProductCategory;
+        private readonly IDacProductImage _dacProductImage;
         private readonly IDacUser _dacUser;
         private readonly RedisWrapper _redisWrapper;
 
-        public ProductController(IDacProduct dacProduct, IDacUser dacUser, IDacProductImage dacProductImage, IDacProductCategory dacProductCategory, IDistributedCache distributedCache)
+        public ProductController(IDacProduct dacProduct, IDacUser dacUser, IDacProductImage dacProductImage,
+            IDacProductCategory dacProductCategory, IDistributedCache distributedCache)
         {
             _dacProduct = dacProduct;
             _dacUser = dacUser;
@@ -48,14 +50,7 @@ namespace Uarung.API.Controllers
                 };
 
                 if (request.Images.Any())
-                    product.ProductImages = request.Images
-                        .Select(i => new ProductImage
-                        {
-                            Id = GenerateId(),
-                            ProductId = productId,
-                            Url = i
-                        })
-                        .ToList();
+                    product.ProductImages = CreateProductImage(request.Images, productId);
 
                 _dacProduct.Insert(product);
                 _dacProduct.Commit();
@@ -64,6 +59,8 @@ namespace Uarung.API.Controllers
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
+
                 response.Status.SetError(e);
             }
 
@@ -94,8 +91,8 @@ namespace Uarung.API.Controllers
                             .Select(pi => pi.Url)
                             .ToList(),
                         CategoryName = categories
-                            .FirstOrDefault(c => c.Id == p.CategoryId)?
-                            .Name ?? string.Empty
+                                           .FirstOrDefault(c => c.Id == p.CategoryId)?
+                                           .Name ?? string.Empty
                     })
                     .ToList();
 
@@ -103,10 +100,95 @@ namespace Uarung.API.Controllers
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
+
                 response.Status.SetError(e);
             }
 
             return response;
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult<BaseReponse> Delete(string id)
+        {
+            var response = new BaseReponse();
+
+            try
+            {
+                var product = _dacProduct.Single(id);
+
+                if (product == null)
+                    throw new Exception("data is not exist");
+
+                _dacProduct.Delete(product);
+                _dacProduct.Commit();
+
+                response.Status.SetSuccess();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+
+                response.Status.SetError(e);
+            }
+
+            return response;
+        }
+
+        [HttpPut]
+        public ActionResult<BaseReponse> Update(ProductRequest request)
+        {
+            var response = new BaseReponse();
+
+            try
+            {
+                var product = _dacProduct.Single(request.Id);
+
+                if (product == null)
+                    throw new Exception("data is not exist");
+
+                var isImageChanges = string.Join(".", product.ProductImages.Select(p => p.Url)) != string.Join(".", request.Images);
+
+                if (request.Images.Any() && isImageChanges)
+                {
+                    _dacProductImage.DeleteWhere(p => p.ProductId.Equals(product.Id));
+                    product.ProductImages = CreateProductImage(request.Images, product.Id);
+                }
+
+                if (request.Name != product.Name)
+                    product.Name = request.Name;
+
+                if (request.CategoryId != product.CategoryId)
+                    product.CategoryId = request.CategoryId;
+
+                if(request.Price != product.Price)
+                    product.Price = request.Price;
+
+                _dacProduct.Update(product);
+                _dacProduct.Commit();
+
+                response.Status.SetSuccess();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+
+                response.Status.SetError(e);
+            }
+
+            return response;
+        }
+
+        private static List<ProductImage> CreateProductImage(IEnumerable<string> imageUrl, string productId)
+        {
+            return imageUrl
+                .Select(i => new ProductImage
+                {
+                    Id = GenerateId(),
+                    ProductId = productId,
+                    Url = i
+                })
+                .ToList();
         }
     }
 }
