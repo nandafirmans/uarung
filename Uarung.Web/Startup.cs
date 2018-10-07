@@ -38,6 +38,9 @@ namespace Uarung.Web
                 app.UseHsts();
             }
 
+            var defaultController = Configuration.GetValue<string>(Constant.ConfigKey.RouteDefaultController);
+            var defaultAction = Configuration.GetValue<string>(Constant.ConfigKey.RouteDefaultAction);
+
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseSession();
@@ -45,7 +48,7 @@ namespace Uarung.Web
             {
                 routes.MapRoute(
                     "default",
-                    "{controller=Home}/{action=Index}/{id?}");
+                    $"{{controller={defaultController}}}/{{action={defaultAction}}}/{{id?}}");
             });
         }
     }

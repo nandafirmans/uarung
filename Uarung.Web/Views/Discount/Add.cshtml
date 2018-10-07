@@ -1,0 +1,38 @@
+﻿@{
+    ViewData[Constant.ViewDataKey.Title] = "Add Discount";
+}
+
+<div class="d-flex mb-5">
+    <h3 class="mr-auto">Add Discount</h3>
+</div>
+
+<div class="row">
+    <div class="col-6">
+        <form action="@Url.Action("InsertOrUpdate")" method="POST">
+            <input type="hidden" name="mode" value="insert"/>
+            <div class="form-group">
+                <label>Code</label>
+                <input type="text" name="code" class="form-control" maxlength="20" required/>
+            </div>
+            <div class="form-group">
+                <label>Type</label>
+                <select class="form-control" name="type" required>
+                    <option value=""></option>
+                    @foreach (var t in new[] {Constant.DiscountType.Amount, Constant.DiscountType.Percentage})
+                    {
+                        <option value="@t">@t</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Value</label>
+                <input type="number" class="form-control" name="value" required/>
+            </div>
+            <div class="d-flex">
+                <button class="btn btn-primary ml-auto mt-1" type="submit">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

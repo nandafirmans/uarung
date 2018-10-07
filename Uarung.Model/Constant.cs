@@ -19,12 +19,17 @@ namespace Uarung.Model
 
         public static class ConfigKey
         {
-            public const string ApiHost = "ApiHost";
-            public const string ApiUrlLogin = "ApiUrlLogin";
-            public const string ApiUrlProduct = "ApiUrlProduct";
-            public const string ApiUrlProductCategory = "ApiUrlProductCategory";
-            public const string ApiUrlFileUpload = "ApiUrlFileUpload";
-            public const string SessionIdLifeTime = "SessionIdLifeTime";
+            public const string ApiHost = "API.Host";
+            public const string ApiUrlLogin = "API.Url.Login";
+            public const string ApiUrlProduct = "API.Url.Product";
+            public const string ApiUrlProductCategory = "API.Url.ProductCategory";
+            public const string ApiUrlDiscount = "API.Url.Discount";
+            public const string ApiUrlUser = "API.Url.User";
+            public const string ApiUrlFileUpload = "API.Url.FileUpload";
+            public const string RouteDefaultController = "Route.Default.Controller";
+            public const string RouteDefaultAction = "Route.Default.Action";
+            public const string RedisOption = "Redis.Option";
+            public const string SessionIdLifeTime = "Session.LifeTime";
         }
 
         public static class ViewDataKey
@@ -34,10 +39,11 @@ namespace Uarung.Model
             public const string UserName = "UserName";
         }
 
-        public static class TransactionType
+        public static class PaymentType
         {
             public const string Cash = "Cash";
-            public const string CreditOrDebit = "CreditOrDebit";
+            public const string Card = "Card";
+            public const string Other = "Other";
         }
 
         public static class TransactionStatus

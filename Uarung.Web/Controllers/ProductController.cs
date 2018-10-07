@@ -23,20 +23,38 @@ namespace Uarung.Web.Controllers
 
         public IActionResult Index()
         {
-            var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlProduct);
+            var response = new CollectionResponse<Product>();
 
-            var response = new Requestor(GetApiSessionIdHeader())
-                .Get<CollectionResponse<Product>>(url);
+            try
+            {
+                var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlProduct);
+                response = Requestor().Get<CollectionResponse<Product>>(url);
+
+                CheckResponse(response);
+            }
+            catch (Exception e)
+            {
+                SetErrorMessage(e);
+            }
 
             return View(response.Collection);
         }
 
         public IActionResult Add()
         {
-            var model = new ProductAddViewModel
+            var model = new ProductAddViewModel();
+
+            try
             {
-                Categories = GetCategories()
-            };
+                model = new ProductAddViewModel
+                {
+                    Categories = GetCategories()
+                };
+            }
+            catch (Exception e)
+            {
+                SetErrorMessage(e);
+            }
 
             return View(model);
         }
@@ -49,17 +67,16 @@ namespace Uarung.Web.Controllers
             try
             {
                 var url = $"{CreateServiceUrl(Constant.ConfigKey.ApiUrlProduct)}{id}";
-                var response = new Requestor(GetApiSessionIdHeader())
-                    .Get<CollectionResponse<Product>>(url);
+                var response = Requestor().Get<CollectionResponse<Product>>(url);
+
+                CheckResponse(response);
 
                 model.Categories = GetCategories();
-
-                if (response.Collection.Any())
-                    model.Product = response.Collection.FirstOrDefault();
+                model.Product = response.Collection.FirstOrDefault();
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                SetErrorMessage(e);
             }
 
             return View(model);
@@ -67,32 +84,25 @@ namespace Uarung.Web.Controllers
 
         public IActionResult Delete(string id)
         {
-            var response = new BaseReponse();
-
             try
             {
                 var url = $"{CreateServiceUrl(Constant.ConfigKey.ApiUrlProduct)}{id}";
+                var response = Requestor().Delete<BaseReponse>(url);
 
-                response = new Requestor(GetApiSessionIdHeader())
-                    .Delete<BaseReponse>(url);
+                CheckResponse(response);
 
-                if (response.Status.Type.Equals(Constant.Status.TypeError))
-                    throw new Exception(response.Status.Message);
+                return RedirectToAction("Index");
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-
-                response.Status.SetError(e.Message);
+                return RedirectToAction("Index", new { err = e.Message });
             }
-
-            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public IActionResult Insert(List<IFormFile> images, string name, string categoryId, decimal price)
         {
-            var response = new BaseReponse();
+            var requestor = Requestor();
 
             try
             {
@@ -105,34 +115,30 @@ namespace Uarung.Web.Controllers
                 };
 
                 if (images.Any())
-                {
-                    var fileResponse = UploadImages(images);
-
-                    productRequest.Images = fileResponse.ListPath
+                    productRequest.Images = UploadImages(images, requestor).ListPath
                         .Select(path => path)
                         .ToList();
-                }
 
-                response = new Requestor(GetApiSessionIdHeader())
-                    .Post<BaseReponse>(url, productRequest);
+                var response = requestor.Post<BaseReponse>(url, productRequest);
+
+                CheckResponse(response);
+
+                return RedirectToAction("Index");
             }
             catch (Exception e)
             {
-                response.Status.SetError(e);
+                return RedirectToAction("Index", new {err = e.Message});
             }
-
-            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public IActionResult Update(List<IFormFile> images, string updatedImages, string id, string name,
             string categoryId, decimal price)
         {
-            var response = new BaseReponse();
-
             try
             {
                 var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlProduct);
+                var requestor = Requestor();
 
                 var productRequest = new ProductRequest
                 {
@@ -147,7 +153,7 @@ namespace Uarung.Web.Controllers
 
                 if (images.Any())
                 {
-                    var fileResponse = UploadImages(images);
+                    var fileResponse = UploadImages(images, requestor);
 
                     if (fileResponse.ListPath.Any())
                         productRequest.Images = productRequest.Images
@@ -155,20 +161,30 @@ namespace Uarung.Web.Controllers
                             .ToList();
                 }
 
-                response = new Requestor(GetApiSessionIdHeader())
-                    .Put<BaseReponse>(url, productRequest);
+                var response = requestor.Put<BaseReponse>(url, productRequest);
+
+                CheckResponse(response);
+
+                return RedirectToAction("Index");
             }
             catch (Exception e)
             {
-                response.Status.SetError(e);
+                return RedirectToAction("Index", new { err = e.Message });
             }
-
-            return RedirectToAction("Index");
         }
 
         public IActionResult Category()
         {
-            var model = GetCategories();
+            var model = new List<ProductCategory>();
+
+            try
+            {
+                model = GetCategories();
+            }
+            catch (Exception e)
+            {
+                SetErrorMessage(e);
+            }
 
             return View(model);
         }
@@ -176,48 +192,46 @@ namespace Uarung.Web.Controllers
         [HttpPost]
         public IActionResult InsertCategory(string name)
         {
-            var response = new BaseReponse();
-
+            
             try
             {
                 var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlProductCategory);
+                var response = Requestor().Post<BaseReponse>(url, new ProductCategory { Name = name });
 
-                response = new Requestor(GetApiSessionIdHeader())
-                    .Post<BaseReponse>(url, new ProductCategory {Name = name});
+                CheckResponse(response);
+
+                return RedirectToAction("Category");
             }
             catch (Exception e)
-            {
-                response.Status.SetError(e);
+            {   
+                return RedirectToAction("Category", new { err = e.Message });
             }
-
-            return RedirectToAction("Category");
         }
 
         public IActionResult DeleteCategory(string id)
         {
-            var response = new BaseReponse();
-
             try
             {
                 var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlProductCategory);
+                var response = Requestor().Delete<BaseReponse>($"{url}{id}");
 
-                response = new Requestor(GetApiSessionIdHeader())
-                    .Delete<BaseReponse>($"{url}{id}");
+                CheckResponse(response);
+
+                return RedirectToAction("Category");
             }
             catch (Exception e)
             {
-                response.Status.SetError(e);
+                return RedirectToAction("Category", new { err = e.Message });
             }
 
-            return RedirectToAction("Category");
         }
 
         private List<ProductCategory> GetCategories()
         {
             var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlProductCategory);
+            var response = Requestor().Get<CollectionResponse<ProductCategory>>(url);
 
-            var response = new Requestor(GetApiSessionIdHeader())
-                .Get<CollectionResponse<ProductCategory>>(url);
+            CheckResponse(response);
 
             return response.Collection ?? new List<ProductCategory>();
         }
@@ -237,20 +251,18 @@ namespace Uarung.Web.Controllers
             return fileContent;
         }
 
-        private FileResponse UploadImages(IReadOnlyCollection<IFormFile> images)
+        private FileResponse UploadImages(IReadOnlyCollection<IFormFile> images, Requestor requestor)
         {
             if (!images.Any()) return new FileResponse();
 
-            using (var uploadContent = new MultipartFormDataContent())
+            using (var content = new MultipartFormDataContent())
             {
                 foreach (var image in images)
-                    uploadContent.Add(CreateFileContent(image.OpenReadStream(), image.FileName,
-                        image.ContentType));
+                    content.Add(CreateFileContent(image.OpenReadStream(), image.FileName, image.ContentType));
 
-                var uploadUrl = CreateServiceUrl(Constant.ConfigKey.ApiUrlFileUpload);
+                var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlFileUpload);
 
-                return new Requestor(GetApiSessionIdHeader())
-                    .PostContent<FileResponse>(uploadUrl, uploadContent);
+                return Requestor().PostContent<FileResponse>(url, content);
             }
         }
     }

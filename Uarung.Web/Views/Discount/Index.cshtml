@@ -1,0 +1,53 @@
+﻿@model List<Discount>
+
+@{
+    ViewData[Constant.ViewDataKey.Title] = "Discount";
+}
+
+<div class="d-flex mb-5">
+    <h3 class="mr-auto">Discount</h3>
+    <a class="btn btn-outline-primary" asp-controller="Discount" asp-action="Add">
+        Add Discount
+    </a>
+</div>
+
+<table class="table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Code</th>
+        <th scope="col">Type</th>
+        <th scope="col">Value</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (Model != null)
+    {
+        var i = 1;
+        foreach (var discount in Model)
+        {
+            <tr>
+                <td>@i</td>
+                <td>
+                    <a href="@Url.Action("Edit", new {id = discount.Code})">
+                        @discount.Code
+                    </a>
+                </td>
+                <td>@discount.Type</td>
+                <td>@discount.Value.ToString("N0")</td>
+                <td>
+                    <form action="@Url.Action("Delete", new {id = discount.Code})">
+                        <button type="submit" class="btn btn-danger btn-sm p-0 lh-0 rounded-circle">
+                            <span data-feather="x"></span>
+                        </button>
+                    </form>
+
+                </td>
+            </tr>
+
+            i++;
+        }
+    }
+    </tbody>
+</table>

@@ -8,6 +8,7 @@ using Uarung.API.Utility;
 using Uarung.Data.Contract;
 using Uarung.Data.DataAccess;
 using Uarung.Data.Provider;
+using Uarung.Model;
 
 namespace Uarung.API
 {
@@ -22,7 +23,7 @@ namespace Uarung.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var redisOption = Configuration.GetValue<string>("RedisOption");
+            var redisOption = Configuration.GetValue<string>(Constant.ConfigKey.RedisOption);
             var sqlConnectionString = Configuration.GetConnectionString("DataAccessPostgreSqlProvider");
 
             services.AddDistributedRedisCache(opt => opt.Configuration = redisOption);

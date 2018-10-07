@@ -1,11 +1,419 @@
-﻿@{
+﻿@model SalesRegisterViewModel
+
+@{
     ViewData[Constant.ViewDataKey.Title] = "Sales Register";
+    var apiHost = ViewData[Constant.ConfigKey.ApiHost];
+
+    var paymentTypes = new[]
+    {
+        Constant.PaymentType.Cash,
+        Constant.PaymentType.Card,
+        Constant.PaymentType.Other
+    };
 }
 
-<div class="d-flex mb-5">
+@section ScriptHeader
+{
+    <style>
+        .product-item .card-img-top{
+            height: 100px;
+            background-position: center;
+            background-size: cover;
+        }
+        .pointer {
+            cursor: pointer
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .modal-mask {
+            position: fixed;
+            z-index: 9998;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, .5);
+            display: table;
+            transition: opacity .3s ease;
+        }
+
+        .modal-enter {
+            opacity: 0;
+        }
+
+        .modal-leave-active {
+            opacity: 0;
+        }
+
+        .modal-enter .modal-container,
+        .modal-leave-active .modal-container {
+            -webkit-transform: scale(1.1);
+            transform: scale(1.1);
+        }
+    </style>
+}
+
+@section ScriptFooter
+{
+    <script type="text/javascript" src="~/lib/vue.js"></script>
+    <script type="text/javascript" src="~/lib/axios.min.js"></script>
+    <script type="text/javascript" src="~/lib/sweetalert.min.js"></script>
+    
+    <script type="text/x-template" id="modal-template">
+        <transition name="modal">
+            <div class="modal-mask">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header" v-if="hasHeaderSlot">
+                            <slot name="header"></slot>
+                        </div>
+                        <div class="modal-body">
+                            <slot name="body"></slot>
+                        </div>
+                        <div class="modal-footer">
+                            <slot name="footer"></slot>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </script>
+
+    <script type="text/javascript">
+        const dataCategories = JSON.parse(document.getElementById("productCategory").value);
+        const dataProducts = JSON.parse(document.getElementById("product").value);
+        const dataPaymentTypes = JSON.parse(document.getElementById("paymentType").value);
+
+        Vue.filter("toCurrency",
+            function (val) {
+                if (typeof(val) !== "number")
+                    return val;
+
+                return new Intl.NumberFormat().format(val);
+
+            });
+
+        Vue.component("modal", {
+            template: "#modal-template",
+            computed: {
+                hasHeaderSlot: function () {
+                    console.log(this.$slots.header, this.$slots);
+                    return !!this.$slots.header;
+                }
+            }
+        });
+
+        const app = new Vue({
+            el: "#salesRegister",
+            data: {
+                tabs : ["Current", "Open Bills"],
+                selectedTab: "",
+                categories: dataCategories,
+                products: dataProducts,
+                activeCategory: dataCategories[0].name,
+                selectedProducts: [],
+                searchKeyword: "",
+                discount: {
+                    code: "",
+                    type: "",
+                    value: 0,
+                    isValid: false
+                },
+                showConfirmModal: false,
+                paymentTypes: dataPaymentTypes,
+                selectedPaymentType: "",
+            },
+            methods: {
+                selectTab: function(tabName) {
+                    this.selectedTab = tabName;
+                },
+                selectCategory: function(categoryName) {
+                    this.activeCategory = categoryName;
+                },
+                selectProduct: function (product) {
+                    const isAny = this.selectedProducts
+                        .filter(function (p) { return p.product.id === product.id; })
+                        .length > 0;
+
+                    if (isAny) {
+                        const index = this.selectedProducts
+                            .map(function (p) { return p.product.id })
+                            .indexOf(product.id);
+
+                        this.selectedProducts[index].quantity += 1;
+                        return;
+                    };
+                    
+                    this.selectedProducts = this.selectedProducts
+                        .concat({
+                            product: product,
+                            quantity: 1,
+                            totalPrice: product.price
+                        });
+                },
+                removeSelectedProduct: function(index) {
+                    this.selectedProducts = this.selectedProducts
+                        .filter(function (f, i) { return i !== index });
+                },
+                clearSelectedProducts : function () {
+                    this.selectedProducts = [];
+                },
+                updateQuantity: function (event, index) {
+                    const value = parseInt(event.target.value);
+
+                    if (value <= 0 || isNaN(value)) {
+                        event.target.value = 1;
+                        return;
+                    }
+
+                    const totalPrice = this.selectedProducts[index].product.price * value;
+                    this.selectedProducts[index].quantity = value;
+                    this.selectedProducts[index].totalPrice = totalPrice;
+                },
+                setDiscount: function(discount) {
+                    if (discount === undefined) 
+                        discount = {
+                            isValid : false,
+                            code : "",
+                            type: "",
+                            value: 0,
+                        };
+                    
+                    this.discount.isValid = discount.isValid;
+                    this.discount.type = discount.type;
+                    this.discount.value = discount.value;
+                    this.discount.code = discount.code;
+                },
+                fetchDiscount: function() {
+                    const url = "@Url.Action("Get", "Discount")/" + this.discount.code;
+                    axios.get(url)
+                        .then(function(response) {
+                            console.log(response);
+                            const isOk = response.data.status.type === "Success";
+
+                            if(isOk) {
+                                const discount = response.data.collection[0];
+                                this.setDiscount(Object.assign(discount, { isValid : true}));
+                            }
+                            else 
+                                this.setDiscount(undefined);
+
+                        }.bind(this));
+                }
+            },
+            computed: {
+                filteredProducts: function () {
+                    return this.products
+                        .filter(function(p) {
+                            if (this.activeCategory === "All") return p;
+
+                            return p.categoryName === this.activeCategory;
+                        }.bind(this))
+                        .filter(function (p) {
+                            return p.name.toLowerCase().includes(this.searchKeyword.toLowerCase());
+                        }.bind(this));;
+                },
+                totalPrice: function() {
+                    if (!(this.selectedProducts.length > 0))
+                        return 0;
+
+                    return this.selectedProducts
+                        .reduce(function (currVal, sp) {
+                            return (currVal += (sp.totalPrice * sp.quantity));
+                        }, 0);
+                },
+                totalPriceWithDiscount: function() {
+                    if (this.discountValue > this.totalPrice) {
+                        swal("Sorry, discount cannot be applied", "", "warning");
+                        this.setDiscount(undefined);
+
+                        return this.totalPrice;
+                    }
+
+                    return this.totalPrice - this.discountValue;
+                },
+                discountValue: function () {
+                    if(this.discount.type === "Percentage") 
+                        return this.totalPrice * this.discount.value / 100;
+
+                    return this.discount.value;
+                },
+                isAnySelectedProducts: function() {
+                    return this.selectedProducts.length > 0;
+                },
+                isPaymentTypeSelected: function() {
+                    return this.selectedPaymentType !== "";
+                },
+                isDiscountCodeEmpty: function() {
+                    return this.discount.code === "";
+                }
+            },
+            mounted: function() {
+                this.selectTab(this.tabs[0]);
+            }
+        });
+    </script>
+}
+
+<input type="hidden" value='@Json.Serialize(Model.Categories)' id="productCategory" />
+<input type="hidden" value='@Json.Serialize(Model.Products)' id="product" />
+<input type="hidden" value='@Json.Serialize(paymentTypes)' id="paymentType" />
+
+<div class="d-flex mb-3">
     <h3 class="mr-auto">Sales Register</h3>
 </div>
 
-<div class="row">
-   
+<div class="card" id="salesRegister">
+    <div class="card-header" v-cloak>
+        <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item" v-for="(t, index) in tabs">
+                <a class="nav-link pointer" 
+                   :class="{ active : t === selectedTab }" 
+                   @@click="selectTab(tabs[index])">
+                    {{t}}
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body" v-cloak>
+        <div class="row" v-if="selectedTab === tabs[0]">
+            <div class="col">
+                <div class="form-group">
+                    <input class="form-control" type="text" placeholder="Search Product Here..." v-model="searchKeyword"/>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        <ul class="list-group">
+                            <li v-for="c in categories" 
+                                :class="{ active : c.name === activeCategory }" 
+                                @@click="selectCategory(c.name)"
+                                class="list-group-item pointer">
+                                {{c.name}}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col">
+                        <div class="row" v-if="filteredProducts.length > 0">
+                            <div class="product-item col-4 mb-4" v-for="p in filteredProducts">
+                                <div class="card pointer" :title="p.name" @@click="selectProduct(p)">
+                                    <div class="card-img-top" :style="{backgroundImage: 'url(@apiHost' + p.images[0] + ')' }"></div>
+                                    <div class="card-body pt-1 pb-1">
+                                        <p class="card-title text-truncate mb-1">{{p.name}}</p>
+                                        <p class="card-text">{{ p.price | toCurrency }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <h5 class="mt-3" v-else>
+                            There's nothing in here..
+                        </h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-5">
+                <div class="card bg-light">
+                    <div class="card-header bg-transparent border-bottom-0 d-flex">
+                        <h5 class="font-weight-normal mb-0 mr-auto">Current Sales</h5>
+                        <template v-if="isAnySelectedProducts">
+                            <button class="btn btn-outline-secondary btn-sm lh-1 align-bottom" @@click="clearSelectedProducts">
+                                Clear
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm ml-2 lh-1 align-bottom" @@click="swal('not yet implemented')">
+                                Hold
+                            </button>
+                        </template>
+                    </div>
+                    <div class="card-body">
+                        <template v-if="isAnySelectedProducts">
+                            <table class="table table-sm">
+                                <tr>
+                                    <th class="border-top-0 text-left" style="width: 170px">Item</th>
+                                    <th class="border-top-0" style="width: 70px">Quantity</th>
+                                    <th class="border-top-0">Price</th>
+                                    <th class="border-top-0" style="width: 20px"></th>
+                                </tr>
+                                <tr v-for="(sp, index) in selectedProducts">
+                                    <td class="text-left align-middle">{{ sp.product.name }}</td>
+                                    <td class="align-middle">
+                                        <input type="number"
+                                            class="form-control form-control-sm form-control-plaintext text-center"
+                                            :value="sp.quantity"
+                                            @@input="updateQuantity($event, index)"/>
+                                    </td>
+                                    <td class="align-middle">{{ sp.totalPrice | toCurrency }}</td>
+                                    <td class="align-middle">
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-sm border-0 rounded-circle btn-times-close"
+                                                @@click="removeSelectedProduct(index)">
+                                            <span>&times;</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="input-group mb-3" v-if="!discount.isValid">
+                                <input type="text" 
+                                        class="form-control form-control-sm pl-2 pr-2" 
+                                        placeholder="Apply discount code here..."
+                                        v-model="discount.code"
+                                        :class="{ 'form-control-plaintext' : isDiscountCodeEmpty }"
+                                        :readonly="discount.isValid"/>
+                                <div class="input-group-append" v-if="!isDiscountCodeEmpty">
+                                    <button type="button" 
+                                            class="btn btn-outline-primary btn-sm"
+                                            @@click="fetchDiscount">
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center border mb-3 p-2 rounded" v-else>
+                                <p class="mr-auto mb-0">
+                                    Discount ({{discount.code}})
+                                </p>
+                                <p class="mb-0 text-success">
+                                    - {{ discountValue | toCurrency }}
+                                </p>
+                                <button type="button" 
+                                    class="btn btn-outline-danger btn-sm border-0 rounded-circle btn-times-close ml-2"
+                                    @@click="setDiscount(undefined)">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                        </template>
+                        <p v-else>
+                            Please choose products...
+                        </p>
+                        <button class="btn btn-primary btn-block btn-lg" v-if="totalPrice > 0" @@click="showConfirmModal = true">
+                            Charge <span class="font-weight-bold">{{ totalPriceWithDiscount | toCurrency }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-else-if="selectedTab === tabs[1]">
+            <p>Opened Bills...</p>
+        </div>
+        <modal v-if="showConfirmModal" @@onOkClick="" @@request-close="showConfirmModal = false">
+            <h5 class="mb-0" slot="header">Payment Confirmation</h5>
+            <div class="form-group" slot="body">
+                <label>Payment Type</label>
+                <select class="form-control" v-model="selectedPaymentType">
+                    <option disabled value="">Please select one</option>
+                    <option v-for="pt in paymentTypes" value="pt">{{pt}}</option>
+                </select>
+            </div>
+            <template slot="footer">
+                <button class="btn btn-outline-secondary" @@click="showConfirmModal = false, selectedPaymentType = ''">
+                    Cancel
+                </button>
+                <button class="btn" 
+                        :class="{'btn-success' : isPaymentTypeSelected, 'btn-secondary' : !isPaymentTypeSelected}" 
+                        :disabled="!isPaymentTypeSelected">
+                    Received <span class="font-weight-bold">{{ totalPriceWithDiscount | toCurrency }}</span>
+                </button>
+            </template>
+        </modal>
+    </div>
 </div>

@@ -86,23 +86,23 @@ namespace Uarung.API.Controllers
             return response;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id=}")]
         public ActionResult<CollectionResponse<Discount>> Get(string id)
         {
             var response = new CollectionResponse<Discount>();
 
             try
             {
-                
-                var discounts = (string.IsNullOrEmpty(id)
+                var isEmpty = string.IsNullOrEmpty(id);
+                var discounts = (isEmpty
                         ? _dacDiscount.All()
                         : new[] { _dacDiscount.Single(id) })
                     .ToList();
 
-                if (!discounts.Any())
-                    throw new Exception("result empty");
+                if(!isEmpty && discounts.FirstOrDefault() == null) 
+                    throw new Exception("data not found");
 
-                response.Collection = discounts
+                response.Collection = discounts?
                     .Select(d => new Discount()
                     {
                         Code = d.Id,

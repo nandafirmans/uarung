@@ -1,4 +1,67 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Config;
+
+@{
+    var errorMessage = (string) ViewData[Constant.ViewDataKey.ErrorMessage];
+
+    var defaultController = Config.GetValue(typeof(string), Constant.ConfigKey.RouteDefaultController);
+    var defaultAction = Config.GetValue(typeof(string), Constant.ConfigKey.RouteDefaultAction);
+    var matchController = ViewContext.RouteData.Values["controller"].Equals(defaultController)
+        ? string.Empty
+        : ViewContext.RouteData.Values["controller"];
+    var matchAction = ViewContext.RouteData.Values["action"].Equals(defaultAction)
+        ? string.Empty
+        : $"/{ViewContext.RouteData.Values["action"]}";
+    var matchRoute = $"/{matchController}{matchAction}";
+
+    var menus = new List<dynamic>()
+    {
+        new
+        {
+            Name = "Dashboard",
+            FeatherIcon = "home",
+            RoutePath = Url.Action("Index", "Home")
+        },
+        new
+        {
+            Name = "Sales Register",
+            FeatherIcon = "shopping-cart",
+            RoutePath = Url.Action("SalesRegister", "Transaction")
+        },
+        new
+        {
+            Name = "Product",
+            FeatherIcon = "file",
+            RoutePath = Url.Action("Index", "Product")
+        },
+        new
+        {
+            Name = "Transaction",
+            FeatherIcon = "bar-chart-2",
+            RoutePath = Url.Action("Index", "Transaction")
+        },
+        new
+        {
+            Name = "Reports",
+            FeatherIcon = "archive",
+            RoutePath = Url.Action("Report", "Transaction")
+        },
+        new
+        {
+            Name = "Discount",
+            FeatherIcon = "percent",
+            RoutePath = Url.Action("Index", "Discount")
+        },
+        new
+        {
+            Name = "User",
+            FeatherIcon = "user",
+            RoutePath = Url.Action("Index", "User")
+        },
+    };
+}
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
@@ -21,34 +84,11 @@
     <div class="row">
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
             <div class="sidebar-sticky">
-                @{
-                    var menus = new List<dynamic>()
-                    {
-                        new
-                        {
-                            Name = "Dashboard",
-                            FeatherIcon = "home",
-                            RoutePath = Url.Action("Index", "Home")
-                        },
-                        new
-                        {
-                            Name = "Sales Register",
-                            FeatherIcon = "shopping-cart",
-                            RoutePath = Url.Action("SalesRegister", "Transaction")
-                        },
-                        new
-                        {
-                            Name = "Product",
-                            FeatherIcon = "file",
-                            RoutePath = Url.Action("Index", "Product")
-                        },
-                    };
-                }
                 <ul class="nav flex-column">
                     @foreach (var menu in menus)
                     {
                         <li class="nav-item">
-                            <a class="nav-link" href="@menu.RoutePath">
+                            <a class="nav-link @(matchRoute.Equals(menu.RoutePath) ? "active" : "")" href="@menu.RoutePath">
                                 <span data-feather="@menu.FeatherIcon"></span>
                                 @menu.Name
                             </a>
@@ -57,13 +97,37 @@
                 </ul>
             </div>
         </nav>
-
+        
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
             @RenderBody()
         </main>
     </div>
 </div>
+    
 
+
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger alert-dismissible alert-error-message d-flex align-items-center p-2 fade" id="errorAlert">
+        <span class="text-monospace">@errorMessage</span>
+        <button type="button" class="btn btn-outline-danger rounded-circle btn-times-close border-0 p-0 ml-2" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    </div>
+    <script>
+        (function(){
+            if (window.history) {
+                const removedErrQuery = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.pushState({ path: removedErrQuery }, "", removedErrQuery);
+            }
+            
+            setTimeout(function(){
+                document.getElementById("errorAlert").className += " show";
+            }, 500)
+        })();
+    </script>
+}
 <partial name="_ScriptFooter.cshtml"/>
 @RenderSection("ScriptFooter", false)
 </body>

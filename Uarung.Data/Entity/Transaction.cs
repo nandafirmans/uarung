@@ -24,6 +24,8 @@ namespace Uarung.Data.Entity
 
         public string DiscountCode { get; set; }
 
+        public string Notes { get; set; }
+
         [ForeignKey("UserId")]
         public User User { get; set; }
 

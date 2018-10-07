@@ -32,7 +32,7 @@ namespace Uarung.Web.Controllers
             try
             {
                 var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlLogin);
-                response = new Requestor().Post<LoginResponse>(url, request);
+                response = Requestor().Post<LoginResponse>(url, request);
             }
             catch (Exception e)
             {
