@@ -26,11 +26,7 @@ namespace Uarung.Web.Controllers
                 Request.Query.TryGetValue("err", out var errorMessage);
 
                 if(!string.IsNullOrEmpty(errorMessage))
-                {
                     SetErrorMessage(errorMessage);
-
-                    
-                }
             }
 
             base.OnActionExecuted(context);

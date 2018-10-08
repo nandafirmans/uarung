@@ -34,3 +34,10 @@ D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Uarung.Web.V
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Uarung.Web.csproj.CopyComplete
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Uarung.Web.dll
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Uarung.Web.pdb
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Transaction\SalesRegister.g.cshtml.cs
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Discount\Index.g.cshtml.cs
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Transaction\Index.g.cshtml.cs
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Transaction\Report.g.cshtml.cs
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\User\Index.g.cshtml.cs
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Discount\Add.g.cshtml.cs
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Discount\Edit.g.cshtml.cs
