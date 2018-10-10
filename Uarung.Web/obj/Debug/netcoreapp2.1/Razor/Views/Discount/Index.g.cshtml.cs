@@ -72,7 +72,7 @@ using Uarung.Model;
             WriteLiteral("\r\n<div class=\"d-flex mb-5\">\r\n    <h3 class=\"mr-auto\">Discount</h3>\r\n    ");
             EndContext();
             BeginContext(160, 110, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "92a6f95ff03246ec8444814ad640b467", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "c3e0ea5fd54449ec92ddce14784256fc", async() => {
                 BeginContext(238, 28, true);
                 WriteLiteral("\r\n        Add Discount\r\n    ");
                 EndContext();
@@ -173,7 +173,7 @@ WriteAttributeValue("", 745, Url.Action("Edit", new {id = discount.Code}), 745, 
             WriteLiteral("</td>\r\n                <td>\r\n                    ");
             EndContext();
             BeginContext(1023, 289, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "2ab66541e8964989b0ddc5accdc9db5d", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "1e0ab93e33ca48cd9e2f8215c2ec02f9", async() => {
                 BeginContext(1086, 219, true);
                 WriteLiteral("\r\n                        <button type=\"submit\" class=\"btn btn-danger btn-sm p-0 lh-0 rounded-circle\">\r\n                            <span data-feather=\"x\"></span>\r\n                        </button>\r\n                    ");
                 EndContext();
