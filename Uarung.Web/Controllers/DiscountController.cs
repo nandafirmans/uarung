@@ -26,7 +26,7 @@ namespace Uarung.Web.Controllers
 
                 CheckResponse(response);
 
-                model = response.Collection;
+                model = response.Collections;
             }
             catch (Exception e)
             {
@@ -51,7 +51,7 @@ namespace Uarung.Web.Controllers
 
                 CheckResponse(response);
 
-                model = response.Collection.FirstOrDefault();
+                model = response.Collections.FirstOrDefault();
             }
             catch (Exception e)
             {

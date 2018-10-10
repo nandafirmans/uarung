@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
@@ -28,12 +29,15 @@ namespace Uarung.API.Controllers
         }
 
         [HttpPost]
-        public ActionResult<BaseReponse> Create(Transaction request)
+        public ActionResult<CollectionResponse<Transaction>> Create(Transaction request)
         {
-            var response = new BaseReponse();
+            var response = new CollectionResponse<Transaction>();
 
             try
             {
+                if (!request.SelectedProducts.Any())
+                    throw new Exception("selected product cannot be empty");
+
                 var transactionId = GenerateId();
                 var userId = GetUserId(Request, _redisWrapper);
 
@@ -41,38 +45,55 @@ namespace Uarung.API.Controllers
                 {
                     Id = transactionId,
                     UserId = userId,
-                    DiscountCode = request.Discount.Code,
-                    PaymentStatus = request.PaymentStatus,
-                    PaymentType = request.PaymentType
+                    PaymentType = request.PaymentType,
+                    Notes = request.Notes,
+                    TotalPrice = 0m,
+                    PaymentStatus = request.PaymentStatus.Equals(Constant.PaymentStatus.Paid, StringComparison.OrdinalIgnoreCase)
+                        ? Constant.PaymentStatus.Paid
+                        : Constant.PaymentStatus.Hold,
                 };
 
-                if (request.SelectedProducts.Any())
+                foreach (var sp in request.SelectedProducts)
                 {
-                    var totalPrice = 0m;
+                    var product = _dacProduct.Single(sp.Product.Id);
 
-                    foreach (var sp in request.SelectedProducts)
+                    if(product == null)
+                        continue;
+
+                    var subTotal = sp.Quantity * product.Price;
+                    var selectedProduct = new SelectedProduct
                     {
-                        var subTotal = sp.Quantity * sp.Product.Price;
-                        var selectedProduct = new SelectedProduct   
-                        {
-                            Id = GenerateId(),
-                            ProductId = sp.Product.Id,
-                            TransactionId = transactionId,
-                            Notes = sp.Notes,
-                            Quantity = sp.Quantity,
-                            TotalPrice = subTotal
-                        };
+                        Id = GenerateId(),
+                        ProductId = product.Id,
+                        ProductName = product.Name,
+                        ProductPrice = product.Price,
+                        TransactionId = transactionId,
+                        Notes = sp.Notes,
+                        Quantity = sp.Quantity,
+                        TotalPrice = subTotal
+                    };
 
-                        transaction.SelectedProducts.Add(selectedProduct);
-                        totalPrice += subTotal;
-                    }
+                    transaction.SelectedProducts.Add(selectedProduct);
+                    transaction.TotalPrice += subTotal;
+                }
 
-                    transaction.TotalPrice = totalPrice;
+                var discount = _dacDiscount.Single(request.Discount.Code);
+
+                if (discount != null)
+                {
+                    var discountValue = discount.Value;
+
+                    if (discount.Type.Equals(Constant.DiscountType.Percentage))
+                        discountValue = transaction.TotalPrice * (discountValue / 100);
+                    
+                    transaction.DiscountCode = discount.Id;
+                    transaction.DiscountValue = discountValue;
                 }
 
                 _dacTransaction.Insert(transaction);
                 _dacTransaction.Commit();
 
+                response.Collections = Get(transactionId).Value.Collections;
                 response.Status.SetSuccess();
             }
             catch (Exception e)
@@ -96,10 +117,10 @@ namespace Uarung.API.Controllers
                 if (transaction == null)
                     throw new Exception("transaction does not exist");
 
-                if (transaction.PaymentStatus.Equals(Constant.TransactionStatus.Paid))
+                if (transaction.PaymentStatus.Equals(Constant.PaymentStatus.Paid))
                     throw new Exception("this transaction already paid");
 
-                transaction.PaymentStatus = Constant.TransactionStatus.Paid;
+                transaction.PaymentStatus = Constant.PaymentStatus.Paid;
 
                 _dacTransaction.Update(transaction);
                 _dacTransaction.Commit();
@@ -123,53 +144,11 @@ namespace Uarung.API.Controllers
             try
             {
                 var transactions = (string.IsNullOrEmpty(id)
-                        ? _dacTransaction.All()
-                        : new[] {_dacTransaction.Single(id)})
-                    .ToList();
+                    ? _dacTransaction.All()
+                    : new[] {_dacTransaction.Single(id)});
 
-                foreach (var t in transactions)
-                {
-                    var transaction = new Transaction
-                    {
-                        Id = t.Id,
-                        PaymentType = t.PaymentType,
-                        PaymentStatus = t.PaymentStatus,
-                        CreatedDate = t.CreatedDate,
-                        TotalPrice = t.TotalPrice,
-                        SelectedProducts = _dacSelectedProduct
-                            .Where(sp => sp.TransactionId.Equals(t.Id))
-                            .Select(sp =>
-                            {
-                                var product = _dacProduct.Single(sp.ProductId);
-
-                                return new Model.SelectedProduct
-                                {
-                                    TotalPrice = sp.TotalPrice,
-                                    Quantity = sp.Quantity,
-                                    Notes = sp.Notes,
-                                    Product = new Product
-                                    {
-                                        Id = product?.Id,
-                                        Name = product?.Name,
-                                        Price = product?.Price ?? 0
-                                    }
-                                };
-                            })
-                            .ToList()
-                    };
-
-                    var discount = _dacDiscount.Single(t.DiscountCode);
-
-                    if (discount != null)
-                        transaction.Discount = new Discount
-                        {
-                            Code = discount.Id,
-                            Type = discount.Type,
-                            Value = discount.Value
-                        };
-
-                    response.Collection.Add(transaction);
-                }
+                response.Collections = TranslateToModel(transactions);
+                response.Status.SetSuccess();
             }
             catch (Exception e)
             {
@@ -178,6 +157,61 @@ namespace Uarung.API.Controllers
             }
 
             return response;
+        }
+
+        [HttpGet("HoldOnly")]
+        public ActionResult<CollectionResponse<Transaction>> GetHoldOnly() 
+        {
+            var response = new CollectionResponse<Transaction>();
+
+            try
+            {
+                var transactions = _dacTransaction
+                    .Where(t =>  t.PaymentStatus.Equals(Constant.PaymentStatus.Hold));
+
+                response.Collections = TranslateToModel(transactions);
+                response.Status.SetSuccess();
+            }
+            catch (Exception e)
+            {
+                response.Status.SetError(e);
+            }
+
+            return response;
+        }
+
+        private List<Transaction> TranslateToModel(IEnumerable<Data.Entity.Transaction> transactions) 
+        {
+            return transactions
+                .Select(t =>  new Transaction
+                {
+                    Id = t.Id,
+                    PaymentType = t.PaymentType,
+                    PaymentStatus = t.PaymentStatus,
+                    CreatedDate = t.CreatedDate,
+                    TotalPrice = t.TotalPrice,
+                    Notes = t.Notes,
+                    Discount = new Discount() {
+                        Code = t.DiscountCode ?? string.Empty,
+                        Value = t.DiscountValue
+                    },
+                    SelectedProducts = _dacSelectedProduct
+                        .Where(sp => sp.TransactionId.Equals(t.Id))
+                        .Select(sp => new Model.SelectedProduct
+                        {
+                            TotalPrice = sp.TotalPrice,
+                            Quantity = sp.Quantity,
+                            Notes = sp.Notes,
+                            Product = new Product
+                            {
+                                Id = sp.ProductId,
+                                Name = sp.ProductName,
+                                Price = sp.ProductPrice
+                            }
+                        })
+                        .ToList()
+                })
+                .ToList();
         }
     }
 }

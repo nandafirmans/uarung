@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Uarung.Data.Provider;
@@ -9,9 +10,10 @@ using Uarung.Data.Provider;
 namespace Uarung.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20181009124247_addingTransactionNotes")]
+    partial class addingTransactionNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -114,10 +116,6 @@ namespace Uarung.API.Migrations
 
                     b.Property<string>("ProductId");
 
-                    b.Property<string>("ProductName");
-
-                    b.Property<decimal>("ProductPrice");
-
                     b.Property<int>("Quantity");
 
                     b.Property<decimal>("TotalPrice");
@@ -143,8 +141,6 @@ namespace Uarung.API.Migrations
                     b.Property<DateTime>("CreatedDate");
 
                     b.Property<string>("DiscountCode");
-
-                    b.Property<decimal>("DiscountValue");
 
                     b.Property<string>("Notes");
 

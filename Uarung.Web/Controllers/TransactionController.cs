@@ -18,7 +18,23 @@ namespace Uarung.Web.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var model = new List<Transaction>();
+
+            try
+            {
+                var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlTransaction);
+                var response = Requestor().Get<CollectionResponse<Transaction>>(url);
+
+                CheckResponse(response);
+
+                model = response.Collections;
+            }
+            catch (Exception e)
+            {
+                SetErrorMessage(e);
+            }
+
+            return View(model);
         }
 
         public IActionResult Report()
@@ -42,10 +58,10 @@ namespace Uarung.Web.Controllers
                 CheckResponse(new BaseReponse[] {responseCategory, responseProduct});
 
                 model.Categories = new List<ProductCategory> {new ProductCategory {Id = "0", Name = "All"}}
-                    .Concat(responseCategory.Collection)
+                    .Concat(responseCategory.Collections)
                     .ToList();
 
-                model.Products = responseProduct.Collection;
+                model.Products = responseProduct.Collections;
             }
             catch (Exception e)
             {
@@ -53,6 +69,42 @@ namespace Uarung.Web.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromBody]Transaction request)
+        {
+            var response = new CollectionResponse<Transaction>();
+
+            try
+            {
+                var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlTransaction);
+                response = Requestor().Post<CollectionResponse<Transaction>>(url, request);
+            }
+            catch (Exception e)
+            {
+                response.Status.SetError(e.Message);
+            }
+
+            return Json(response);
+        }
+        
+        [HttpGet]
+        public IActionResult GetHoldOnly() 
+        {
+            var response = new CollectionResponse<Transaction>();
+
+            try
+            {
+                var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlTransactionGetHold);
+                response = Requestor().Get<CollectionResponse<Transaction>>(url);
+            }
+            catch (Exception e)
+            {
+                response.Status.SetError(e.Message);
+            }
+
+            return Json(response);
         }
     }
 }

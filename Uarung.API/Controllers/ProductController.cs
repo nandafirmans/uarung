@@ -78,7 +78,7 @@ namespace Uarung.API.Controllers
                         : new[] {_dacProduct.Single(id)})
                     .ToList();
 
-                response.Collection = products
+                response.Collections = products
                     .Select(p => new Product
                     {
                         Id = p.Id,

@@ -37,7 +37,7 @@ namespace Uarung.Web.Controllers
                 SetErrorMessage(e);
             }
 
-            return View(response.Collection);
+            return View(response.Collections);
         }
 
         public IActionResult Add()
@@ -72,7 +72,7 @@ namespace Uarung.Web.Controllers
                 CheckResponse(response);
 
                 model.Categories = GetCategories();
-                model.Product = response.Collection.FirstOrDefault();
+                model.Product = response.Collections.FirstOrDefault();
             }
             catch (Exception e)
             {
@@ -233,7 +233,7 @@ namespace Uarung.Web.Controllers
 
             CheckResponse(response);
 
-            return response.Collection ?? new List<ProductCategory>();
+            return response.Collections ?? new List<ProductCategory>();
         }
 
         private static StreamContent CreateFileContent(Stream stream, string fileName, string contentType)

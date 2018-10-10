@@ -85,7 +85,7 @@ namespace Uarung.API.Controllers
                 if (!categories.Any())
                     throw new Exception("result empty");
 
-                response.Collection = categories
+                response.Collections = categories
                     .Select(c => new ProductCategory
                     {
                         Id = c.Id,

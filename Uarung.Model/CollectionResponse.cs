@@ -5,7 +5,7 @@ namespace Uarung.Model
 {
     public class CollectionResponse<T> : BaseReponse
     {
-        [JsonProperty("collection")]
-        public List<T> Collection { get; set; }
+        [JsonProperty("collections")]
+        public List<T> Collections { get; set; }
     }
 }

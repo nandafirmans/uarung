@@ -12,7 +12,7 @@ namespace Uarung.Model
             Discount = new Discount();
         }
 
-        [JsonProperty("Id")]
+        [JsonProperty("id")]
         public string Id { get; set; }
 
         [JsonProperty("createdDate")]
@@ -26,6 +26,9 @@ namespace Uarung.Model
 
         [JsonProperty("paymentStatus")]
         public string PaymentStatus { get; set; }
+
+        [JsonProperty("notes")]
+        public string Notes { get; set; }
 
         [JsonProperty("selectedProducts")]
         public List<SelectedProduct> SelectedProducts { get; set; }

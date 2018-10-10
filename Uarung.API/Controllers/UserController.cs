@@ -28,7 +28,7 @@ namespace Uarung.API.Controllers
                     ? _dacUser.All()
                     : new[] {_dacUser.Single(id)};
 
-                response.Collection = users
+                response.Collections = users
                     .Select(u => new User
                     {
                         Email = u.Email,

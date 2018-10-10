@@ -102,7 +102,7 @@ namespace Uarung.API.Controllers
                 if(!isEmpty && discounts.FirstOrDefault() == null) 
                     throw new Exception("data not found");
 
-                response.Collection = discounts?
+                response.Collections = discounts?
                     .Select(d => new Discount()
                     {
                         Code = d.Id,

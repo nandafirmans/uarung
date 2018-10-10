@@ -53,6 +53,24 @@
             -webkit-transform: scale(1.1);
             transform: scale(1.1);
         }
+
+        .loader {
+            border: 3px solid #ddd;
+            border-radius: 999px;
+            border-top: 3px solid #007bff;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% {
+                 transform: rotate(0);
+            }
+            100% {
+                 transform: rotate(360deg);
+            }
+        }
     </style>
 }
 
@@ -61,11 +79,11 @@
     <script type="text/javascript" src="~/lib/vue.js"></script>
     <script type="text/javascript" src="~/lib/axios.min.js"></script>
     <script type="text/javascript" src="~/lib/sweetalert.min.js"></script>
-    
+
     <script type="text/x-template" id="modal-template">
         <transition name="modal">
             <div class="modal-mask">
-                <div class="modal-dialog">
+                <div class="modal-dialog" :class="modalDialogCssclass">
                     <div class="modal-content">
                         <div class="modal-header" v-if="hasHeaderSlot">
                             <slot name="header"></slot>
@@ -73,7 +91,7 @@
                         <div class="modal-body">
                             <slot name="body"></slot>
                         </div>
-                        <div class="modal-footer">
+                        <div class="modal-footer" v-if="hasFooterSlot">
                             <slot name="footer"></slot>
                         </div>
                     </div>
@@ -82,10 +100,47 @@
         </transition>
     </script>
 
+    <script type="text/x-template" id="opened-bills">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="border-top-0">#</th>
+                    <th class="border-top-0">Notes</th>
+                    <th class="border-top-0">Id</th>
+                    <th class="border-top-0">Total Price</th>
+                </tr>
+            </thead>
+            <tr v-for="(t, index) in holdTransactions">
+                <td>{{index}}</td>
+                <td>{{t.notes}}</td>
+                <td>
+                    <button type="btn" class="btn btn-link btn-sm">
+                        {{t.id}}
+                    </button>
+                </td>
+                <td>{{t.totalPrice}}</td>
+            </tr>
+        </table>
+    </script>
+
     <script type="text/javascript">
         const dataCategories = JSON.parse(document.getElementById("productCategory").value);
         const dataProducts = JSON.parse(document.getElementById("product").value);
         const dataPaymentTypes = JSON.parse(document.getElementById("paymentType").value);
+
+        window.actionUrl = {
+            getDiscount : "@Url.Action("Get", "Discount")",
+            createTransaction : "@Url.Action("Create", "Transaction")",
+            getTransactionHold : "@Url.Action("GetHoldOnly", "Transaction")"
+        }
+
+        function axiosCatch(err) {
+            const errorMessage = typeof (err) === "string"
+                ? err
+                : "sorry, some error occured";
+
+            swal(errorMessage, "", "warning");
+        }
 
         Vue.filter("toCurrency",
             function (val) {
@@ -96,12 +151,20 @@
 
             });
 
+        Vue.component("opened-bills", {
+            template: "#opened-bills",
+            props: ["holdTransactions"],
+        });
+
         Vue.component("modal", {
             template: "#modal-template",
+            props : ["modalDialogCssclass"],
             computed: {
                 hasHeaderSlot: function () {
-                    console.log(this.$slots.header, this.$slots);
                     return !!this.$slots.header;
+                },
+                hasFooterSlot: function() {
+                    return !!this.$slots.footer;
                 }
             }
         });
@@ -110,12 +173,15 @@
             el: "#salesRegister",
             data: {
                 tabs : ["Current", "Open Bills"],
-                selectedTab: "",
                 categories: dataCategories,
                 products: dataProducts,
+                paymentTypes: dataPaymentTypes,
+                holdTransactions: [],
                 activeCategory: dataCategories[0].name,
+                selectedTab: "",
                 selectedProducts: [],
                 searchKeyword: "",
+                selectedPaymentType: "",
                 discount: {
                     code: "",
                     type: "",
@@ -123,8 +189,7 @@
                     isValid: false
                 },
                 showConfirmModal: false,
-                paymentTypes: dataPaymentTypes,
-                selectedPaymentType: "",
+                showLoadingModal : false
             },
             methods: {
                 selectTab: function(tabName) {
@@ -144,15 +209,17 @@
                             .indexOf(product.id);
 
                         this.selectedProducts[index].quantity += 1;
-                        return;
-                    };
-                    
-                    this.selectedProducts = this.selectedProducts
-                        .concat({
-                            product: product,
-                            quantity: 1,
-                            totalPrice: product.price
-                        });
+                        this.onQuantityUpdate(index);
+                    } else {
+                        this.selectedProducts = this.selectedProducts
+                            .concat({
+                                product: product,
+                                quantity: 1,
+                                notes: null,
+                                showNotes: false,
+                                totalPrice: product.price
+                            });
+                    }
                 },
                 removeSelectedProduct: function(index) {
                     this.selectedProducts = this.selectedProducts
@@ -161,16 +228,15 @@
                 clearSelectedProducts : function () {
                     this.selectedProducts = [];
                 },
-                updateQuantity: function (event, index) {
-                    const value = parseInt(event.target.value);
+                onQuantityUpdate: function (index) {
+                    const value = this.selectedProducts[index].quantity;
 
-                    if (value <= 0 || isNaN(value)) {
-                        event.target.value = 1;
-                        return;
-                    }
+                    if (value <= 0 || isNaN(value))
+                        this.selectedProducts[index].quantity = 1;
+                    else if (value > 50)
+                        this.selectedProducts[index].quantity = 50;
 
-                    const totalPrice = this.selectedProducts[index].product.price * value;
-                    this.selectedProducts[index].quantity = value;
+                    const totalPrice = this.selectedProducts[index].product.price * this.selectedProducts[index].quantity;
                     this.selectedProducts[index].totalPrice = totalPrice;
                 },
                 setDiscount: function(discount) {
@@ -188,20 +254,69 @@
                     this.discount.code = discount.code;
                 },
                 fetchDiscount: function() {
-                    const url = "@Url.Action("Get", "Discount")/" + this.discount.code;
+                    const url = window.actionUrl.getDiscount + "/" + this.discount.code;
+
                     axios.get(url)
                         .then(function(response) {
                             console.log(response);
                             const isOk = response.data.status.type === "Success";
 
                             if(isOk) {
-                                const discount = response.data.collection[0];
+                                const discount = response.data.collections[0];
                                 this.setDiscount(Object.assign(discount, { isValid : true}));
                             }
                             else 
                                 this.setDiscount(undefined);
 
                         }.bind(this));
+                },
+                fetchHoldTransaction: function() {
+                    axios
+                        .get(window.actionUrl.getTransactionHold)
+                        .then(function(response) {
+                            const data = response.data;
+
+                            if (data.status.type === "Error")
+                                throw data.status.message;
+
+                            this.holdTransactions = data.collections;
+                        }.bind(this))
+                        .catch(axiosCatch);
+                },
+                submitTransaction: function (paymentStatus) {
+                    this.showConfirmModal = false;
+                    this.showLoadingModal = true;
+                    const self = this;
+                    const url = window.actionUrl.createTransaction;
+
+                    const request = {
+                        paymentStatus: paymentStatus,
+                        paymentType: this.selectedPaymentType,
+                        selectedProducts: this.selectedProducts
+                            .map(function(sp) {
+                                return {
+                                    quantity: sp.quantity,
+                                    notes: sp.notes,
+                                    product: {
+                                        id: sp.product.id
+                                    }
+                                }
+                            }),
+                        discount: {
+                            code: this.discount.code
+                        }
+                    };
+                    
+                    axios
+                        .post(url, request)
+                        .then(function(response) {
+                            const data = response.data;
+                            self.showLoadingModal = false;
+
+                            if (data.status.type === "Error")
+                                throw data.status.message;   
+                        })
+                        .catch(axiosCatch);
                 }
             },
             computed: {
@@ -221,9 +336,7 @@
                         return 0;
 
                     return this.selectedProducts
-                        .reduce(function (currVal, sp) {
-                            return (currVal += (sp.totalPrice * sp.quantity));
-                        }, 0);
+                        .reduce(function (currVal, sp) {return currVal += sp.totalPrice}, 0);
                 },
                 totalPriceWithDiscount: function() {
                     if (this.discountValue > this.totalPrice) {
@@ -253,6 +366,7 @@
             },
             mounted: function() {
                 this.selectTab(this.tabs[0]);
+                this.fetchHoldTransaction();
             }
         });
     </script>
@@ -266,7 +380,7 @@
     <h3 class="mr-auto">Sales Register</h3>
 </div>
 
-<div class="card" id="salesRegister">
+<div class="card mb-4" id="salesRegister">
     <div class="card-header" v-cloak>
         <ul class="nav nav-tabs card-header-tabs">
             <li class="nav-item" v-for="(t, index) in tabs">
@@ -333,25 +447,51 @@
                                     <th class="border-top-0 text-left" style="width: 170px">Item</th>
                                     <th class="border-top-0" style="width: 70px">Quantity</th>
                                     <th class="border-top-0">Price</th>
-                                    <th class="border-top-0" style="width: 20px"></th>
+                                    <th class="border-top-0" style="width: 64px"></th>
                                 </tr>
-                                <tr v-for="(sp, index) in selectedProducts">
-                                    <td class="text-left align-middle">{{ sp.product.name }}</td>
-                                    <td class="align-middle">
-                                        <input type="number"
-                                            class="form-control form-control-sm form-control-plaintext text-center"
-                                            :value="sp.quantity"
-                                            @@input="updateQuantity($event, index)"/>
-                                    </td>
-                                    <td class="align-middle">{{ sp.totalPrice | toCurrency }}</td>
-                                    <td class="align-middle">
-                                        <button type="button"
-                                                class="btn btn-outline-danger btn-sm border-0 rounded-circle btn-times-close"
-                                                @@click="removeSelectedProduct(index)">
-                                            <span>&times;</span>
-                                        </button>
-                                    </td>
-                                </tr>
+                                <template v-for="(sp, index) in selectedProducts">
+                                    <tr>
+                                        <td class="text-left align-middle">{{ sp.product.name }}</td>
+                                        <td class="align-middle">
+                                            <input type="number"
+                                                   class="form-control form-control-sm form-control-plaintext text-center"
+                                                   @@input="onQuantityUpdate(index)"
+                                                   v-model.number="sp.quantity"/>
+                                        </td>
+                                        <td class="align-middle">{{ sp.totalPrice | toCurrency }}</td>
+                                        <td class="align-middle">
+                                            <button type="button"
+                                                    title="add notes"
+                                                    class="btn btn-sm btn-outline-secondary border-0 lh-0 p-1 rounded-circle"
+                                                    @@click="sp.showNotes = !sp.showNotes">
+                                                <svg v-if="!sp.showNotes" xmlns="http://www.w3.org/2000/svg"width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                     class="feather feather-edit-2 sc-dnqmqq jxshSx">
+                                                    <polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon>
+                                                </svg>
+                                                <svg v-else-if="sp.showNotes" class="feather feather-edit sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
+                                                    <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
+                                                </svg>
+                                            </button>
+                                            <button type="button"
+                                                    title="remove"
+                                                    class="btn btn-outline-danger btn-sm border-0 rounded-circle lh-0 p-1"
+                                                    @@click="removeSelectedProduct(index)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="sp.showNotes">
+                                        <td colspan="4" class="border-top-0">
+                                            <input type="text" 
+                                                   class="form-control form-control-sm"
+                                                   v-model="sp.notes"/>
+                                        </td>
+                                    </tr>
+                                </template>
                             </table>
                             <div class="input-group mb-3" v-if="!discount.isValid">
                                 <input type="text" 
@@ -393,15 +533,23 @@
             </div>
         </div>
         <div v-else-if="selectedTab === tabs[1]">
-            <p>Opened Bills...</p>
+            <opened-bills :hold-transactions="holdTransactions"></opened-bills>
         </div>
+        <modal v-if="showLoadingModal" modal-dialog-cssclass="modal-sm">
+            <div slot="body" class="d-flex justify-content-center align-items-center">
+                <div class="loader"></div>
+                <h5 class="font-weight-bold mb-0 text-black-50 ml-2">
+                    Loading...
+                </h5>
+            </div>
+        </modal>
         <modal v-if="showConfirmModal" @@onOkClick="" @@request-close="showConfirmModal = false">
             <h5 class="mb-0" slot="header">Payment Confirmation</h5>
             <div class="form-group" slot="body">
                 <label>Payment Type</label>
                 <select class="form-control" v-model="selectedPaymentType">
                     <option disabled value="">Please select one</option>
-                    <option v-for="pt in paymentTypes" value="pt">{{pt}}</option>
+                    <option v-for="pt in paymentTypes" :value="pt">{{pt}}</option>
                 </select>
             </div>
             <template slot="footer">
@@ -409,6 +557,7 @@
                     Cancel
                 </button>
                 <button class="btn" 
+                        @@click="submitTransaction('@Constant.PaymentStatus.Paid')"
                         :class="{'btn-success' : isPaymentTypeSelected, 'btn-secondary' : !isPaymentTypeSelected}" 
                         :disabled="!isPaymentTypeSelected">
                     Received <span class="font-weight-bold">{{ totalPriceWithDiscount | toCurrency }}</span>

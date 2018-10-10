@@ -1,7 +1,48 @@
-﻿@{
+﻿@model List<Transaction>
+
+@{
     ViewData[Constant.ViewDataKey.Title] = "Transaction";
 }
 
 <div class="d-flex mb-5">
     <h3 class="mr-auto">Transaction</h3>
+    <a class="btn btn-outline-primary" asp-controller="Transaction" asp-action="SalesRegister">
+        Add Transaction
+    </a>
 </div>
+
+<table class="table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col" style="width: 20px">Id</th>
+        <th scope="col">Payment Status</th>
+        <th scope="col">Payment Type</th>
+        <th scope="col">Created Date</th>
+        <th scope="col">Total Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (Model != null)
+    {
+        var i = 1;
+        foreach (var transaction in Model)
+        {
+            <tr>
+                <td>@i</td>
+                <td>
+                    <a href="@Url.Action("Detail", new {id = transaction.Id})">
+                        @transaction.Id
+                    </a>
+                </td>
+                <td>@transaction.PaymentStatus</td>
+                <td>@transaction.PaymentType</td>
+                <td>@transaction.CreatedDate.ToString("dddd, dd-MM-yyyy HH:mm")</td>
+                <td>@transaction.TotalPrice.ToString("N0")</td>
+            </tr>
+
+            i++;
+        }
+    }
+    </tbody>
+</table>
