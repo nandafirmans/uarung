@@ -45,50 +45,20 @@ namespace Uarung.API.Controllers
                 {
                     Id = transactionId,
                     UserId = userId,
-                    PaymentType = request.PaymentType,
+                    PaymentType = ValidatePaymentType(request.PaymentType),
                     Notes = request.Notes,
                     TotalPrice = 0m,
-                    PaymentStatus = request.PaymentStatus.Equals(Constant.PaymentStatus.Paid, StringComparison.OrdinalIgnoreCase)
-                        ? Constant.PaymentStatus.Paid
-                        : Constant.PaymentStatus.Hold,
+                    PaymentStatus =
+                        request.PaymentStatus.Equals(Constant.PaymentStatus.Paid, StringComparison.OrdinalIgnoreCase)
+                            ? Constant.PaymentStatus.Paid
+                            : Constant.PaymentStatus.Hold
                 };
 
-                foreach (var sp in request.SelectedProducts)
-                {
-                    var product = _dacProduct.Single(sp.Product.Id);
+                transaction.SelectedProducts = FillSelectedProducts(request.SelectedProducts, transactionId, out var totalPrice);
+                transaction.TotalPrice = totalPrice;
 
-                    if(product == null)
-                        continue;
-
-                    var subTotal = sp.Quantity * product.Price;
-                    var selectedProduct = new SelectedProduct
-                    {
-                        Id = GenerateId(),
-                        ProductId = product.Id,
-                        ProductName = product.Name,
-                        ProductPrice = product.Price,
-                        TransactionId = transactionId,
-                        Notes = sp.Notes,
-                        Quantity = sp.Quantity,
-                        TotalPrice = subTotal
-                    };
-
-                    transaction.SelectedProducts.Add(selectedProduct);
-                    transaction.TotalPrice += subTotal;
-                }
-
-                var discount = _dacDiscount.Single(request.Discount.Code);
-
-                if (discount != null)
-                {
-                    var discountValue = discount.Value;
-
-                    if (discount.Type.Equals(Constant.DiscountType.Percentage))
-                        discountValue = transaction.TotalPrice * (discountValue / 100);
-                    
-                    transaction.DiscountCode = discount.Id;
-                    transaction.DiscountValue = discountValue;
-                }
+                transaction.DiscountCode = FillDiscount(request.Discount.Code, totalPrice, out var discountValue);
+                transaction.DiscountValue = discountValue;
 
                 _dacTransaction.Insert(transaction);
                 _dacTransaction.Commit();
@@ -106,13 +76,13 @@ namespace Uarung.API.Controllers
         }
 
         [HttpPost("Paid")]
-        public ActionResult<BaseReponse> Paid([FromBody] string id)
+        public ActionResult<BaseReponse> Paid(Transaction request)
         {
             var response = new BaseReponse();
 
             try
             {
-                var transaction = _dacTransaction.Single(id);
+                var transaction = _dacTransaction.Single(request.Id);
 
                 if (transaction == null)
                     throw new Exception("transaction does not exist");
@@ -121,6 +91,21 @@ namespace Uarung.API.Controllers
                     throw new Exception("this transaction already paid");
 
                 transaction.PaymentStatus = Constant.PaymentStatus.Paid;
+                transaction.PaymentType = ValidatePaymentType(request.PaymentType);
+
+                if (transaction.TotalPrice != request.TotalPrice && request.SelectedProducts.Any())
+                {
+                    _dacSelectedProduct.DeleteWhere(sp => sp.TransactionId.Equals(transaction.Id));
+
+                    transaction.SelectedProducts = FillSelectedProducts(request.SelectedProducts, transaction.Id, out var totalPrice);
+                    transaction.TotalPrice = totalPrice;
+                }
+
+                if (transaction.DiscountCode != request.Discount.Code && !string.IsNullOrEmpty(transaction.DiscountCode))
+                {
+                    transaction.DiscountCode = FillDiscount(request.Discount.Code, transaction.TotalPrice, out var discountValue);
+                    transaction.DiscountValue = discountValue;
+                }
 
                 _dacTransaction.Update(transaction);
                 _dacTransaction.Commit();
@@ -143,9 +128,9 @@ namespace Uarung.API.Controllers
 
             try
             {
-                var transactions = (string.IsNullOrEmpty(id)
+                var transactions = string.IsNullOrEmpty(id)
                     ? _dacTransaction.All()
-                    : new[] {_dacTransaction.Single(id)});
+                    : new[] {_dacTransaction.Single(id)};
 
                 response.Collections = TranslateToModel(transactions);
                 response.Status.SetSuccess();
@@ -160,14 +145,14 @@ namespace Uarung.API.Controllers
         }
 
         [HttpGet("HoldOnly")]
-        public ActionResult<CollectionResponse<Transaction>> GetHoldOnly() 
+        public ActionResult<CollectionResponse<Transaction>> GetHoldOnly()
         {
             var response = new CollectionResponse<Transaction>();
 
             try
             {
                 var transactions = _dacTransaction
-                    .Where(t =>  t.PaymentStatus.Equals(Constant.PaymentStatus.Hold));
+                    .Where(t => t.PaymentStatus.Equals(Constant.PaymentStatus.Hold));
 
                 response.Collections = TranslateToModel(transactions);
                 response.Status.SetSuccess();
@@ -180,10 +165,71 @@ namespace Uarung.API.Controllers
             return response;
         }
 
-        private List<Transaction> TranslateToModel(IEnumerable<Data.Entity.Transaction> transactions) 
+        private List<SelectedProduct> FillSelectedProducts(IEnumerable<Model.SelectedProduct> request,
+            string transactionId, out decimal totalPrice)
+        {
+            var result = new List<SelectedProduct>();
+            totalPrice = 0;
+
+            foreach (var sp in request)
+            {
+                var product = _dacProduct.Single(sp.Product.Id);
+
+                if (product == null)
+                    continue;
+
+                var subTotal = sp.Quantity * product.Price;
+                var selectedProduct = new SelectedProduct
+                {
+                    Id = GenerateId(),
+                    ProductId = product.Id,
+                    ProductName = product.Name,
+                    ProductPrice = product.Price,
+                    TransactionId = transactionId,
+                    Notes = sp.Notes,
+                    Quantity = sp.Quantity,
+                    TotalPrice = subTotal
+                };
+
+                result.Add(selectedProduct);
+                totalPrice += subTotal;
+            }
+
+            return result;
+        }
+
+        private string FillDiscount(string discountCode, decimal totalPrice, out decimal discountValue)
+        {
+            var discount = _dacDiscount.Single(discountCode);
+            discountValue = discount?.Value ?? 0;
+
+            if (discount == null) return null;
+            
+            if (discount.Type.Equals(Constant.DiscountType.Percentage))
+                discountValue = totalPrice * (discountValue / 100);
+
+            return discount.Id;
+        }
+
+        private static string ValidatePaymentType(string paymentType)
+        {
+            var paymentTypes = new[]
+            {
+                Constant.PaymentType.Card,
+                Constant.PaymentType.Cash,
+                Constant.PaymentType.Other
+            };
+
+            if (!paymentTypes.Contains(paymentType))
+                throw new Exception("Payment type not valid");
+
+            return paymentType;
+        }
+
+        private List<Transaction> TranslateToModel(IEnumerable<Data.Entity.Transaction> transactions)
         {
             return transactions
-                .Select(t =>  new Transaction
+                .Select(t => new Transaction
                 {
                     Id = t.Id,
                     PaymentType = t.PaymentType,
@@ -191,7 +237,8 @@ namespace Uarung.API.Controllers
                     CreatedDate = t.CreatedDate,
                     TotalPrice = t.TotalPrice,
                     Notes = t.Notes,
-                    Discount = new Discount() {
+                    Discount = new Discount
+                    {
                         Code = t.DiscountCode ?? string.Empty,
                         Value = t.DiscountValue
                     },

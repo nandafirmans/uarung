@@ -54,6 +54,11 @@
             transform: scale(1.1);
         }
 
+        .loading-modal .modal-header, 
+        .loading-modal .modal-footer {
+            display: none;
+        }
+
         .loader {
             border: 3px solid #ddd;
             border-radius: 999px;
@@ -118,7 +123,7 @@
                         {{t.id}}
                     </button>
                 </td>
-                <td>{{t.totalPrice}}</td>
+                <td>{{t.totalPrice | toCurrency}}</td>
             </tr>
         </table>
     </script>
@@ -179,17 +184,19 @@
                 holdTransactions: [],
                 activeCategory: dataCategories[0].name,
                 selectedTab: "",
-                selectedProducts: [],
                 searchKeyword: "",
+                selectedProducts: [],
                 selectedPaymentType: "",
+                transactionNotes: "",
                 discount: {
                     code: "",
                     type: "",
                     value: 0,
                     isValid: false
                 },
+                isPayment: true,
                 showConfirmModal: false,
-                showLoadingModal : false
+                showLoadingModal: false
             },
             methods: {
                 selectTab: function(tabName) {
@@ -253,12 +260,13 @@
                     this.discount.value = discount.value;
                     this.discount.code = discount.code;
                 },
-                fetchDiscount: function() {
+                fetchDiscount: function () {
+                    this.showLoadingModal = true;
                     const url = window.actionUrl.getDiscount + "/" + this.discount.code;
 
                     axios.get(url)
                         .then(function(response) {
-                            console.log(response);
+                            this.showLoadingModal = false;
                             const isOk = response.data.status.type === "Success";
 
                             if(isOk) {
@@ -283,11 +291,13 @@
                         }.bind(this))
                         .catch(axiosCatch);
                 },
-                submitTransaction: function (paymentStatus) {
+                submitTransaction: function () {
                     this.showConfirmModal = false;
                     this.showLoadingModal = true;
-                    const self = this;
                     const url = window.actionUrl.createTransaction;
+                    const paymentStatus = this.isPayment
+                        ? "@Constant.PaymentStatus.Paid"
+                        : "@Constant.PaymentStatus.Hold";
 
                     const request = {
                         paymentStatus: paymentStatus,
@@ -304,19 +314,31 @@
                             }),
                         discount: {
                             code: this.discount.code
-                        }
+                        },
+                        notes: this.transactionNotes
                     };
                     
                     axios
                         .post(url, request)
                         .then(function(response) {
                             const data = response.data;
-                            self.showLoadingModal = false;
+                            this.showLoadingModal = false;
+                            this.clearAll();
 
                             if (data.status.type === "Error")
-                                throw data.status.message;   
-                        })
+                                throw data.status.message;
+
+                            if (!this.isPayment)
+                                this.fetchHoldTransaction();
+
+                        }.bind(this))
                         .catch(axiosCatch);
+                },
+                clearAll: function() {
+                    this.clearSelectedProducts();
+                    this.setDiscount(undefined);
+                    this.selectedPaymentType = "";
+                    this.transactionNotes = "";
                 }
             },
             computed: {
@@ -357,8 +379,10 @@
                 isAnySelectedProducts: function() {
                     return this.selectedProducts.length > 0;
                 },
-                isPaymentTypeSelected: function() {
-                    return this.selectedPaymentType !== "";
+                isAllowSubmit: function() {
+                    return this.isPayment
+                        ? this.selectedPaymentType !== ""
+                        : this.transactionNotes !== "";
                 },
                 isDiscountCodeEmpty: function() {
                     return this.discount.code === "";
@@ -432,10 +456,12 @@
                     <div class="card-header bg-transparent border-bottom-0 d-flex">
                         <h5 class="font-weight-normal mb-0 mr-auto">Current Sales</h5>
                         <template v-if="isAnySelectedProducts">
-                            <button class="btn btn-outline-secondary btn-sm lh-1 align-bottom" @@click="clearSelectedProducts">
+                            <button class="btn btn-outline-secondary btn-sm lh-1 align-bottom" 
+                                    @@click="clearSelectedProducts">
                                 Clear
                             </button>
-                            <button class="btn btn-outline-secondary btn-sm ml-2 lh-1 align-bottom" @@click="swal('not yet implemented')">
+                            <button class="btn btn-outline-secondary btn-sm ml-2 lh-1 align-bottom" 
+                                    @@click="showConfirmModal = true,isPayment = false">
                                 Hold
                             </button>
                         </template>
@@ -525,7 +551,7 @@
                         <p v-else>
                             Please choose products...
                         </p>
-                        <button class="btn btn-primary btn-block btn-lg" v-if="totalPrice > 0" @@click="showConfirmModal = true">
+                        <button class="btn btn-primary btn-block btn-lg" v-if="totalPrice > 0" @@click="showConfirmModal = true,isPayment = true">
                             Charge <span class="font-weight-bold">{{ totalPriceWithDiscount | toCurrency }}</span>
                         </button>
                     </div>
@@ -535,7 +561,7 @@
         <div v-else-if="selectedTab === tabs[1]">
             <opened-bills :hold-transactions="holdTransactions"></opened-bills>
         </div>
-        <modal v-if="showLoadingModal" modal-dialog-cssclass="modal-sm">
+        <modal v-if="showLoadingModal" modal-dialog-cssclass="modal-sm loading-modal">
             <div slot="body" class="d-flex justify-content-center align-items-center">
                 <div class="loader"></div>
                 <h5 class="font-weight-bold mb-0 text-black-50 ml-2">
@@ -544,23 +570,38 @@
             </div>
         </modal>
         <modal v-if="showConfirmModal" @@onOkClick="" @@request-close="showConfirmModal = false">
-            <h5 class="mb-0" slot="header">Payment Confirmation</h5>
-            <div class="form-group" slot="body">
-                <label>Payment Type</label>
-                <select class="form-control" v-model="selectedPaymentType">
-                    <option disabled value="">Please select one</option>
-                    <option v-for="pt in paymentTypes" :value="pt">{{pt}}</option>
-                </select>
-            </div>
+            <template v-if="isPayment">
+                <h5 class="mb-0" slot="header">Payment Confirmation</h5>
+                <div class="form-group" slot="body">
+                    <label>Payment Type</label>
+                    <select class="form-control" v-model="selectedPaymentType">
+                        <option disabled value="">Please select one</option>
+                        <option v-for="pt in paymentTypes" :value="pt">{{pt}}</option>
+                    </select>
+                </div>
+            </template>
+            <template v-else>
+                <h5 class="mb-0" slot="header">Hold Transaction</h5>
+                <div class="form-group" slot="body">
+                    <label>Notes</label>
+                    <input type="text" class="form-control" v-model="transactionNotes"/>
+                </div>
+            </template>
             <template slot="footer">
-                <button class="btn btn-outline-secondary" @@click="showConfirmModal = false, selectedPaymentType = ''">
+                <button class="btn btn-outline-secondary" 
+                        @@click="showConfirmModal = false, selectedPaymentType = '', transactionNotes = ''">
                     Cancel
                 </button>
-                <button class="btn" 
-                        @@click="submitTransaction('@Constant.PaymentStatus.Paid')"
-                        :class="{'btn-success' : isPaymentTypeSelected, 'btn-secondary' : !isPaymentTypeSelected}" 
-                        :disabled="!isPaymentTypeSelected">
-                    Received <span class="font-weight-bold">{{ totalPriceWithDiscount | toCurrency }}</span>
+                <button class="btn"
+                        @@click="submitTransaction()"
+                        :class="{'btn-success' : isAllowSubmit, 'btn-secondary' : !isAllowSubmit}"
+                        :disabled="!isAllowSubmit">
+                    <template v-if="isPayment">
+                        Received <span class="font-weight-bold">{{ totalPriceWithDiscount | toCurrency }}</span>
+                    </template>
+                    <template v-else>
+                        Submit
+                    </template>
                 </button>
             </template>
         </modal>
