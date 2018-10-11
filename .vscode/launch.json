@@ -39,7 +39,7 @@
             "name": "Uarung.WEB",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "build Uarung.Web",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/Uarung.Web/bin/Debug/netcoreapp2.1/Uarung.Web.dll",
             "args": [],

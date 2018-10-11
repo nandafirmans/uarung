@@ -41,3 +41,4 @@ D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\User\Index.g.cshtml.cs
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Discount\Add.g.cshtml.cs
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Discount\Edit.g.cshtml.cs
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Transaction\Print.g.cshtml.cs
