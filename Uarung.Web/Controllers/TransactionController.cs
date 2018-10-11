@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
 using Uarung.Model;
 using Uarung.Web.Models;
@@ -29,6 +28,29 @@ namespace Uarung.Web.Controllers
                 CheckResponse(response);
 
                 model = response.Collections;
+            }
+            catch (Exception e)
+            {
+                SetErrorMessage(e);
+            }
+
+            return View(model);
+        }
+
+        public IActionResult Detail(string id)
+        {
+            var model = new TransactionDetailViewModel();
+
+            try
+            {
+                model.Transaction = FetchTransaction(id).Collections.FirstOrDefault();
+
+                var urlGetUser = $"{CreateServiceUrl(Constant.ConfigKey.ApiUrlUser)}{model.Transaction?.CreatedById}";
+                var responseGetUser = Requestor().Get<CollectionResponse<User>>(urlGetUser);
+
+                CheckResponse(responseGetUser);
+
+                model.User = responseGetUser.Collections.FirstOrDefault();
             }
             catch (Exception e)
             {

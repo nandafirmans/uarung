@@ -12,7 +12,6 @@ namespace Uarung.Web.Models
         }
 
         public List<Product> Products { get; set; }
-
         public List<ProductCategory> Categories { get; set; }
     }
 }

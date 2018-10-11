@@ -271,6 +271,7 @@ namespace Uarung.API.Controllers
                     PaymentType = t.PaymentType,
                     PaymentStatus = t.PaymentStatus,
                     CreatedDate = t.CreatedDate,
+                    CreatedById = t.UserId,
                     TotalPrice = t.TotalPrice,
                     Notes = t.Notes,
                     Discount = new Discount

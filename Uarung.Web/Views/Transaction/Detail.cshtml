@@ -1,0 +1,108 @@
+﻿@model TransactionDetailViewModel;
+@{
+    ViewData[Constant.ViewDataKey.Title] = $"Detail Transaction - {Model.Transaction.Id}";
+    var isPaid = Model.Transaction.PaymentStatus.Equals(Constant.PaymentStatus.Paid);
+    var priceWithDiscount = Model.Transaction.TotalPrice - Model.Transaction.Discount.Value;
+    var isDiscount = Model.Transaction.Discount.Value > 0;
+    var urlPrint = Url.Action("Print", new {id = Model.Transaction.Id});
+    var paymentType = Model.Transaction.PaymentType == Constant.PaymentType.Card 
+        ? "Debit/Credit Card" 
+        : Model.Transaction.PaymentType == string.Empty 
+            ? "-"
+            : Model.Transaction.PaymentType;
+}
+
+@section ScriptHeader
+{ 
+    <style>
+        .col-information p {
+            line-height: 1.7;
+            font-size: 16px;
+        }
+    </style>
+}
+
+<div class="row mt-3 mb-5">
+    <div class="col-md-4 offset-md-1 col-information mt-2">
+        <h4>Detail Transaction</h4>
+        <p class="text-black-50">
+            created by @Model.User.Name <br/>
+            on @Model.Transaction.CreatedDate.ToString("ddd, dd MMM yyyy HH:mm tt") <br/>
+            # @Model.Transaction.Id
+        </p>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-light">
+            <div class="card-header d-flex bg-transparent">
+                <span class="d-inline-block">
+                    Status
+                    @if (isPaid)
+                    {
+                        <span class="badge badge-success p-1">Paid</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-warning p-1">Hold</span>
+                    }
+                </span>
+                @if (isPaid)
+                {
+                    <button class="btn btn-outline-secondary btn-sm lh-0 ml-auto" 
+                            onclick="window.open('@urlPrint', '', 'width=700,height=400')">
+                        Print
+                    </button>
+                }
+            </div>
+            <div class="card-body">
+                <table class="table mb-0">
+                    <thead>
+                    <tr>
+                        <th class="border-top-0">#</th>
+                        <th class="border-top-0">Product</th>
+                        <th class="border-top-0 text-center">Quantity</th>
+                        <th class="border-top-0 text-left">Price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @{ var num = 1; }
+                    @foreach (var sp in Model.Transaction.SelectedProducts)
+                    {
+                        <tr>
+                            <td>@num</td>
+                            <td>@sp.Product.Name</td>
+                            <td class="text-center">@sp.Quantity</td>
+                            <td class="text-left">@sp.TotalPrice.ToString("N0")</td>
+                        </tr>
+
+                        num++;
+                    }
+                    <tr>
+                        <td colspan="3" class="text-right">Sub Total</td>
+                        <td class="text-left">@(Model.Transaction.TotalPrice.ToString("N0"))</td>
+                    </tr>
+                    @if (isDiscount)
+                    {
+                        <tr>
+                            <td colspan="3" class="text-right border-top-0 pt-0">Discount</td>
+                            <td class="text-left border-top-0 pt-0">-@(Model.Transaction.Discount.Value.ToString("N0"))</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="3" class="text-right font-weight-bold border-top-0 pt-0">Total</td>
+                        <td class="text-left font-weight-bold border-top-0 pt-0">@(priceWithDiscount.ToString("N0"))</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <hr class="mt-1"/>
+                <p class="font-weight-bold mb-2">Payment Details</p>
+                <p class="mb-1">
+                    <span class="text-black-50">Payment Type:</span> @paymentType <br/>
+                    @if (isDiscount)
+                    {
+                        <span class="text-black-50">Applied Discount:</span> @Model.Transaction.Discount.Code
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

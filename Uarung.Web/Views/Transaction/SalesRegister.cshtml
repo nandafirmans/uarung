@@ -309,14 +309,7 @@
                         }.bind(this))
                         .catch(axiosCatch);
                 },
-                submitTransaction: function() {
-                    this.showConfirmModal = false;
-                    this.showLoadingModal = true;
-
-                    const isEdit = this.isSelectedTransaction;
-                    const url = isEdit
-                        ? window.actionUrl.updateTransaction
-                        : window.actionUrl.createTransaction;
+                getRequest: function () {
                     const paymentStatus = this.isPayment
                         ? "@Constant.PaymentStatus.Paid"
                         : "@Constant.PaymentStatus.Hold";
@@ -341,13 +334,23 @@
                         notes: this.transactionNotes
                     };
 
-                    if (isEdit) {
+                    if (this.isSelectedTransaction) {
                         request.id = this.selectedTransaction.id;
                         request.totalPrice = this.totalPrice;
                     }
 
+                    return request;
+                },
+                submitTransaction: function() {
+                    this.showConfirmModal = false;
+                    this.showLoadingModal = true;
+                    
+                    const url = this.isSelectedTransaction
+                        ? window.actionUrl.updateTransaction
+                        : window.actionUrl.createTransaction;
+
                     axios
-                        .post(url, request)
+                        .post(url, this.getRequest())
                         .then(function(response) {
                             const data = response.data;
                             this.showLoadingModal = false;
@@ -359,7 +362,7 @@
                             if (this.isPayment && data.collections.length > 0)
                                 this.printTransaction(data.collections[0].id);
 
-                            if (!this.isPayment || isEdit)
+                            if (!this.isPayment || this.isSelectedTransaction)
                                 this.fetchHoldTransaction();
 
                         }.bind(this))
@@ -423,7 +426,7 @@
                         }.bind(this))
                         .filter(function(p) {
                             return p.name.toLowerCase().includes(this.searchKeyword.toLowerCase());
-                        }.bind(this));;
+                        }.bind(this));
                 },
                 totalPrice: function() {
                     if (!(this.selectedProducts.length > 0))

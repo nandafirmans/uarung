@@ -15,6 +15,9 @@ namespace Uarung.Model
         [JsonProperty("id")]
         public string Id { get; set; }
 
+        [JsonProperty("createdById")]
+        public string CreatedById { get; set; }
+
         [JsonProperty("createdDate")]
         public DateTime CreatedDate { get; set; }
         
