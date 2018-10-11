@@ -1,7 +1,8 @@
 ﻿@{
-    var controllerName = ViewContext.RouteData.Values["controller"].ToString();
-    
-    if (!controllerName.Equals("Auth", StringComparison.OrdinalIgnoreCase))
+    var isUseDefaultLayout = ViewContext.ActionDescriptor.FilterDescriptors
+        .All(f => f.Filter.GetType() != typeof(Uarung.Web.Utility.RemoveDefaultLayout));
+
+    if (isUseDefaultLayout)
     {
         Layout = "_Layout";
     }

@@ -1,0 +1,108 @@
+﻿@using Microsoft.Extensions.Configuration
+@model Transaction
+@inject IConfiguration Config;
+
+@{
+    var brandAddress = Config.GetValue<string>(Constant.ConfigKey.BrandAddress);
+    var brandName = Config.GetValue<string>(Constant.ConfigKey.BrandName);
+}
+
+<html moznomarginboxes="" mozdisallowselectionprint="">
+<head>
+    <title></title>
+    <style>
+        h3 { text-align: center; }
+
+        table {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        hr { border-top: dotted 1px; }
+
+        body { width: 72mm; }
+
+        @@media print {
+            @@page {
+                margin: 3.5mm;
+            }
+
+            body { margin: 0mm; }
+        }
+    </style>
+</head>
+
+<body style="margin:auto">
+<font face="verdana" size="2">
+    <div id="receiptDetails" style="page-break-after: always !important">
+        <div style="font-weight: bold; text-align: center; word-wrap: break-word;">@brandName</div>
+        <div style="text-align: center; word-wrap: break-word;">@brandAddress</div>
+        <div style="text-align: center; word-wrap: break-word; font-size: 12px; margin-top:10px">Id: @Model.Id</div>
+        <div style="text-align: center">@Model.CreatedDate.ToString("ddd, dd MMMM yyyy 'at' HH:mm tt")</div>
+        <hr>
+        <table style="width: 100%">
+            <thead>
+            <tr>
+                <th align="left">Product</th>
+                <th align="center">Qty</th>
+                <th align="right">Price</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var sp in Model.SelectedProducts)
+            {
+                <tr>
+                    <td align="left">@sp.Product.Name</td>
+                    <td align="center">@sp.Quantity</td>
+                    <td align="right">@sp.TotalPrice.ToString("N0")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <hr>
+        <table style="width: 100%">
+            <tbody>
+            <tr>
+                <td align="left">Discount</td>
+                <td align="right">-@(Model.Discount.Value.ToString("N0"))</td>
+            </tr>
+            <tr>
+                <td align="left">Subtotal</td>
+                <td align="right">@((Model.TotalPrice - Model.Discount.Value).ToString("N0"))</td>
+            </tr>
+            <tr>
+                <td align="left" style="font-weight: 600">Total</td>
+                <td align="right" style="font-weight: 600">@Model.TotalPrice.ToString("N0")</td>
+            </tr>
+            <tr>
+                <td><br/></td>
+            </tr>
+            <tr>
+                <td align="left">Status</td>
+                <td align="right">@Model.PaymentStatus</td>
+            </tr>
+            <tr>
+                <td align="left">Payment Type</td>
+                <td align="right">@((Model.PaymentType == Constant.PaymentType.Card ? "Debit/Credit Card" : Model.PaymentType))</td>
+            </tr>
+            </tbody>
+        </table>
+        <hr>
+        <div style="margin-bottom: 15px; margin-top: 15px; text-align: center; word-wrap: break-word;">
+            Thank You.
+        </div>
+        <br>
+    </div>
+</font>
+
+<script>
+    (function(){
+        window.print();
+        setTimeout(function() {
+            window.close();
+        },500);
+    })();
+</script>
+</body>
+
+</html>

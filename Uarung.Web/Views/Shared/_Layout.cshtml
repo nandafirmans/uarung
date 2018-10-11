@@ -4,8 +4,9 @@
 @{
     var errorMessage = (string) ViewData[Constant.ViewDataKey.ErrorMessage];
 
-    var defaultController = Config.GetValue(typeof(string), Constant.ConfigKey.RouteDefaultController);
-    var defaultAction = Config.GetValue(typeof(string), Constant.ConfigKey.RouteDefaultAction);
+    var brandName = Config.GetValue<string>(Constant.ConfigKey.BrandName);
+    var defaultController = Config.GetValue<string>(Constant.ConfigKey.RouteDefaultController);
+    var defaultAction = Config.GetValue<string>(Constant.ConfigKey.RouteDefaultAction);
     var matchController = ViewContext.RouteData.Values["controller"].Equals(defaultController)
         ? string.Empty
         : ViewContext.RouteData.Values["controller"];
@@ -72,7 +73,7 @@
 </head>
 <body>
 <nav class="navbar navbar-dark fixed-top bg-primary flex-md-nowrap p-0">
-    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Company name</a>
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">@brandName</a>
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
             <a class="nav-link" asp-controller="Auth" asp-action="Logout">Sign out</a>

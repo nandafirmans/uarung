@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
 using Uarung.Model;
 using Uarung.Web.Models;
@@ -71,8 +72,23 @@ namespace Uarung.Web.Controllers
             return View(model);
         }
 
+        [RemoveDefaultLayout]
+        public IActionResult Print(string id)
+        {
+            try
+            {
+                var model = FetchTransaction(id).Collections.FirstOrDefault();
+
+                return View(model);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e);
+            }
+        }
+
         [HttpPost]
-        public IActionResult Submit(string id, [FromBody] Transaction request)
+        public IActionResult Submit([FromBody] Transaction request, string id = "")
         {
             var response = new CollectionResponse<Transaction>();
 
@@ -91,7 +107,7 @@ namespace Uarung.Web.Controllers
 
             return Json(response);
         }
-        
+
         [HttpGet]
         public IActionResult GetHoldOnly() 
         {
@@ -99,8 +115,7 @@ namespace Uarung.Web.Controllers
 
             try
             {
-                var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlTransactionGetHold);
-                response = Requestor().Get<CollectionResponse<Transaction>>(url);
+                response = FetchTransaction(null, true);
             }
             catch (Exception e)
             {
@@ -108,6 +123,38 @@ namespace Uarung.Web.Controllers
             }
 
             return Json(response);
+        }
+
+        [HttpGet]
+        public IActionResult Delete(string id) 
+        {
+            try
+            {
+                var url = $"{CreateServiceUrl(Constant.ConfigKey.ApiUrlTransaction)}{id}";
+                var response = Requestor().Delete<BaseReponse>(url);
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception e)
+            {
+                return RedirectToAction("Index", new { err = e.Message });
+            }
+        }
+
+        private CollectionResponse<Transaction> FetchTransaction(string id = null, bool isHold = false)
+        {
+            var url = CreateServiceUrl((isHold 
+                ? Constant.ConfigKey.ApiUrlTransactionGetHold 
+                : Constant.ConfigKey.ApiUrlTransaction));
+
+            if (!string.IsNullOrEmpty(id))
+                url = $"{url}{id}";
+
+            var response = Requestor().Get<CollectionResponse<Transaction>>(url);
+
+            CheckResponse(response);
+
+            return response;
         }
     }
 }

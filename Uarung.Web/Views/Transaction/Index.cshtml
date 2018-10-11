@@ -16,10 +16,12 @@
     <tr>
         <th scope="col">#</th>
         <th scope="col" style="width: 20px">Id</th>
+        <th scope="col">Notes</th>
         <th scope="col">Payment Status</th>
         <th scope="col">Payment Type</th>
         <th scope="col">Created Date</th>
         <th scope="col">Total Price</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -35,10 +37,18 @@
                         @transaction.Id
                     </a>
                 </td>
+                <td>@((string.IsNullOrEmpty(transaction.Notes) ? "-" : transaction.Notes))</td>
                 <td>@transaction.PaymentStatus</td>
                 <td>@transaction.PaymentType</td>
-                <td>@transaction.CreatedDate.ToString("dddd, dd-MM-yyyy HH:mm")</td>
+                <td>@transaction.CreatedDate.ToString("ddd, dd MMM yyyy '-' HH:mm")</td>
                 <td>@transaction.TotalPrice.ToString("N0")</td>
+                <td>
+                    <form action="@Url.Action("Delete", new { id = transaction.Id })">
+                        <button type="submit" class="btn btn-danger btn-sm p-0 lh-0 rounded-circle">
+                            <span data-feather="x"></span>
+                        </button>
+                    </form>
+                </td>
             </tr>
 
             i++;

@@ -72,9 +72,9 @@ namespace Uarung.API.Controllers
         }
 
         [HttpPut]
-        public ActionResult<BaseReponse> Update(Transaction request)
+        public ActionResult<CollectionResponse<Transaction>> Update(Transaction request)
         {
-            var response = new BaseReponse();
+            var response = new CollectionResponse<Transaction>();
 
             try
             {
@@ -109,6 +109,7 @@ namespace Uarung.API.Controllers
                 _dacTransaction.Update(transaction);
                 _dacTransaction.Commit();
 
+                response.Collections = Get(transaction.Id).Value.Collections;
                 response.Status.SetSuccess();
             }
             catch (Exception e)
@@ -154,6 +155,32 @@ namespace Uarung.API.Controllers
                     .Where(t => t.PaymentStatus.Equals(Constant.PaymentStatus.Hold));
 
                 response.Collections = TranslateToModel(transactions);
+                response.Status.SetSuccess();
+            }
+            catch (Exception e)
+            {
+                response.Status.SetError(e);
+            }
+
+            return response;
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult<BaseReponse> Delete(string id) 
+        {
+            var response = new BaseReponse();
+
+            try
+            {
+                var transactions = _dacTransaction.Single(t => t.Id.Equals(id));
+
+                if (transactions == null)
+                    throw new Exception("data not found");
+
+                _dacSelectedProduct.DeleteWhere(sp => sp.TransactionId.Equals(transactions.Id));
+                _dacTransaction.Delete(transactions);
+                _dacDiscount.Commit();
+
                 response.Status.SetSuccess();
             }
             catch (Exception e)

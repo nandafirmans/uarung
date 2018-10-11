@@ -81,7 +81,7 @@
 
 @section ScriptFooter
 {
-    <script type="text/javascript" src="~/lib/vue.min.js"></script>
+    <script type="text/javascript" src="~/lib/vue.js"></script>
     <script type="text/javascript" src="~/lib/axios.min.js"></script>
     <script type="text/javascript" src="~/lib/sweetalert.min.js"></script>
 
@@ -106,7 +106,7 @@
     </script>
 
     <script type="text/x-template" id="opened-bills">
-        <table class="table">
+        <table class="table" v-if="isAnyTransaction">
             <thead>
                 <tr>
                     <th class="border-top-0">#</th>
@@ -126,6 +126,7 @@
                 <td>{{(t.totalPrice - t.discount.value) | toCurrency}}</td>
             </tr>
         </table>
+        <h5 class="mt-2" v-else>There's no opened bills...</h5>
     </script>
 
     <script type="text/javascript">
@@ -134,10 +135,11 @@
         const dataPaymentTypes = JSON.parse(document.getElementById("paymentType").value);
 
         window.actionUrl = {
-            getDiscount : "@Url.Action("Get", "Discount")",
-            createTransaction : "@Url.Action("Submit", "Transaction", new { id = string.Empty })",
-            updateTransaction : "@Url.Action("Submit", "Transaction", new { id = "update" })",
-            getTransactionHold : "@Url.Action("GetHoldOnly", "Transaction")"
+            getDiscount: "@Url.Action("Get", "Discount")",
+            createTransaction: "@Url.Action("Submit", "Transaction", new {id = string.Empty})",
+            updateTransaction: "@Url.Action("Submit", "Transaction", new {id = "update"})",
+            getTransactionHold: "@Url.Action("GetHoldOnly", "Transaction")",
+            print: "@Url.Action("Print", "Transaction")"
         }
 
         function axiosCatch(err) {
@@ -149,7 +151,7 @@
         }
 
         Vue.filter("toCurrency",
-            function (val) {
+            function(val) {
                 if (typeof(val) !== "number")
                     return val;
 
@@ -157,28 +159,40 @@
 
             });
 
-        Vue.component("opened-bills", {
-            template: "#opened-bills",
-            props: ["holdTransactions"],
-        });
-
-        Vue.component("modal", {
-            template: "#modal-template",
-            props : ["modalDialogCssclass"],
-            computed: {
-                hasHeaderSlot: function () {
-                    return !!this.$slots.header;
+        Vue.component("opened-bills",
+            {
+                template: "#opened-bills",
+                props: {
+                    holdTransactions: {
+                        type: Array,
+                        default: []
+                    }
                 },
-                hasFooterSlot: function() {
-                    return !!this.$slots.footer;
+                computed: {
+                    isAnyTransaction: function() {
+                        return this.holdTransactions.length > 0;
+                    }
                 }
-            }
-        });
+            });
+
+        Vue.component("modal",
+            {
+                template: "#modal-template",
+                props: ["modalDialogCssclass"],
+                computed: {
+                    hasHeaderSlot: function() {
+                        return !!this.$slots.header;
+                    },
+                    hasFooterSlot: function() {
+                        return !!this.$slots.footer;
+                    }
+                }
+            });
 
         const app = new Vue({
             el: "#salesRegister",
             data: {
-                tabs : ["Current", "Open Bills"],
+                tabs: ["Current", "Open Bills"],
                 categories: dataCategories,
                 products: dataProducts,
                 paymentTypes: dataPaymentTypes,
@@ -198,7 +212,8 @@
                 },
                 isPayment: true,
                 showConfirmModal: false,
-                showLoadingModal: false
+                showLoadingModal: false,
+                showPrintWindow: false,
             },
             methods: {
                 selectTab: function(tabIndex) {
@@ -207,14 +222,15 @@
                 selectCategory: function(categoryName) {
                     this.activeCategory = categoryName;
                 },
-                selectProduct: function (product) {
+                selectProduct: function(product) {
                     const isAny = this.selectedProducts
-                        .filter(function (p) { return p.product.id === product.id; })
-                        .length > 0;
+                        .filter(function(p) { return p.product.id === product.id; })
+                        .length >
+                        0;
 
                     if (isAny) {
                         const index = this.selectedProducts
-                            .map(function (p) { return p.product.id })
+                            .map(function(p) { return p.product.id })
                             .indexOf(product.id);
 
                         this.selectedProducts[index].quantity += 1;
@@ -232,12 +248,12 @@
                 },
                 removeSelectedProduct: function(index) {
                     this.selectedProducts = this.selectedProducts
-                        .filter(function (f, i) { return i !== index });
+                        .filter(function(f, i) { return i !== index });
                 },
-                clearSelectedProducts : function () {
+                clearSelectedProducts: function() {
                     this.selectedProducts = [];
                 },
-                onQuantityUpdate: function (index) {
+                onQuantityUpdate: function(index) {
                     const value = this.selectedProducts[index].quantity;
 
                     if (value <= 0 || isNaN(value))
@@ -245,24 +261,25 @@
                     else if (value > 50)
                         this.selectedProducts[index].quantity = 50;
 
-                    const totalPrice = this.selectedProducts[index].product.price * this.selectedProducts[index].quantity;
+                    const totalPrice = this.selectedProducts[index].product.price *
+                        this.selectedProducts[index].quantity;
                     this.selectedProducts[index].totalPrice = totalPrice;
                 },
                 setDiscount: function(discount) {
-                    if (discount === undefined) 
+                    if (discount === undefined)
                         discount = {
-                            isValid : false,
-                            code : "",
+                            isValid: false,
+                            code: "",
                             type: "",
                             value: 0,
                         };
-                    
+
                     this.discount.isValid = discount.isValid;
                     this.discount.type = discount.type;
                     this.discount.value = discount.value;
                     this.discount.code = discount.code;
                 },
-                fetchDiscount: function () {
+                fetchDiscount: function() {
                     this.showLoadingModal = true;
                     const url = window.actionUrl.getDiscount + "/" + this.discount.code;
 
@@ -271,11 +288,10 @@
                             this.showLoadingModal = false;
                             const isOk = response.data.status.type === "Success";
 
-                            if(isOk) {
+                            if (isOk) {
                                 const discount = response.data.collections[0];
-                                this.setDiscount(Object.assign(discount, { isValid : true}));
-                            }
-                            else 
+                                this.setDiscount(Object.assign(discount, { isValid: true }));
+                            } else
                                 this.setDiscount(undefined);
 
                         }.bind(this));
@@ -293,12 +309,12 @@
                         }.bind(this))
                         .catch(axiosCatch);
                 },
-                submitTransaction: function () {
+                submitTransaction: function() {
                     this.showConfirmModal = false;
                     this.showLoadingModal = true;
 
                     const isEdit = this.isSelectedTransaction;
-                    const url = isEdit 
+                    const url = isEdit
                         ? window.actionUrl.updateTransaction
                         : window.actionUrl.createTransaction;
                     const paymentStatus = this.isPayment
@@ -329,7 +345,7 @@
                         request.id = this.selectedTransaction.id;
                         request.totalPrice = this.totalPrice;
                     }
-                    
+
                     axios
                         .post(url, request)
                         .then(function(response) {
@@ -340,28 +356,44 @@
                             if (data.status.type === "Error")
                                 throw data.status.message;
 
+                            if (this.isPayment && data.collections.length > 0)
+                                this.printTransaction(data.collections[0].id);
+
                             if (!this.isPayment || isEdit)
                                 this.fetchHoldTransaction();
 
                         }.bind(this))
                         .catch(axiosCatch);
                 },
+                printTransaction: function(transactionId) {
+                    this.showPrintWindow = true;
+
+                    const printUrl = window.actionUrl.print + "/" + transactionId;
+                    const printWindow = window.open(printUrl, "", "width=700,height=400");
+
+                    printWindow.focus();
+                    printWindow.addEventListener("beforeunload",
+                        function() {
+                            this.showPrintWindow = false;
+                        }.bind(this),
+                        false);
+                },
                 selectTransaction: function(transactionId) {
                     this.clearAll();
-                    
+
                     const selectedIndex = this.holdTransactions
-                        .map(function(ht){ return ht.id })
+                        .map(function(ht) { return ht.id })
                         .indexOf(transactionId);
-                    
+
                     this.selectedTransaction = this.holdTransactions[selectedIndex];
                     this.transactionNotes = this.selectTransaction.notes;
 
                     this.selectedTransaction.selectedProducts
                         .forEach(function(sp, index) {
-                            for (let i = 0; i < sp.quantity; i++) 
+                            for (let i = 0; i < sp.quantity; i++)
                                 this.selectProduct(sp.product);
-                            
-                            if(sp.notes !== null && sp.notes !== "")
+
+                            if (sp.notes !== null && sp.notes !== "")
                                 this.selectedProducts[index].notes = sp.notes;
                         }.bind(this));
 
@@ -370,7 +402,7 @@
                         this.discount.code = discountCode;
                         this.fetchDiscount();
                     }
-                    
+
                     this.selectTab(0);
                 },
                 clearAll: function() {
@@ -382,14 +414,14 @@
                 }
             },
             computed: {
-                filteredProducts: function () {
+                filteredProducts: function() {
                     return this.products
                         .filter(function(p) {
                             if (this.activeCategory === "All") return p;
 
                             return p.categoryName === this.activeCategory;
                         }.bind(this))
-                        .filter(function (p) {
+                        .filter(function(p) {
                             return p.name.toLowerCase().includes(this.searchKeyword.toLowerCase());
                         }.bind(this));;
                 },
@@ -398,7 +430,7 @@
                         return 0;
 
                     return this.selectedProducts
-                        .reduce(function (currVal, sp) {return currVal += sp.totalPrice}, 0);
+                        .reduce(function(currVal, sp) { return currVal += sp.totalPrice }, 0);
                 },
                 totalPriceWithDiscount: function() {
                     if (this.discountValue > this.totalPrice) {
@@ -410,8 +442,8 @@
 
                     return this.totalPrice - this.discountValue;
                 },
-                discountValue: function () {
-                    if(this.discount.type === "Percentage") 
+                discountValue: function() {
+                    if (this.discount.type === "Percentage")
                         return this.totalPrice * this.discount.value / 100;
 
                     return this.discount.value;
@@ -462,7 +494,7 @@
     <div class="card-body" v-cloak>
         <template v-if="selectedTab === tabs[0]">
             <div class="alert alert-warning d-flex" v-if="isSelectedTransaction">
-                You opened transaction {{selectedTransaction.id}} - <em>{{selectedTransaction.notes}}</em>
+                You opened transaction {{selectedTransaction.id}} - &nbsp;<em>{{selectedTransaction.notes}}</em>
                 <button type="button" 
                         class="btn btn-times-close btn-warning border-0 ml-auto bg-transparent" 
                         @@click="clearAll">
@@ -664,5 +696,6 @@
                 </button>
             </template>
         </modal>
+        <div class="modal-mask" v-if="showPrintWindow" @@click="showPrintWindow = false"></div>
     </div>
 </div>

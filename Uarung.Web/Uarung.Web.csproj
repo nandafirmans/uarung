@@ -38,6 +38,9 @@
     <Content Update="Views\Home\Index.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Views\Transaction\Print.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\Transaction\Report.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

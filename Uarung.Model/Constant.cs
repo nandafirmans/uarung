@@ -32,6 +32,8 @@ namespace Uarung.Model
             public const string RouteDefaultAction = "Route.Default.Action";
             public const string RedisOption = "Redis.Option";
             public const string SessionIdLifeTime = "Session.LifeTime";
+            public const string BrandAddress = "Brand.Address";
+            public const string BrandName = "Brand.Name";
         }
 
         public static class ViewDataKey

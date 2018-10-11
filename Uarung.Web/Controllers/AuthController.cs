@@ -15,6 +15,7 @@ namespace Uarung.Web.Controllers
         {
         }
 
+        [RemoveDefaultLayout]
         public IActionResult Login(string err)
         {
             ViewData[Constant.ViewDataKey.ErrorMessage] = string.IsNullOrEmpty(err) 
