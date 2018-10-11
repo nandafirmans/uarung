@@ -81,7 +81,7 @@
 
 @section ScriptFooter
 {
-    <script type="text/javascript" src="~/lib/vue.js"></script>
+    <script type="text/javascript" src="~/lib/vue.min.js"></script>
     <script type="text/javascript" src="~/lib/axios.min.js"></script>
     <script type="text/javascript" src="~/lib/sweetalert.min.js"></script>
 
@@ -116,14 +116,14 @@
                 </tr>
             </thead>
             <tr v-for="(t, index) in holdTransactions">
-                <td>{{index}}</td>
+                <td>{{index + 1}}</td>
                 <td>{{t.notes}}</td>
                 <td>
-                    <button type="btn" class="btn btn-link btn-sm">
+                    <button type="btn" class="btn btn-link btn-sm" @@click="$emit('on-select', t.id)">
                         {{t.id}}
                     </button>
                 </td>
-                <td>{{t.totalPrice | toCurrency}}</td>
+                <td>{{(t.totalPrice - t.discount.value) | toCurrency}}</td>
             </tr>
         </table>
     </script>
@@ -135,7 +135,8 @@
 
         window.actionUrl = {
             getDiscount : "@Url.Action("Get", "Discount")",
-            createTransaction : "@Url.Action("Create", "Transaction")",
+            createTransaction : "@Url.Action("Submit", "Transaction", new { id = string.Empty })",
+            updateTransaction : "@Url.Action("Submit", "Transaction", new { id = "update" })",
             getTransactionHold : "@Url.Action("GetHoldOnly", "Transaction")"
         }
 
@@ -187,6 +188,7 @@
                 searchKeyword: "",
                 selectedProducts: [],
                 selectedPaymentType: "",
+                selectedTransaction: null,
                 transactionNotes: "",
                 discount: {
                     code: "",
@@ -199,8 +201,8 @@
                 showLoadingModal: false
             },
             methods: {
-                selectTab: function(tabName) {
-                    this.selectedTab = tabName;
+                selectTab: function(tabIndex) {
+                    this.selectedTab = this.tabs[tabIndex];
                 },
                 selectCategory: function(categoryName) {
                     this.activeCategory = categoryName;
@@ -294,12 +296,17 @@
                 submitTransaction: function () {
                     this.showConfirmModal = false;
                     this.showLoadingModal = true;
-                    const url = window.actionUrl.createTransaction;
+
+                    const isEdit = this.isSelectedTransaction;
+                    const url = isEdit 
+                        ? window.actionUrl.updateTransaction
+                        : window.actionUrl.createTransaction;
                     const paymentStatus = this.isPayment
                         ? "@Constant.PaymentStatus.Paid"
                         : "@Constant.PaymentStatus.Hold";
 
                     const request = {
+                        id: "",
                         paymentStatus: paymentStatus,
                         paymentType: this.selectedPaymentType,
                         selectedProducts: this.selectedProducts
@@ -317,6 +324,11 @@
                         },
                         notes: this.transactionNotes
                     };
+
+                    if (isEdit) {
+                        request.id = this.selectedTransaction.id;
+                        request.totalPrice = this.totalPrice;
+                    }
                     
                     axios
                         .post(url, request)
@@ -328,15 +340,43 @@
                             if (data.status.type === "Error")
                                 throw data.status.message;
 
-                            if (!this.isPayment)
+                            if (!this.isPayment || isEdit)
                                 this.fetchHoldTransaction();
 
                         }.bind(this))
                         .catch(axiosCatch);
                 },
+                selectTransaction: function(transactionId) {
+                    this.clearAll();
+                    
+                    const selectedIndex = this.holdTransactions
+                        .map(function(ht){ return ht.id })
+                        .indexOf(transactionId);
+                    
+                    this.selectedTransaction = this.holdTransactions[selectedIndex];
+                    this.transactionNotes = this.selectTransaction.notes;
+
+                    this.selectedTransaction.selectedProducts
+                        .forEach(function(sp, index) {
+                            for (let i = 0; i < sp.quantity; i++) 
+                                this.selectProduct(sp.product);
+                            
+                            if(sp.notes !== null && sp.notes !== "")
+                                this.selectedProducts[index].notes = sp.notes;
+                        }.bind(this));
+
+                    const discountCode = this.selectedTransaction.discount.code;
+                    if (discountCode !== "" && discountCode !== null) {
+                        this.discount.code = discountCode;
+                        this.fetchDiscount();
+                    }
+                    
+                    this.selectTab(0);
+                },
                 clearAll: function() {
                     this.clearSelectedProducts();
                     this.setDiscount(undefined);
+                    this.selectedTransaction = null;
                     this.selectedPaymentType = "";
                     this.transactionNotes = "";
                 }
@@ -386,10 +426,13 @@
                 },
                 isDiscountCodeEmpty: function() {
                     return this.discount.code === "";
+                },
+                isSelectedTransaction: function() {
+                    return this.selectedTransaction !== null;
                 }
             },
             mounted: function() {
-                this.selectTab(this.tabs[0]);
+                this.selectTab(0);
                 this.fetchHoldTransaction();
             }
         });
@@ -410,156 +453,172 @@
             <li class="nav-item" v-for="(t, index) in tabs">
                 <a class="nav-link pointer" 
                    :class="{ active : t === selectedTab }" 
-                   @@click="selectTab(tabs[index])">
+                   @@click="selectTab(index)">
                     {{t}}
                 </a>
             </li>
         </ul>
     </div>
     <div class="card-body" v-cloak>
-        <div class="row" v-if="selectedTab === tabs[0]">
-            <div class="col">
-                <div class="form-group">
-                    <input class="form-control" type="text" placeholder="Search Product Here..." v-model="searchKeyword"/>
-                </div>
-                <div class="row">
-                    <div class="col-3">
-                        <ul class="list-group">
-                            <li v-for="c in categories" 
-                                :class="{ active : c.name === activeCategory }" 
-                                @@click="selectCategory(c.name)"
-                                class="list-group-item pointer">
-                                {{c.name}}
-                            </li>
-                        </ul>
+        <template v-if="selectedTab === tabs[0]">
+            <div class="alert alert-warning d-flex" v-if="isSelectedTransaction">
+                You opened transaction {{selectedTransaction.id}} - <em>{{selectedTransaction.notes}}</em>
+                <button type="button" 
+                        class="btn btn-times-close btn-warning border-0 ml-auto bg-transparent" 
+                        @@click="clearAll">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <input class="form-control" type="text" placeholder="Search Product Here..." v-model="searchKeyword"/>
                     </div>
-                    <div class="col">
-                        <div class="row" v-if="filteredProducts.length > 0">
-                            <div class="product-item col-4 mb-4" v-for="p in filteredProducts">
-                                <div class="card pointer" :title="p.name" @@click="selectProduct(p)">
-                                    <div class="card-img-top" :style="{backgroundImage: 'url(@apiHost' + p.images[0] + ')' }"></div>
-                                    <div class="card-body pt-1 pb-1">
-                                        <p class="card-title text-truncate mb-1">{{p.name}}</p>
-                                        <p class="card-text">{{ p.price | toCurrency }}</p>
+                    <div class="row">
+                        <div class="col-3">
+                            <ul class="list-group">
+                                <li v-for="c in categories" 
+                                    :class="{ active : c.name === activeCategory }" 
+                                    @@click="selectCategory(c.name)"
+                                    class="list-group-item pointer">
+                                    {{c.name}}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col">
+                            <div class="row" v-if="filteredProducts.length > 0">
+                                <div class="product-item col-4 mb-4" v-for="p in filteredProducts">
+                                    <div class="card pointer" :title="p.name" @@click="selectProduct(p)">
+                                        <div class="card-img-top" :style="{backgroundImage: 'url(@apiHost' + p.images[0] + ')' }"></div>
+                                        <div class="card-body pt-1 pb-1">
+                                            <p class="card-title text-truncate mb-1">{{p.name}}</p>
+                                            <p class="card-text">{{ p.price | toCurrency }}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <h5 class="mt-3" v-else>
+                                There's nothing in here..
+                            </h5>
                         </div>
-                        <h5 class="mt-3" v-else>
-                            There's nothing in here..
-                        </h5>
                     </div>
                 </div>
-            </div>
-            <div class="col-5">
-                <div class="card bg-light">
-                    <div class="card-header bg-transparent border-bottom-0 d-flex">
-                        <h5 class="font-weight-normal mb-0 mr-auto">Current Sales</h5>
-                        <template v-if="isAnySelectedProducts">
-                            <button class="btn btn-outline-secondary btn-sm lh-1 align-bottom" 
-                                    @@click="clearSelectedProducts">
-                                Clear
-                            </button>
-                            <button class="btn btn-outline-secondary btn-sm ml-2 lh-1 align-bottom" 
-                                    @@click="showConfirmModal = true,isPayment = false">
-                                Hold
-                            </button>
-                        </template>
-                    </div>
-                    <div class="card-body">
-                        <template v-if="isAnySelectedProducts">
-                            <table class="table table-sm">
-                                <tr>
-                                    <th class="border-top-0 text-left" style="width: 170px">Item</th>
-                                    <th class="border-top-0" style="width: 70px">Quantity</th>
-                                    <th class="border-top-0">Price</th>
-                                    <th class="border-top-0" style="width: 64px"></th>
-                                </tr>
-                                <template v-for="(sp, index) in selectedProducts">
+                <div class="col-5">
+                    <div class="card bg-light">
+                        <div class="card-header bg-transparent border-bottom-0 d-flex">
+                            <h5 class="font-weight-normal mb-0 mr-auto">Current Sales</h5>
+                            <template v-if="isAnySelectedProducts">
+                                <button class="btn btn-outline-secondary btn-sm lh-1 align-bottom" 
+                                        @@click="clearSelectedProducts">
+                                    Clear
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm ml-2 lh-1 align-bottom" 
+                                        @@click="showConfirmModal = true,isPayment = false"
+                                        v-if="!isSelectedTransaction">
+                                    Hold
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm ml-2 lh-1 align-bottom" 
+                                        @@click="isPayment = false,submitTransaction()"
+                                        v-else>
+                                    Update
+                                </button>
+                            </template>
+                        </div>
+                        <div class="card-body">
+                            <template v-if="isAnySelectedProducts">
+                                <table class="table table-sm">
                                     <tr>
-                                        <td class="text-left align-middle">{{ sp.product.name }}</td>
-                                        <td class="align-middle">
-                                            <input type="number"
-                                                   class="form-control form-control-sm form-control-plaintext text-center"
-                                                   @@input="onQuantityUpdate(index)"
-                                                   v-model.number="sp.quantity"/>
-                                        </td>
-                                        <td class="align-middle">{{ sp.totalPrice | toCurrency }}</td>
-                                        <td class="align-middle">
-                                            <button type="button"
-                                                    title="add notes"
-                                                    class="btn btn-sm btn-outline-secondary border-0 lh-0 p-1 rounded-circle"
-                                                    @@click="sp.showNotes = !sp.showNotes">
-                                                <svg v-if="!sp.showNotes" xmlns="http://www.w3.org/2000/svg"width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                     class="feather feather-edit-2 sc-dnqmqq jxshSx">
-                                                    <polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon>
-                                                </svg>
-                                                <svg v-else-if="sp.showNotes" class="feather feather-edit sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
-                                                    <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
-                                                </svg>
-                                            </button>
-                                            <button type="button"
-                                                    title="remove"
-                                                    class="btn btn-outline-danger btn-sm border-0 rounded-circle lh-0 p-1"
-                                                    @@click="removeSelectedProduct(index)">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                                </svg>
-                                            </button>
-                                        </td>
+                                        <th class="border-top-0 text-left" style="width: 170px">Item</th>
+                                        <th class="border-top-0" style="width: 70px">Quantity</th>
+                                        <th class="border-top-0">Price</th>
+                                        <th class="border-top-0" style="width: 64px"></th>
                                     </tr>
-                                    <tr v-if="sp.showNotes">
-                                        <td colspan="4" class="border-top-0">
-                                            <input type="text" 
-                                                   class="form-control form-control-sm"
-                                                   v-model="sp.notes"/>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </table>
-                            <div class="input-group mb-3" v-if="!discount.isValid">
-                                <input type="text" 
-                                        class="form-control form-control-sm pl-2 pr-2" 
-                                        placeholder="Apply discount code here..."
-                                        v-model="discount.code"
-                                        :class="{ 'form-control-plaintext' : isDiscountCodeEmpty }"
-                                        :readonly="discount.isValid"/>
-                                <div class="input-group-append" v-if="!isDiscountCodeEmpty">
+                                    <template v-for="(sp, index) in selectedProducts">
+                                        <tr>
+                                            <td class="text-left align-middle">{{ sp.product.name }}</td>
+                                            <td class="align-middle">
+                                                <input type="number"
+                                                    class="form-control form-control-sm form-control-plaintext text-center"
+                                                    @@input="onQuantityUpdate(index)"
+                                                    v-model.number="sp.quantity"/>
+                                            </td>
+                                            <td class="align-middle">{{ sp.totalPrice | toCurrency }}</td>
+                                            <td class="align-middle">
+                                                <button type="button"
+                                                        title="add notes"
+                                                        class="btn btn-sm btn-outline-secondary border-0 lh-0 p-1 rounded-circle"
+                                                        @@click="sp.showNotes = !sp.showNotes">
+                                                    <svg v-if="!sp.showNotes" xmlns="http://www.w3.org/2000/svg"width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                        class="feather feather-edit-2 sc-dnqmqq jxshSx">
+                                                        <polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon>
+                                                    </svg>
+                                                    <svg v-else-if="sp.showNotes" class="feather feather-edit sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
+                                                        <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
+                                                    </svg>
+                                                </button>
+                                                <button type="button"
+                                                        title="remove"
+                                                        class="btn btn-outline-danger btn-sm border-0 rounded-circle lh-0 p-1"
+                                                        @@click="removeSelectedProduct(index)">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="sp.showNotes">
+                                            <td colspan="4" class="border-top-0">
+                                                <input type="text" 
+                                                    class="form-control form-control-sm"
+                                                    v-model="sp.notes"/>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </table>
+                                <div class="input-group mb-3" v-if="!discount.isValid">
+                                    <input type="text" 
+                                            class="form-control form-control-sm pl-2 pr-2" 
+                                            placeholder="Apply discount code here..."
+                                            v-model="discount.code"
+                                            :class="{ 'form-control-plaintext' : isDiscountCodeEmpty }"
+                                            :readonly="discount.isValid"/>
+                                    <div class="input-group-append" v-if="!isDiscountCodeEmpty">
+                                        <button type="button" 
+                                                class="btn btn-outline-primary btn-sm"
+                                                @@click="fetchDiscount">
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center border mb-3 p-2 rounded" v-else>
+                                    <p class="mr-auto mb-0">
+                                        Discount ({{discount.code}})
+                                    </p>
+                                    <p class="mb-0 text-success">
+                                        - {{ discountValue | toCurrency }}
+                                    </p>
                                     <button type="button" 
-                                            class="btn btn-outline-primary btn-sm"
-                                            @@click="fetchDiscount">
-                                        Apply
+                                        class="btn btn-outline-danger btn-sm border-0 rounded-circle btn-times-close ml-2"
+                                        @@click="setDiscount(undefined)">
+                                        <span>&times;</span>
                                     </button>
                                 </div>
-                            </div>
-                            <div class="d-flex align-items-center border mb-3 p-2 rounded" v-else>
-                                <p class="mr-auto mb-0">
-                                    Discount ({{discount.code}})
-                                </p>
-                                <p class="mb-0 text-success">
-                                    - {{ discountValue | toCurrency }}
-                                </p>
-                                <button type="button" 
-                                    class="btn btn-outline-danger btn-sm border-0 rounded-circle btn-times-close ml-2"
-                                    @@click="setDiscount(undefined)">
-                                    <span>&times;</span>
-                                </button>
-                            </div>
-                        </template>
-                        <p v-else>
-                            Please choose products...
-                        </p>
-                        <button class="btn btn-primary btn-block btn-lg" v-if="totalPrice > 0" @@click="showConfirmModal = true,isPayment = true">
-                            Charge <span class="font-weight-bold">{{ totalPriceWithDiscount | toCurrency }}</span>
-                        </button>
+                            </template>
+                            <p v-else>
+                                Please choose products...
+                            </p>
+                            <button class="btn btn-primary btn-block btn-lg" v-if="totalPrice > 0" @@click="showConfirmModal = true,isPayment = true">
+                                Charge <span class="font-weight-bold">{{ totalPriceWithDiscount | toCurrency }}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </template>
         <div v-else-if="selectedTab === tabs[1]">
-            <opened-bills :hold-transactions="holdTransactions"></opened-bills>
+            <opened-bills :hold-transactions="holdTransactions" @@on-select="selectTransaction($event)"></opened-bills>
         </div>
         <modal v-if="showLoadingModal" modal-dialog-cssclass="modal-sm loading-modal">
             <div slot="body" class="d-flex justify-content-center align-items-center">

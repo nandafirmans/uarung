@@ -72,14 +72,17 @@ namespace Uarung.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody]Transaction request)
+        public IActionResult Submit(string id, [FromBody] Transaction request)
         {
             var response = new CollectionResponse<Transaction>();
 
             try
             {
                 var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlTransaction);
-                response = Requestor().Post<CollectionResponse<Transaction>>(url, request);
+
+                response = id.Equals("update") 
+                    ? Requestor().Put<CollectionResponse<Transaction>>(url, request) 
+                    : Requestor().Post<CollectionResponse<Transaction>>(url, request);
             }
             catch (Exception e)
             {

@@ -48,16 +48,12 @@ namespace Uarung.API.Controllers
                     PaymentType = ValidatePaymentType(request.PaymentType),
                     Notes = request.Notes,
                     TotalPrice = 0m,
-                    PaymentStatus =
-                        request.PaymentStatus.Equals(Constant.PaymentStatus.Paid, StringComparison.OrdinalIgnoreCase)
-                            ? Constant.PaymentStatus.Paid
-                            : Constant.PaymentStatus.Hold
+                    PaymentStatus = GetPaymentStatus(request.PaymentStatus),
+                    SelectedProducts = FillSelectedProducts(request.SelectedProducts, transactionId, out var totalPrice),
+                    DiscountCode = FillDiscount(request.Discount.Code, totalPrice, out var discountValue)
                 };
 
-                transaction.SelectedProducts = FillSelectedProducts(request.SelectedProducts, transactionId, out var totalPrice);
                 transaction.TotalPrice = totalPrice;
-
-                transaction.DiscountCode = FillDiscount(request.Discount.Code, totalPrice, out var discountValue);
                 transaction.DiscountValue = discountValue;
 
                 _dacTransaction.Insert(transaction);
@@ -69,14 +65,14 @@ namespace Uarung.API.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                response.Status.SetError(e);
+                response.Status.SetError(e.Message);
             }
 
             return response;
         }
 
-        [HttpPost("Paid")]
-        public ActionResult<BaseReponse> Paid(Transaction request)
+        [HttpPut]
+        public ActionResult<BaseReponse> Update(Transaction request)
         {
             var response = new BaseReponse();
 
@@ -90,8 +86,11 @@ namespace Uarung.API.Controllers
                 if (transaction.PaymentStatus.Equals(Constant.PaymentStatus.Paid))
                     throw new Exception("this transaction already paid");
 
-                transaction.PaymentStatus = Constant.PaymentStatus.Paid;
-                transaction.PaymentType = ValidatePaymentType(request.PaymentType);
+                if (transaction.PaymentStatus != request.PaymentStatus)
+                    transaction.PaymentStatus = GetPaymentStatus(request.PaymentStatus);
+
+                if(transaction.PaymentType != request.PaymentType)
+                    transaction.PaymentType = ValidatePaymentType(request.PaymentType);
 
                 if (transaction.TotalPrice != request.TotalPrice && request.SelectedProducts.Any())
                 {
@@ -101,7 +100,7 @@ namespace Uarung.API.Controllers
                     transaction.TotalPrice = totalPrice;
                 }
 
-                if (transaction.DiscountCode != request.Discount.Code && !string.IsNullOrEmpty(transaction.DiscountCode))
+                if (transaction.DiscountCode != request.Discount.Code && !string.IsNullOrEmpty(request.Discount.Code))
                 {
                     transaction.DiscountCode = FillDiscount(request.Discount.Code, transaction.TotalPrice, out var discountValue);
                     transaction.DiscountValue = discountValue;
@@ -115,7 +114,7 @@ namespace Uarung.API.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                response.Status.SetError(e);
+                response.Status.SetError(e.Message);
             }
 
             return response;
@@ -211,8 +210,18 @@ namespace Uarung.API.Controllers
             return discount.Id;
         }
 
+        private static string GetPaymentStatus(string paymentStatus)
+        {
+            return paymentStatus.Equals(Constant.PaymentStatus.Paid, StringComparison.OrdinalIgnoreCase)
+                ? Constant.PaymentStatus.Paid
+                : Constant.PaymentStatus.Hold;
+        }
+
         private static string ValidatePaymentType(string paymentType)
         {
+            if (paymentType.Equals(string.Empty))
+                return paymentType;
+
             var paymentTypes = new[]
             {
                 Constant.PaymentType.Card,

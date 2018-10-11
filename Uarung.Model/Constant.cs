@@ -24,7 +24,6 @@ namespace Uarung.Model
             public const string ApiUrlProduct = "API.Url.Product";
             public const string ApiUrlProductCategory = "API.Url.ProductCategory";
             public const string ApiUrlTransaction = "API.Url.Transaction";
-            public const string ApiUrlTransactionSetPaid = "API.Url.Transaction.SetPaid";
             public const string ApiUrlTransactionGetHold = "API.Url.Transaction.GetHold";
             public const string ApiUrlDiscount = "API.Url.Discount";
             public const string ApiUrlUser = "API.Url.User";
