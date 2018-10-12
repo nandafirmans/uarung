@@ -28,6 +28,7 @@ namespace Uarung.API.Controllers
             _redisWrapper = new RedisWrapper(distributedCache);
         }
 
+        [CashierAllowed]
         [HttpPost]
         public ActionResult<CollectionResponse<Transaction>> Create(Transaction request)
         {
@@ -71,6 +72,7 @@ namespace Uarung.API.Controllers
             return response;
         }
 
+        [CashierAllowed]
         [HttpPut]
         public ActionResult<CollectionResponse<Transaction>> Update(Transaction request)
         {
@@ -121,6 +123,7 @@ namespace Uarung.API.Controllers
             return response;
         }
 
+        [CashierAllowed]
         [HttpGet("{id=}")]
         public ActionResult<CollectionResponse<Transaction>> Get(string id)
         {
@@ -168,6 +171,7 @@ namespace Uarung.API.Controllers
             return response;
         }
 
+        [CashierAllowed]
         [HttpGet("HoldOnly")]
         public ActionResult<CollectionResponse<Transaction>> GetHoldOnly()
         {

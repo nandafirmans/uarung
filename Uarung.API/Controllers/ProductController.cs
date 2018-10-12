@@ -28,7 +28,7 @@ namespace Uarung.API.Controllers
             _dacProductCategory = dacProductCategory;
             _redisWrapper = new RedisWrapper(distributedCache);
         }
-
+        
         [HttpPost]
         public ActionResult<BaseReponse> Create(ProductRequest request)
         {
@@ -66,6 +66,7 @@ namespace Uarung.API.Controllers
             return response;
         }
 
+        [CashierAllowed]
         [HttpGet("{id=}")]
         public ActionResult<CollectionResponse<Product>> Get(string id)
         {
@@ -104,7 +105,7 @@ namespace Uarung.API.Controllers
 
             return response;
         }
-
+        
         [HttpDelete("{id}")]
         public ActionResult<BaseReponse> Delete(string id)
         {
@@ -131,7 +132,7 @@ namespace Uarung.API.Controllers
 
             return response;
         }
-
+        
         [HttpPut]
         public ActionResult<BaseReponse> Update(ProductRequest request)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
@@ -17,31 +18,33 @@ namespace Uarung.API.Controllers
             _dacUser = dacUser;
         }
 
-        [HttpGet("{id=}")]
-        public ActionResult<CollectionResponse<User>> Get(string id)
+        [HttpGet]
+        public ActionResult<CollectionResponse<User>> Get()
         {
             var response = new CollectionResponse<User>();
 
             try
             {
-                var users = string.IsNullOrEmpty(id)
-                    ? _dacUser.All()
-                    : new[] {_dacUser.Single(id)};
+                response.Collections = TranslateToModel(_dacUser.All());
+                response.Status.SetSuccess();
+            }
+            catch (Exception e)
+            {
+                response.Status.SetError(e);
+            }
 
-                response.Collections = users
-                    .Select(u => new User
-                    {
-                        Id = u.Id,
-                        Email = u.Email,
-                        Username = u.Username,
-                        Name = u.Name,
-                        Gender = u.Gender,
-                        Phone = u.Phone,
-                        Role = u.Role,
-                        Password = u.Password
-                    })
-                    .ToList();
+            return response;
+        }
 
+        [CashierAllowed]
+        [HttpGet("{id}")]
+        public ActionResult<CollectionResponse<User>> GetSingle(string id)
+        {
+            var response = new CollectionResponse<User>();
+
+            try
+            {
+                response.Collections = TranslateToModel(new[] { _dacUser.Single(id) });
                 response.Status.SetSuccess();
             }
             catch (Exception e)
@@ -158,6 +161,23 @@ namespace Uarung.API.Controllers
             }
 
             return response;
+        }
+
+        private List<User> TranslateToModel(IEnumerable<Data.Entity.User> users)
+        {
+            return users
+                .Select(u => new User
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    Username = u.Username,
+                    Name = u.Name,
+                    Gender = u.Gender,
+                    Phone = u.Phone,
+                    Role = u.Role,
+                    Password = u.Password
+                })
+                .ToList();
         }
     }
 }

@@ -86,6 +86,7 @@ namespace Uarung.API.Controllers
             return response;
         }
 
+        [CashierAllowed]
         [HttpGet("{id=}")]
         public ActionResult<CollectionResponse<Discount>> Get(string id)
         {

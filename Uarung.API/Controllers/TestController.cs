@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using Uarung.API.Utility;
 using Uarung.Data.Contract;
 
 namespace Uarung.API.Controllers
@@ -8,22 +9,20 @@ namespace Uarung.API.Controllers
     public class TestController : BaseController
     {
         private readonly IDacProduct _dacProduct;
-        private readonly IDacUser _dacUser;
+
 
         public TestController(
-            IDacUser dacUser,
             IDacProduct dacProduct,
             IDistributedCache distributedCache
         )
         {
-            _dacUser = dacUser;
             _dacProduct = dacProduct;
         }
         
-        [HttpGet("{id}")]
-        public ActionResult<string> Insert(string id)
+        [HttpGet()]
+        public ActionResult<IEnumerable<Data.Entity.Product>> Get()
         {
-            return Crypt.ToMD5(id);
+            return _dacProduct.All().ToList();
         }
     }
 }

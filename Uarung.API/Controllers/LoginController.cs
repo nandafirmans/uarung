@@ -2,6 +2,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Uarung.API.Utility;
 using Uarung.Data.Contract;
 using Uarung.Model;
@@ -38,7 +39,7 @@ namespace Uarung.API.Controllers
 
                 var key = Guid.NewGuid().ToString("N");
 
-                SetSessionIdCache(key, user.Id);
+                SetSessionIdCache(key, JsonConvert.SerializeObject(user));
 
                 response.SessionId = key;
                 response.User = new User

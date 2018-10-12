@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Uarung.API.Utility;
 using Uarung.Data.Contract;
 using Uarung.Model;
 
@@ -14,7 +15,7 @@ namespace Uarung.API.Controllers
         {
             _dacProductCategory = dacProductCategory;
         }
-
+        
         [HttpPost]
         public ActionResult<BaseReponse> Create(ProductCategory request)
         {
@@ -42,7 +43,7 @@ namespace Uarung.API.Controllers
 
             return response;
         }
-
+        
         [HttpPut]
         public ActionResult<BaseReponse> Update(ProductCategory request)
         {
@@ -70,6 +71,7 @@ namespace Uarung.API.Controllers
             return response;
         }
 
+        [CashierAllowed]
         [HttpGet("{id=}")]
         public ActionResult<CollectionResponse<ProductCategory>> Get(string id)
         {
@@ -102,7 +104,7 @@ namespace Uarung.API.Controllers
 
             return response;
         }
-
+        
         [HttpDelete("{id}")]
         public ActionResult<BaseReponse> Delete(string id)
         {
