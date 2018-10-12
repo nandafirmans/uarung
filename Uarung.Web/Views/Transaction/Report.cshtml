@@ -7,6 +7,12 @@
 @section ScriptHeader
 {
     <link href="~/lib/air-datepicker/datepicker.min.css" rel="stylesheet"/>
+    <style>
+        .datepicker--day-name {
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
 }
 
 @section ScriptFooter
@@ -32,6 +38,7 @@
                        value="@Model.StartDate.ToString("d") - @Model.EndDate.ToString("d")"
                        class="datepicker-here form-control"
                        name="searchDate"
+                       autocomplete="off"
                        style="min-width: 220px"/>
                 <div class="input-group-append">
                     <button class="btn btn-outline-primary">Search</button>
