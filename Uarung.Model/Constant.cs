@@ -29,10 +29,13 @@ namespace Uarung.Model
             public const string ApiUrlDiscount = "API.Url.Discount";
             public const string ApiUrlUser = "API.Url.User";
             public const string ApiUrlFileUpload = "API.Url.FileUpload";
+
             public const string RouteDefaultController = "Route.Default.Controller";
             public const string RouteDefaultAction = "Route.Default.Action";
+
             public const string RedisOption = "Redis.Option";
             public const string SessionIdLifeTime = "Session.LifeTime";
+
             public const string BrandAddress = "Brand.Address";
             public const string BrandName = "Brand.Name";
         }
@@ -42,6 +45,7 @@ namespace Uarung.Model
             public const string ErrorMessage = "ErrorMessage";
             public const string Title = "Title";
             public const string UserName = "UserName";
+            public const string UserId = "UserId";
         }
 
         public static class PaymentType
@@ -61,6 +65,20 @@ namespace Uarung.Model
         {
             public const string Percentage = "Percentage";
             public const string Amount = "Amount"; 
+        }
+
+        public static class UserRole
+        {
+            public const string Admin = "admin";
+            public const string Cashier = "cashier";
+        }
+
+        public static class UserGender
+        {
+            public const string MaleKey = "Male";
+            public const string FemaleKey = "Female";
+            public const char MaleValue = 'L';
+            public const char FemaleValue = 'P';
         }
     }
 }

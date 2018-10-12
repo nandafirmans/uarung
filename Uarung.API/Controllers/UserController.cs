@@ -17,7 +17,7 @@ namespace Uarung.API.Controllers
             _dacUser = dacUser;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id=}")]
         public ActionResult<CollectionResponse<User>> Get(string id)
         {
             var response = new CollectionResponse<User>();
@@ -31,12 +31,14 @@ namespace Uarung.API.Controllers
                 response.Collections = users
                     .Select(u => new User
                     {
+                        Id = u.Id,
                         Email = u.Email,
                         Username = u.Username,
                         Name = u.Name,
                         Gender = u.Gender,
                         Phone = u.Phone,
-                        Role = u.Role
+                        Role = u.Role,
+                        Password = u.Password
                     })
                     .ToList();
 
@@ -51,7 +53,7 @@ namespace Uarung.API.Controllers
         }
 
         [HttpPut]
-        public ActionResult<BaseReponse> Update(UserRequest request)
+        public ActionResult<BaseReponse> Update(User request)
         {
             var response = new BaseReponse();
 
@@ -59,13 +61,31 @@ namespace Uarung.API.Controllers
             {
                 var user = _dacUser.Single(request.Id);
 
-                user.Email = request.Email;
-                user.Username = request.Username;
-                user.Password = Crypt.ToSHA256(request.Password);
-                user.Name = request.Name;
-                user.Gender = request.Gender;
-                user.Phone = request.Phone;
-                user.Role = request.Role;
+                if (user.Email != request.Email && !string.IsNullOrEmpty(request.Email))
+                    user.Email = request.Email;
+
+                if (user.Username != request.Username && !string.IsNullOrEmpty(request.Username))
+                    user.Username = request.Username;
+
+                if (user.Password != request.Password && !string.IsNullOrEmpty(request.Password))
+                {
+                    var passwordHash = Crypt.ToSHA256(request.Password);
+
+                    if(user.Password != passwordHash)
+                        user.Password = passwordHash;
+                }
+
+                if(user.Name != request.Name && !string.IsNullOrEmpty(request.Name))
+                    user.Name = request.Name;
+
+                if (user.Gender != request.Gender && request.Gender != char.MinValue)
+                    user.Gender = request.Gender;
+
+                if(user.Phone != request.Phone && !string.IsNullOrEmpty(request.Phone))
+                    user.Phone = request.Phone;
+
+                if (user.Role != request.Role && !string.IsNullOrEmpty(request.Role))
+                    user.Role = request.Role;
 
                 _dacUser.Update(user);
                 _dacUser.Commit();
@@ -81,7 +101,7 @@ namespace Uarung.API.Controllers
         }
 
         [HttpPost]
-        public ActionResult<BaseReponse> Create(UserRequest request)
+        public ActionResult<BaseReponse> Create(User request)
         {
             var response = new BaseReponse();
 

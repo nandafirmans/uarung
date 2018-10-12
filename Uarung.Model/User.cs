@@ -24,5 +24,8 @@ namespace Uarung.Model
 
         [JsonProperty("gender")]
         public char Gender { get; set; }
+
+        [JsonProperty("password")]
+        public string Password { get; set; }
     }
 }

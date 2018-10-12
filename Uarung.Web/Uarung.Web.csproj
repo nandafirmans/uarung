@@ -56,6 +56,12 @@
     <Content Update="Views\Transaction\SalesRegister.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Views\User\Edit.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\User\Add.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\User\Index.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

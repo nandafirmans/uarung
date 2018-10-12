@@ -1,8 +1,62 @@
-﻿@{
+﻿@model List<User>
+
+@{
     ViewData[Constant.ViewDataKey.Title] = "User";
+    var currentUserId = (string) ViewData[Constant.ViewDataKey.UserId];
 }
 
 <div class="d-flex mb-5">
     <h3 class="mr-auto">User</h3>
+    <a class="btn btn-outline-primary" asp-controller="User" asp-action="Add">
+        Add User
+    </a>
 </div>
 
+<table class="table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col" style="width: 20px">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Email</th>
+        <th scope="col">Role</th>
+        <th scope="col">Phone</th>
+        <th scope="col">Gender</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (Model != null)
+    {
+        var i = 1;
+        foreach (var user in Model)
+        {
+            <tr>
+                <td>@i</td>
+                <td>
+                    <a href="@Url.Action("Edit", new {id = user.Id})">
+                        @user.Id
+                    </a>
+                </td>
+                <td>@user.Name</td>
+                <td>@user.Email</td>
+                <td>@user.Role</td>
+                <td>@user.Phone</td>
+                <td>@(user.Gender.Equals(Constant.UserGender.MaleValue) ? Constant.UserGender.MaleKey : Constant.UserGender.FemaleKey)</td>
+                <td>
+                    @if (user.Id != currentUserId)
+                    {
+                        <form action="@Url.Action("Delete", new { id = user.Id })">
+                            <button type="submit" class="btn btn-danger btn-sm p-0 lh-0 rounded-circle">
+                                <span data-feather="x"></span>
+                            </button>
+                        </form>
+                    }
+                </td>
+            </tr>
+
+            i++;
+        }
+    }
+    </tbody>
+</table>
