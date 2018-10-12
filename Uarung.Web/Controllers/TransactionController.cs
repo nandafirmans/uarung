@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Uarung.Model;
 using Uarung.Web.Models;
 using Uarung.Web.Utility;
@@ -60,9 +63,76 @@ namespace Uarung.Web.Controllers
             return View(model);
         }
 
-        public IActionResult Report()
+        public IActionResult Report(string searchDate)
         {
-            return View();
+            var model = new ReportViewModel();
+
+            try
+            {
+                var searchDateSplited = searchDate?.Split(" - ") ?? new []
+                {
+                    DateTime.Today.ToString("d"),
+                    DateTime.Today.ToString("d")
+                };
+                
+                DateTime.TryParseExact(searchDateSplited[0], "d", null, DateTimeStyles.None, out var start);
+                DateTime.TryParseExact(searchDateSplited[1], "d", null, DateTimeStyles.None, out var end);
+
+                var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlTransactionReport);
+                var request = new TransactionReportRequest()
+                {
+                    StartDate = start, 
+                    EndDate = end
+                };
+
+                var response = Requestor().Get<CollectionResponse<Transaction>>(url, request);
+
+                CheckResponse(response);
+
+                model.Transactions = response.Collections;
+                model.StartDate = start;
+                model.EndDate = end;
+            }
+            catch (Exception e)
+            {
+                SetErrorMessage(e);
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Export(string jsonTransactions, string fileName)
+        {
+            try
+            {
+                var transactions = JsonConvert.DeserializeObject<List<Transaction>>(jsonTransactions);
+
+                var sb = new StringBuilder();
+
+                sb.AppendLine("Id, Notes, Payment Status, Payment Type, Created Date, Total Price,");
+
+                foreach (var t in transactions)
+                {
+                    var datas = new[]
+                    {
+                        t.Id,
+                        string.IsNullOrEmpty(t.Notes) ? "-" : t.Notes,
+                        t.PaymentStatus,
+                        t.PaymentType,
+                        t.CreatedDate.ToString("dd-MM-yyyy HH:mm"),
+                        $"\"{(t.TotalPrice - t.Discount.Value):N0}\""
+                    };
+
+                    sb.AppendLine(string.Join(",", datas));
+                }
+
+                return File(Encoding.Default.GetBytes(sb.ToString()), "text/csv", $"{fileName}.csv");
+            }
+            catch (Exception e)
+            {
+                return RedirectToAction("Report", new {err = e.Message});
+            }
         }
 
         public IActionResult SalesRegister()

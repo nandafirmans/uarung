@@ -144,6 +144,30 @@ namespace Uarung.API.Controllers
             return response;
         }
 
+        [HttpGet("Report")]
+        public ActionResult<CollectionResponse<Transaction>> GetReport([FromQuery] TransactionReportRequest request)
+        {
+            var response = new CollectionResponse<Transaction>();
+
+            try
+            {
+                var transactions = _dacTransaction
+                    .Where(t => 
+                        t.CreatedDate.Date >= request.StartDate.Date && 
+                        t.CreatedDate.Date <= request.EndDate.Date);
+
+                response.Collections = TranslateToModel(transactions);
+                response.Status.SetSuccess();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                response.Status.SetError(e);
+            }
+
+            return response;
+        }
+
         [HttpGet("HoldOnly")]
         public ActionResult<CollectionResponse<Transaction>> GetHoldOnly()
         {

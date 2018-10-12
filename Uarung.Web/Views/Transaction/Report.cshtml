@@ -1,7 +1,52 @@
-﻿@{
+﻿@model ReportViewModel
+
+@{
     ViewData[Constant.ViewDataKey.Title] = "Report";
 }
 
-<div class="d-flex mb-5">
-    <h3 class="mr-auto">Report</h3>
+@section ScriptHeader
+{
+    <link href="~/lib/air-datepicker/datepicker.min.css" rel="stylesheet"/>
+}
+
+@section ScriptFooter
+{
+    <script type="text/javascript" src="~/lib/air-datepicker/datepicker.min.js"></script>
+    <script type="text/javascript" src="~/lib/air-datepicker/datepicker.en.js"></script>
+}
+
+<div class="mb-3 d-flex">
+    <h3 class="d-inline-flex">Report</h3>
+    <div class="d-flex align-items-center ml-auto">
+        <form action="@Url.Action("Report")" method="get">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <span data-feather="calendar"></span>
+                    </span>
+                </div>
+                <input type="text"
+                       data-range="true"
+                       data-multiple-dates-separator=" - "
+                       data-language="en"
+                       value="@Model.StartDate.ToString("d") - @Model.EndDate.ToString("d")"
+                       class="datepicker-here form-control"
+                       name="searchDate"
+                       style="min-width: 220px"/>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-primary">Search</button>
+                </div>
+            </div>
+        </form>
+        <form action="@Url.Action("Export")" method="post">
+            <input type="hidden" name="jsonTransactions" value='@Json.Serialize(Model.Transactions)'/>
+            <input type="hidden" name="fileName" value="Transaction @Model.StartDate.ToString("ddMMyy") - @Model.EndDate.ToString("ddMMyy")"/>
+            <button class="btn btn-outline-primary ml-2">
+                Export Data
+            </button>
+        </form>
+    </div>
 </div>
+
+<p>Showing result from @Model.StartDate.ToString("dd MMM yyyy") to @Model.EndDate.ToString("dd MMM yyyy")</p>
+<partial name="_TableTransactionPartial.cshtml" model="Model.Transactions"/>
