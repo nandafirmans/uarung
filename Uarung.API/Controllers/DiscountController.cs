@@ -11,12 +11,12 @@ namespace Uarung.API.Controllers
     public class DiscountController : BaseController
     {
         private readonly IDacDiscount _dacDiscount;
-        private readonly RedisWrapper _redisWrapper;
+        private readonly IDistributedCache _distributedCache;
 
         public DiscountController(IDacDiscount dacDiscount, IDistributedCache distributedCache)
         {
             _dacDiscount = dacDiscount;
-            _redisWrapper = new RedisWrapper(distributedCache);
+            _distributedCache = distributedCache;
         }
 
         [HttpPost]
@@ -26,7 +26,7 @@ namespace Uarung.API.Controllers
 
             try
             {
-                var userId = GetUserId(Request, _redisWrapper);
+                var userId = GetUserId(Request, _distributedCache);
                 var discount = new Data.Entity.Discount
                 {
                     Id = request.Code,

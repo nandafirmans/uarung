@@ -15,18 +15,17 @@ namespace Uarung.API.Controllers
     {
         private readonly IDacProduct _dacProduct;
         private readonly IDacProductCategory _dacProductCategory;
+        private readonly IDistributedCache _distributedCache;
         private readonly IDacProductImage _dacProductImage;
-        private readonly IDacUser _dacUser;
-        private readonly RedisWrapper _redisWrapper;
+        
 
-        public ProductController(IDacProduct dacProduct, IDacUser dacUser, IDacProductImage dacProductImage,
+        public ProductController(IDacProduct dacProduct, IDacProductImage dacProductImage,
             IDacProductCategory dacProductCategory, IDistributedCache distributedCache)
         {
             _dacProduct = dacProduct;
-            _dacUser = dacUser;
             _dacProductImage = dacProductImage;
             _dacProductCategory = dacProductCategory;
-            _redisWrapper = new RedisWrapper(distributedCache);
+            _distributedCache = distributedCache;
         }
         
         [HttpPost]
@@ -37,7 +36,7 @@ namespace Uarung.API.Controllers
             try
             {
                 var productId = GenerateId();
-                var userId = GetUserId(Request, _redisWrapper);
+                var userId = GetUserId(Request, _distributedCache);
 
                 var product = new Data.Entity.Product
                 {

@@ -23,10 +23,8 @@ namespace Uarung.Web.Controllers
 
             try
             {
-                var jsonUser = GetSessionValue(Constant.SessionKey.JsonUser);
-
-                if(!string.IsNullOrEmpty(jsonUser))
-                    userName = JsonConvert.DeserializeObject<User>(jsonUser).Name;
+                userName = HttpContext.Session
+                    .GetValue<User>(Constant.SessionKey.JsonUser)?.Name;
             }
             catch (Exception e)
             {

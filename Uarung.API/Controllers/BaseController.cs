@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using Uarung.API.Utility;
 using Uarung.Model;
@@ -16,17 +17,15 @@ namespace Uarung.API.Controllers
             return Guid.NewGuid().ToString("N");
         }
         
-        protected static string GetUserId(HttpRequest request, RedisWrapper redisWrapper)
+        protected static string GetUserId(HttpRequest request, IDistributedCache distributedCache)
         {
             var cacheKey = $"{Constant.SessionKey.RedisNamespace}:{request.Headers[Constant.SessionKey.SessionId]}";
-            var jsonUser = redisWrapper.Get(cacheKey);
+            var jsonUser = distributedCache.GetValue(cacheKey);
 
             if (string.IsNullOrEmpty(jsonUser))
                 throw new Exception("user id is required");
 
-            var user = JsonConvert.DeserializeObject<User>(jsonUser);
-
-            return user.Id;
+            return JsonConvert.DeserializeObject<User>(jsonUser).Id;
         }
     }
 }

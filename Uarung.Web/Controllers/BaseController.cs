@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
@@ -45,7 +43,7 @@ namespace Uarung.Web.Controllers
         private Dictionary<string, string> GetApiSessionIdHeader()
         {
             const string sessionIdKey = Constant.SessionKey.SessionId;
-            var sessionId = GetSessionValue(sessionIdKey);
+            var sessionId = HttpContext.Session.GetValue(sessionIdKey);
 
             return new Dictionary<string, string> {{sessionIdKey, sessionId}};
         }
@@ -53,15 +51,6 @@ namespace Uarung.Web.Controllers
         public Requestor Requestor()
         {
             return new Requestor(GetApiSessionIdHeader());
-        }
-
-        public string GetSessionValue(string key)
-        {
-            var sessionValueBytes = HttpContext?.Session.Get(key);
-
-            return sessionValueBytes != null
-                ? Encoding.Default.GetString(sessionValueBytes)
-                : string.Empty;
         }
 
         public void SetErrorMessage(string errorMessage)

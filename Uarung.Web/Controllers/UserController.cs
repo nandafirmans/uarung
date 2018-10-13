@@ -24,11 +24,8 @@ namespace Uarung.Web.Controllers
             try
             {
                 model = FetchUser().Collections;
-
-                var jsonUser = GetSessionValue(Constant.SessionKey.JsonUser);
-
-                if (!string.IsNullOrEmpty(jsonUser))
-                    currentUserId = JsonConvert.DeserializeObject<User>(jsonUser).Id;
+                currentUserId = HttpContext.Session
+                    .GetValue<User>(Constant.SessionKey.JsonUser)?.Id;
             }
             catch (Exception e)
             {

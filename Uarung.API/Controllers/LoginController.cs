@@ -12,14 +12,14 @@ namespace Uarung.API.Controllers
     public class LoginController : BaseController
     {
         private readonly IConfiguration _configuration;
+        private readonly IDistributedCache _distributedCache;
         private readonly IDacUser _dacUser;
-        private readonly RedisWrapper _redisWrapper;
 
         public LoginController(IDistributedCache distributedCache, IDacUser dacUser, IConfiguration configuration)
         {
+            _distributedCache = distributedCache;
             _dacUser = dacUser;
             _configuration = configuration;
-            _redisWrapper = new RedisWrapper(distributedCache);
         }
 
         [HttpPost]
@@ -65,10 +65,10 @@ namespace Uarung.API.Controllers
 
         private void SetSessionIdCache(string key, string value)
         {
-            var ltInMinutes = TimeSpan.FromMinutes(
-                _configuration.GetValue<int>(Constant.ConfigKey.SessionIdLifeTime));
+            var lifeTimeConfig = _configuration.GetValue<int>(Constant.ConfigKey.SessionIdLifeTime);
+            var cacheKey = $"{Constant.SessionKey.RedisNamespace}:{key}";
 
-            _redisWrapper.Set($"{Constant.SessionKey.RedisNamespace}:{key}", value, ltInMinutes);
+            _distributedCache.SetValue(cacheKey, value, TimeSpan.FromMinutes(lifeTimeConfig));
         }
     }
 }

@@ -13,10 +13,10 @@ namespace Uarung.API.Controllers
     public class TransactionController : BaseController
     {
         private readonly IDacDiscount _dacDiscount;
+        private readonly IDistributedCache _distributedCache;
         private readonly IDacProduct _dacProduct;
         private readonly IDacSelectedProduct _dacSelectedProduct;
         private readonly IDacTransaction _dacTransaction;
-        private readonly RedisWrapper _redisWrapper;
 
         public TransactionController(IDacTransaction dacTransaction, IDacSelectedProduct dacSelectedProduct,
             IDacProduct dacProduct, IDacDiscount discount, IDistributedCache distributedCache)
@@ -25,7 +25,7 @@ namespace Uarung.API.Controllers
             _dacSelectedProduct = dacSelectedProduct;
             _dacProduct = dacProduct;
             _dacDiscount = discount;
-            _redisWrapper = new RedisWrapper(distributedCache);
+            _distributedCache = distributedCache;
         }
 
         [CashierAllowed]
@@ -40,7 +40,7 @@ namespace Uarung.API.Controllers
                     throw new Exception("selected product cannot be empty");
 
                 var transactionId = GenerateId();
-                var userId = GetUserId(Request, _redisWrapper);
+                var userId = GetUserId(Request, _distributedCache);
 
                 var transaction = new Data.Entity.Transaction
                 {
@@ -132,8 +132,8 @@ namespace Uarung.API.Controllers
             try
             {
                 var transactions = string.IsNullOrEmpty(id)
-                    ? _dacTransaction.All()
-                    : new[] {_dacTransaction.Single(id)};
+                    ? _dacTransaction.All().OrderByDescending(t => t.CreatedDate)
+                    : new[] {_dacTransaction.Single(id)}.AsEnumerable();
 
                 response.Collections = TranslateToModel(transactions);
                 response.Status.SetSuccess();

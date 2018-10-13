@@ -15,13 +15,13 @@ namespace Uarung.API.Utility
 {
     public class Authorize : IActionFilter
     {
+        private readonly IDistributedCache _distributedCache;
         private readonly IConfiguration _configuration;
-        private readonly RedisWrapper _redisWrapper;
 
         public Authorize(IDistributedCache distributedCache, IConfiguration configuration)
         {
+            _distributedCache = distributedCache;
             _configuration = configuration;
-            _redisWrapper = new RedisWrapper(distributedCache);
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
@@ -60,8 +60,8 @@ namespace Uarung.API.Utility
         {
             var configLifeTime = _configuration.GetValue<int>(Constant.ConfigKey.SessionIdLifeTime);
 
-            _redisWrapper.Remove(sessionIdKey);
-            _redisWrapper.Set(sessionIdKey, jsonUser, TimeSpan.FromMinutes(configLifeTime));
+            _distributedCache.Remove(sessionIdKey);
+            _distributedCache.SetValue(sessionIdKey, jsonUser, TimeSpan.FromMinutes(configLifeTime));
         }
 
         private static bool CheckAttributes(ActionDescriptor actionDescriptor, Type attributeType)
@@ -76,7 +76,7 @@ namespace Uarung.API.Utility
                 .TryGetValue(Constant.SessionKey.SessionId, out var sessionIdRequest);
 
             var sessionIdKey = $"{Constant.SessionKey.RedisNamespace}:{sessionIdRequest}";
-            var sessionIdCacheValue = _redisWrapper.Get(sessionIdKey);
+            var sessionIdCacheValue = _distributedCache.GetValue(sessionIdKey);
 
             return new Dictionary<string, string>()
             {
