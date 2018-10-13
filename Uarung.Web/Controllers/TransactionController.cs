@@ -120,7 +120,7 @@ namespace Uarung.Web.Controllers
                         string.IsNullOrEmpty(t.Notes) ? "-" : t.Notes,
                         t.PaymentStatus,
                         t.PaymentType,
-                        t.CreatedDate.ToString("dd-MM-yyyy HH:mm"),
+                        t.CreatedDate.ToString("g"),
                         $"\"{(t.TotalPrice - t.Discount.Value):N0}\""
                     };
 

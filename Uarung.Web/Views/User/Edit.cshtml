@@ -27,11 +27,12 @@
 }
 
 <div class="row mb-5">
-    <div class="col-6 offset-3">
-        <div class="d-flex mb-3">
-            <h3 class="mr-auto">Add User</h3>
+    <div class="col-md-6">
+        <div class="d-flex align-items-baseline mb-3">
+            <h3 class="m-0">Edit User</h3>
+            <p class="mb-0 ml-2"> @Model.Id</p>
         </div>
-        <form action="@Url.Action("Submit")" method="POST" role="form">
+        <form action="@Url.Action("Submit")" method="POST" role="form" autocomplete="off">
             <input name="Id" type="hidden" value="@Model.Id"/>
             <div class="form-group">
                 <label>Full Name</label>
