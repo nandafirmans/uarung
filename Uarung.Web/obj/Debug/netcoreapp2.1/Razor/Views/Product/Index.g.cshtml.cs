@@ -74,7 +74,7 @@ using Uarung.Model;
             WriteLiteral("\r\n<div class=\"d-flex mb-5\">\r\n    <h3 class=\"mr-auto\">Product</h3>\r\n    ");
             EndContext();
             BeginContext(157, 115, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "8b4a84b35f874a4db199d291099b87ce", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "c5c3a8065a0444ddab04d3992b540c06", async() => {
                 BeginContext(236, 32, true);
                 WriteLiteral("\r\n        Product Category\r\n    ");
                 EndContext();
@@ -99,7 +99,7 @@ using Uarung.Model;
             WriteLiteral("\r\n    ");
             EndContext();
             BeginContext(278, 108, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "fb0e44ef4f524752974ea9cbb1a5880d", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "ecafaedd59a14e068c276d40eeef44ce", async() => {
                 BeginContext(355, 27, true);
                 WriteLiteral("\r\n        Add Product\r\n    ");
                 EndContext();
@@ -211,7 +211,7 @@ WriteAttributeValue("", 917, Url.Action("Edit", new {id = product.Id}), 917, 42,
             WriteLiteral("</td>\r\n                <td>\r\n                    ");
             EndContext();
             BeginContext(1235, 288, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "c82834f8d26f48c58f8d544c45e6b4dd", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "784d4abcebfa4d629e869af6fc1d03a6", async() => {
                 BeginContext(1297, 219, true);
                 WriteLiteral("\r\n                        <button type=\"submit\" class=\"btn btn-danger btn-sm p-0 lh-0 rounded-circle\">\r\n                            <span data-feather=\"x\"></span>\r\n                        </button>\r\n                    ");
                 EndContext();

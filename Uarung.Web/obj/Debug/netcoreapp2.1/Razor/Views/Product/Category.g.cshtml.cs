@@ -129,7 +129,7 @@ using Uarung.Model;
             WriteLiteral("</td>\r\n                <td>\r\n                    ");
             EndContext();
             BeginContext(835, 295, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "e2c14f33720b4599b0042e9bef780ff7", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "5dc5c5a0e8794eb88f8e012a083fe647", async() => {
                 BeginContext(904, 219, true);
                 WriteLiteral("\r\n                        <button type=\"submit\" class=\"btn btn-danger btn-sm p-0 lh-0 rounded-circle\">\r\n                            <span data-feather=\"x\"></span>\r\n                        </button>\r\n                    ");
                 EndContext();
@@ -175,7 +175,7 @@ AddHtmlAttributeValue("", 890, category.Id, 890, 12, false);
             WriteLiteral("    </tbody>\r\n</table>\r\n\r\n<div class=\"modal fade\" id=\"form-modal\">\r\n    <div class=\"modal-dialog\">\r\n        <div class=\"modal-content\">\r\n            ");
             EndContext();
             BeginContext(1361, 903, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "1905f4c7d092474ab3a57fa79a879c9a", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "c297c8c626944f18beb649c7d0ce1e5d", async() => {
                 BeginContext(1431, 826, true);
                 WriteLiteral(@"
                 <div class=""modal-header"">
