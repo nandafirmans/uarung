@@ -1,8 +1,13 @@
 ﻿@using Microsoft.Extensions.Configuration
+@using Uarung.Web.Utility
 @inject IConfiguration Config;
 
 @{
     var errorMessage = (string) ViewData[Constant.ViewDataKey.ErrorMessage];
+
+    var isAdmin = Context.Session
+        .GetValue<User>(Constant.SessionKey.JsonUser)?.Role
+        .Equals(Constant.UserRole.Admin) ?? false;
 
     var brandName = Config.GetValue<string>(Constant.ConfigKey.BrandName);
     var defaultController = Config.GetValue<string>(Constant.ConfigKey.RouteDefaultController);
@@ -31,35 +36,44 @@
         },
         new
         {
-            Name = "Product",
-            FeatherIcon = "file",
-            RoutePath = Url.Action("Index", "Product")
-        },
-        new
-        {
             Name = "Transaction",
             FeatherIcon = "bar-chart-2",
             RoutePath = Url.Action("Index", "Transaction")
         },
-        new
-        {
-            Name = "Reports",
-            FeatherIcon = "archive",
-            RoutePath = Url.Action("Report", "Transaction")
-        },
-        new
-        {
-            Name = "Discount",
-            FeatherIcon = "percent",
-            RoutePath = Url.Action("Index", "Discount")
-        },
-        new
-        {
-            Name = "User",
-            FeatherIcon = "user",
-            RoutePath = Url.Action("Index", "User")
-        },
     };
+
+    if (isAdmin)
+    {
+        menus = menus
+            .Concat(new List<dynamic>()
+            {
+                new
+                {
+                    Name = "Reports",
+                    FeatherIcon = "archive",
+                    RoutePath = Url.Action("Report", "Transaction")
+                },
+                new
+                {
+                    Name = "Product",
+                    FeatherIcon = "file",
+                    RoutePath = Url.Action("Index", "Product")
+                },
+                new
+                {
+                    Name = "Discount",
+                    FeatherIcon = "percent",
+                    RoutePath = Url.Action("Index", "Discount")
+                },
+                new
+                {
+                    Name = "User",
+                    FeatherIcon = "user",
+                    RoutePath = Url.Action("Index", "User")
+                }
+            })
+            .ToList();
+    }
 }
 
 <!DOCTYPE html>
