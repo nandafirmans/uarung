@@ -72,7 +72,7 @@ using Uarung.Model;
             WriteLiteral("\r\n<div class=\"d-flex mb-5\">\r\n    <h3 class=\"mr-auto\">Transaction</h3>\r\n    ");
             EndContext();
             BeginContext(169, 126, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "0e6619b99884481bad8ce4afdb061629", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "72f9895b7ecb46b6ad52bb9eb8cbe906", async() => {
                 BeginContext(260, 31, true);
                 WriteLiteral("\r\n        Add Transaction\r\n    ");
                 EndContext();
@@ -97,7 +97,7 @@ using Uarung.Model;
             WriteLiteral("\r\n</div>\r\n\r\n");
             EndContext();
             BeginContext(307, 63, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("partial", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.SelfClosing, "86f9e6e44dd544e8b7baedabb7e3a682", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("partial", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.SelfClosing, "5e9fb914490b4d33a62ad7c9f223e20f", async() => {
             }
             );
             __Microsoft_AspNetCore_Mvc_TagHelpers_PartialTagHelper = CreateTagHelper<global::Microsoft.AspNetCore.Mvc.TagHelpers.PartialTagHelper>();

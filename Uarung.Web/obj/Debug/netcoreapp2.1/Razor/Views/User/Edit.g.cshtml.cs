@@ -94,7 +94,7 @@ using Uarung.Model;
             WriteLiteral("\r\n<div class=\"row mb-5\">\r\n    <div class=\"col-6 offset-3\">\r\n        <div class=\"d-flex mb-3\">\r\n            <h3 class=\"mr-auto\">Add User</h3>\r\n        </div>\r\n        ");
             EndContext();
             BeginContext(880, 3016, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "df6a51d6c1ad4e7891f9516a1391a553", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "1f0f4a2ecff14e2a97d20ba5635bc6d1", async() => {
                 BeginContext(943, 44, true);
                 WriteLiteral("\r\n            <input name=\"Id\" type=\"hidden\"");
                 EndContext();
@@ -171,7 +171,7 @@ WriteAttributeValue("", 1743, Model.Email, 1743, 12, false);
                 WriteLiteral("                                ");
                 EndContext();
                 BeginContext(2273, 155, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "76135a53b10342b59bf53a40ae534b38", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "b38410c634524fdc99a6325a9c01680e", async() => {
                     BeginContext(2342, 38, true);
                     WriteLiteral("\r\n                                    ");
                     EndContext();
@@ -244,7 +244,7 @@ WriteAttributeValue("", 1743, Model.Email, 1743, 12, false);
                 WriteLiteral("                                ");
                 EndContext();
                 BeginContext(2957, 161, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "acf3aba32096456695b9836aa9d55740", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "0192320d597a47529400e9427351e2bb", async() => {
                     BeginContext(3031, 38, true);
                     WriteLiteral("\r\n                                    ");
                     EndContext();

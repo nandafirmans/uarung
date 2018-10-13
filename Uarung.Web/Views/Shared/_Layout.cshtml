@@ -94,7 +94,6 @@
         </li>
     </ul>
 </nav>
-
 <div class="container-fluid">
     <div class="row">
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
@@ -118,10 +117,6 @@
         </main>
     </div>
 </div>
-    
-
-
-
 @if (!string.IsNullOrEmpty(errorMessage))
 {
     <div class="alert alert-danger alert-dismissible alert-error-message d-flex align-items-center p-2 fade" id="errorAlert">
@@ -136,10 +131,10 @@
                 const removedErrQuery = window.location.protocol + "//" + window.location.host + window.location.pathname;
                 window.history.pushState({ path: removedErrQuery }, "", removedErrQuery);
             }
-            
-            setTimeout(function(){
+
+            setTimeout(function() {
                 document.getElementById("errorAlert").className += " show";
-            }, 500)
+            }, 500);
         })();
     </script>
 }
