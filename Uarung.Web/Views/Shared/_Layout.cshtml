@@ -4,6 +4,7 @@
 
 @{
     var errorMessage = (string) ViewData[Constant.ViewDataKey.ErrorMessage];
+    var okMessage = (string) ViewData[Constant.ViewDataKey.OkMessage];
 
     var isAdmin = Context.Session
         .GetValue<User>(Constant.SessionKey.JsonUser)?.Role
@@ -76,6 +77,35 @@
     }
 }
 
+@functions
+{
+    private static string RenderAlerts(string messages, bool isError = true)
+    {
+        var cssClass = isError ? "danger" : "success";
+        var dismissFunction = !isError ? @"setTimeout(function() {$('#infoAlert').alert('close')}, 3000);" : string.Empty;
+
+        return $@"
+            <div class='alert alert-{cssClass} alert-dismissible alert-error-message d-flex align-items-center p-2 fade' id='infoAlert'>
+                <span class='text-monospace'>{messages}</span>
+                <button type='button' class='btn btn-outline-{cssClass} rounded-circle btn-times-close border-0 p-0 ml-2' data-dismiss='alert'>
+                    <span>&times;</span>
+                </button>
+            </div>
+            <script>
+                (function(){{
+                    if (window.history) {{
+                        const removedErrQuery = window.location.protocol + '//' + window.location.host + window.location.pathname;
+                        window.history.pushState({{ path: removedErrQuery }}, '', removedErrQuery);
+                    }}
+                    setTimeout(function() {{
+                        document.getElementById('infoAlert').className += ' show';
+                        {dismissFunction}
+                    }}, 500);
+                }})();
+            </script>
+        ";
+    }
+}
 <!DOCTYPE html>
 <html>
 <head>
@@ -117,28 +147,15 @@
         </main>
     </div>
 </div>
+<partial name="_ScriptFooter.cshtml"/>
 @if (!string.IsNullOrEmpty(errorMessage))
 {
-    <div class="alert alert-danger alert-dismissible alert-error-message d-flex align-items-center p-2 fade" id="errorAlert">
-        <span class="text-monospace">@errorMessage</span>
-        <button type="button" class="btn btn-outline-danger rounded-circle btn-times-close border-0 p-0 ml-2" data-dismiss="alert">
-            <span>&times;</span>
-        </button>
-    </div>
-    <script>
-        (function(){
-            if (window.history) {
-                const removedErrQuery = window.location.protocol + "//" + window.location.host + window.location.pathname;
-                window.history.pushState({ path: removedErrQuery }, "", removedErrQuery);
-            }
-
-            setTimeout(function() {
-                document.getElementById("errorAlert").className += " show";
-            }, 500);
-        })();
-    </script>
+    @Html.Raw(RenderAlerts(errorMessage))
 }
-<partial name="_ScriptFooter.cshtml"/>
+@if (!string.IsNullOrEmpty(okMessage))
+{
+    @Html.Raw(RenderAlerts(okMessage, false))
+}
 @RenderSection("ScriptFooter", false)
 </body>
 </html>

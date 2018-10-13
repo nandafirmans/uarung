@@ -225,7 +225,7 @@ namespace Uarung.Web.Controllers
                 var url = $"{CreateServiceUrl(Constant.ConfigKey.ApiUrlTransaction)}{id}";
                 var response = Requestor().Delete<BaseReponse>(url);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { ok = "delete success" });
             }
             catch (Exception e)
             {

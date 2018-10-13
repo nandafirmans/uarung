@@ -22,9 +22,13 @@ namespace Uarung.Web.Controllers
             if (Request.QueryString.HasValue)
             {
                 Request.Query.TryGetValue("err", out var errorMessage);
+                Request.Query.TryGetValue("ok", out var okMessage);
 
-                if(!string.IsNullOrEmpty(errorMessage))
+                if (!string.IsNullOrEmpty(errorMessage))
                     SetErrorMessage(errorMessage);
+
+                if (!string.IsNullOrEmpty(okMessage))
+                    SetOkMessage(okMessage);
             }
 
             base.OnActionExecuted(context);
@@ -51,6 +55,11 @@ namespace Uarung.Web.Controllers
         public Requestor Requestor()
         {
             return new Requestor(GetApiSessionIdHeader());
+        }
+
+        public void SetOkMessage(string okMessage)
+        {
+            ViewData[Constant.ViewDataKey.OkMessage] = okMessage;
         }
 
         public void SetErrorMessage(string errorMessage)

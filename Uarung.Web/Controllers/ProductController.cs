@@ -91,7 +91,7 @@ namespace Uarung.Web.Controllers
 
                 CheckResponse(response);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { ok = "delete success" });
             }
             catch (Exception e)
             {
@@ -123,7 +123,7 @@ namespace Uarung.Web.Controllers
 
                 CheckResponse(response);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new {ok = "insert success"});
             }
             catch (Exception e)
             {
@@ -165,7 +165,7 @@ namespace Uarung.Web.Controllers
 
                 CheckResponse(response);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { ok = "update success" });
             }
             catch (Exception e)
             {
@@ -200,7 +200,7 @@ namespace Uarung.Web.Controllers
 
                 CheckResponse(response);
 
-                return RedirectToAction("Category");
+                return RedirectToAction("Category", new { ok = "insert success" });
             }
             catch (Exception e)
             {   
@@ -217,7 +217,7 @@ namespace Uarung.Web.Controllers
 
                 CheckResponse(response);
 
-                return RedirectToAction("Category");
+                return RedirectToAction("Category", new { ok = "delete success" });
             }
             catch (Exception e)
             {

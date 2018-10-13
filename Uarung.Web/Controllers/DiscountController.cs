@@ -75,7 +75,7 @@ namespace Uarung.Web.Controllers
 
                 CheckResponse(response);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { ok = $"{id} deleted"});
             }
             catch (Exception e)
             {
@@ -113,7 +113,7 @@ namespace Uarung.Web.Controllers
 
                 CheckResponse(response);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new {ok = $"{mode} success"});
             }
             catch (Exception e)
             {
