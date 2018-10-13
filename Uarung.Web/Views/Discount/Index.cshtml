@@ -4,6 +4,35 @@
     ViewData[Constant.ViewDataKey.Title] = "Discount";
 }
 
+@section ScriptFooter
+{
+    <partial name="../Shared/_DataTable.cshtml" model="Model"/>
+    <script type="text/javascript">
+        const app = new Vue({
+            el: "#app",
+            data: {
+                size: 8,
+                theads: [
+                    "#",
+                    "Code",
+                    "Type",
+                    "Value",
+                    ""
+                ],
+                tbodies: data.map(function(t, i) {
+                    return [
+                        (i + 1),
+                        t.code + "<a> @Url.Action("Edit")/" + t.code,
+                        t.type,
+                        toCurrency(t.value),
+                        "<x> @Url.Action("Delete")/" + t.code
+                    ];
+                })
+            }
+        });
+    </script>
+}
+
 <div class="d-flex mb-5">
     <h3 class="mr-auto">Discount</h3>
     <a class="btn btn-outline-primary" asp-controller="Discount" asp-action="Add">
@@ -11,43 +40,10 @@
     </a>
 </div>
 
-<table class="table">
-    <thead class="thead-light">
-    <tr>
-        <th scope="col">#</th>
-        <th scope="col">Code</th>
-        <th scope="col">Type</th>
-        <th scope="col">Value</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @if (Model != null)
-    {
-        var i = 1;
-        foreach (var discount in Model)
-        {
-            <tr>
-                <td>@i</td>
-                <td>
-                    <a href="@Url.Action("Edit", new {id = discount.Code})">
-                        @discount.Code
-                    </a>
-                </td>
-                <td>@discount.Type</td>
-                <td>@discount.Value.ToString("N0")</td>
-                <td>
-                    <form action="@Url.Action("Delete", new {id = discount.Code})">
-                        <button type="submit" class="btn btn-danger btn-sm p-0 lh-0 rounded-circle">
-                            <span data-feather="x"></span>
-                        </button>
-                    </form>
-
-                </td>
-            </tr>
-
-            i++;
-        }
-    }
-    </tbody>
-</table>
+<div id="app" class="mb-5" v-cloak>
+    <data-table
+        :size="size"
+        :theads="theads"
+        :tbodies="tbodies">
+    </data-table>
+</div>

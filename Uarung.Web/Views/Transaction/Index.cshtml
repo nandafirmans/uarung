@@ -4,6 +4,45 @@
     ViewData[Constant.ViewDataKey.Title] = "Transaction";
 }
 
+@section ScriptFooter
+{
+    <partial name="../Shared/_DataTable.cshtml" model="Model"/>
+    <script type="text/javascript" src="~/lib/moment.min.js"></script>
+    <script type="text/javascript">
+        function formatDate(val) {
+            if (val)
+                return moment(val).format("ddd, DD MMM YYYY hh:mm");
+        }
+
+        const app = new Vue({
+            el: "#app",
+            data: {
+                size: 8,
+                theads: [
+                    "#",
+                    "Id",
+                    "Notes",
+                    "Payment Status",
+                    "Payment Type",
+                    "Created Date",
+                    "Total Price"
+                ],
+                tbodies: data.map(function(t, i) {
+                    return [
+                        (i + 1),
+                        t.id + "<a> @Url.Action("Detail")/" + t.id,
+                        t.notes === "" ? "-" : t.notes,
+                        t.paymentStatus,
+                        t.paymentType,
+                        formatDate(t.createdDate),
+                        toCurrency(t.totalPrice)
+                    ];
+                })
+            }
+        });
+    </script>
+}
+
 <div class="d-flex mb-5">
     <h3 class="mr-auto">Transaction</h3>
     <a class="btn btn-outline-primary" asp-controller="Transaction" asp-action="SalesRegister">
@@ -11,4 +50,10 @@
     </a>
 </div>
 
-<partial name="_TableTransactionPartial.cshtml" model="Model"/>
+<div id="app" class="mb-5" v-cloak>
+    <data-table
+        :size="size"
+        :theads="theads"
+        :tbodies="tbodies">
+    </data-table>
+</div>

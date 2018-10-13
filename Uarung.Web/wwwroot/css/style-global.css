@@ -16,9 +16,10 @@
     line-height: 1
 }
 
-/*
- * Sidebar
- */
+[v-cloak] {
+    display: none;
+}
+
 
 .sidebar {
     position: fixed;

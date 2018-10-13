@@ -1,0 +1,153 @@
+@model Object
+
+<input type="hidden" id="source-data-table" value='@Json.Serialize(Model)'/>
+
+<script type="text/javascript" src="~/lib/vue.min.js"></script>
+<script type="text/x-template" id="anchor">
+    <a :href="href">{{text}}</a>
+</script>
+<script type="text/x-template" id="delete-form">
+    <form :action="action" method="delete">
+        <button type="submit" class="btn btn-danger btn-sm p-0 lh-0 rounded-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                 width="24" 
+                 height="24" 
+                 viewBox="0 0 24 24" 
+                 fill="none" 
+                 stroke="currentColor" 
+                 stroke-width="2" 
+                 stroke-linecap="round" 
+                 stroke-linejoin="round" 
+                 class="feather feather-x">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </form>
+</script>
+<script type="text/x-template" id="data-table-template">
+    <div>
+        <table class="table">
+            <thead class="thead-light">
+                <tr>
+                    <th v-for="th in theads">
+                        {{ th }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody v-if="paginatedTbodies.length > 0">
+                <tr v-for="tb in paginatedTbodies">
+                    <td v-for="tbItem in tb">
+                        <template v-if="tbItem.toString().includes('<a>')">
+                            <anchor :data-href="tbItem"></anchor>
+                        </template>
+                        <template v-else-if="tbItem.toString().includes('<x>')">
+                            <delete-form :data-delete="tbItem"></delete-form>
+                        </template>
+                        <template v-else>
+                            {{ tbItem }}
+                        </template>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-center" v-if="pageCount > 1">
+            <div class="btn-group">
+                <button class="btn btn-outline-primary" :disabled="pageNumber === 0" @@click="pageNumber--">
+                    Prev
+                </button>
+                <button class="btn btn-outline-primary" :disabled="pageNumber >= pageCount - 1" @@click="pageNumber++">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/javascript">
+    const data = JSON.parse(document.getElementById("source-data-table").value);
+
+    function toCurrency(val) {
+        if (typeof(val) !== "number")
+            return val;
+
+        return new Intl.NumberFormat().format(val);
+    }
+
+    Vue.component("anchor", {
+        template: "#anchor",
+        props: {
+            dataHref: {
+                type: String,
+                required: true,
+                default: ""
+            }
+        },
+        computed: {
+            href: function () {
+                return this.dataHref.split("<a>")[1].trim();
+            },
+            text: function () {
+                return this.dataHref.split("<a>")[0].trim();
+            }
+        }
+    });
+
+    Vue.component("delete-form", {
+        template: "#delete-form",
+        props: {
+            dataDelete: {
+                type: String,
+                required: true,
+                default: ""
+            }
+        },
+        computed: {
+            action: function() {
+                return this.dataDelete.replace(/<x>/gi, "").trim();
+            }
+        }
+    });
+
+    Vue.component("data-table", {
+        template: "#data-table-template",
+        data: function() {
+            return {
+                pageNumber: 0
+            };
+        },
+        props: {
+            theads: {
+                type: Array,
+                required: true,
+                default: []
+            },
+            tbodies: {
+                type: Array,
+                required: true,
+                default: []
+            },
+            size: {
+                type: Number,
+                required: false,
+                default: 10
+            }
+        },
+        computed: {
+            pageCount: function() {
+                const dividedPage = this.tbodies.length / this.size;
+                const base = Math.floor(dividedPage);
+
+                if (dividedPage % 1 > 0)
+                    return base + 1;
+
+                return base;
+            },
+            paginatedTbodies: function() {
+                const start = this.pageNumber * this.size;
+                const end = start + this.size;
+
+                return this.tbodies.slice(start, end);
+            }
+        }
+    });
+</script>

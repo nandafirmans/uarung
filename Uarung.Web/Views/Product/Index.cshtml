@@ -4,6 +4,37 @@
     ViewData[Constant.ViewDataKey.Title] = "Product";
 }
 
+@section ScriptFooter
+{
+    <partial name="../Shared/_DataTable.cshtml" model="Model"/>
+    <script type="text/javascript">
+        const app = new Vue({
+            el: "#app",
+            data: {
+                size: 8,
+                theads: [
+                    "#",
+                    "Id",
+                    "Name",
+                    "Category Name",
+                    "Price",
+                    ""
+                ],
+                tbodies: data.map(function (t, i) {
+                    return [
+                        (i + 1),
+                        t.id + "<a> @Url.Action("Edit")/" + t.id,
+                        t.name,
+                        t.categoryName,
+                        toCurrency(t.price),
+                        "<x> @Url.Action("Delete")/" + t.id
+                    ];
+                })
+            }
+        });
+    </script>
+}
+
 <div class="d-flex mb-5">
     <h3 class="mr-auto">Product</h3>
     <a class="btn btn-primary mr-2" asp-controller="Product" asp-action="Category">
@@ -14,44 +45,10 @@
     </a>
 </div>
 
-<table class="table">
-    <thead class="thead-light">
-    <tr>
-        <th scope="col">#</th>
-        <th scope="col" style="width: 20px">Id</th>
-        <th scope="col">Name</th>
-        <th scope="col">Category</th>
-        <th scope="col">Price</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @if (Model != null)
-    {
-        var i = 1;
-        foreach (var product in Model)
-        {
-            <tr>
-                <td>@i</td>
-                <td>
-                    <a href="@Url.Action("Edit", new {id = product.Id})">
-                        @product.Id
-                    </a>
-                </td>
-                <td>@product.Name</td>
-                <td>@product.CategoryName</td>
-                <td>@product.Price.ToString("N0")</td>
-                <td>
-                    <form action="@Url.Action("Delete", new { id = product.Id })">
-                        <button type="submit" class="btn btn-danger btn-sm p-0 lh-0 rounded-circle">
-                            <span data-feather="x"></span>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-
-            i++;
-        }
-    }
-    </tbody>
-</table>
+<div id="app" class="mb-5" v-cloak>
+    <data-table
+        :size="size"
+        :theads="theads"
+        :tbodies="tbodies">
+    </data-table>
+</div>
