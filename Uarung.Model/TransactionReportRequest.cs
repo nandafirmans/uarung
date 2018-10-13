@@ -10,5 +10,8 @@ namespace Uarung.Model
 
         [JsonProperty("endDate")]
         public DateTime EndDate { get; set; }
+
+        [JsonProperty("paymentStatus")]
+        public string PaymentStatus { get; set; }
     }
 }

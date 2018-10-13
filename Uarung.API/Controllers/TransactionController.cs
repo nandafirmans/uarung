@@ -29,6 +29,79 @@ namespace Uarung.API.Controllers
         }
 
         [CashierAllowed]
+        [HttpGet("{id=}")]
+        public ActionResult<CollectionResponse<Transaction>> Get(string id)
+        {
+            var response = new CollectionResponse<Transaction>();
+
+            try
+            {
+                var transactions = string.IsNullOrEmpty(id)
+                    ? _dacTransaction.All().OrderByDescending(t => t.CreatedDate)
+                    : new[] { _dacTransaction.Single(id) }.AsEnumerable();
+
+                response.Collections = TranslateToModel(transactions);
+                response.Status.SetSuccess();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                response.Status.SetError(e);
+            }
+
+            return response;
+        }
+
+        [CashierAllowed]
+        [HttpGet("Report")]
+        public ActionResult<CollectionResponse<Transaction>> GetReport([FromQuery] TransactionReportRequest request)
+        {
+            var response = new CollectionResponse<Transaction>();
+
+            try
+            {
+                var transactions = _dacTransaction
+                    .Where(t =>
+                        t.CreatedDate.Date >= request.StartDate.Date &&
+                        t.CreatedDate.Date <= request.EndDate.Date && 
+                        (string.IsNullOrEmpty(request.PaymentStatus) || t.PaymentStatus.Equals(request.PaymentStatus))
+                    );
+
+                response.Collections = TranslateToModel(transactions);
+                response.Status.SetSuccess();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                response.Status.SetError(e);
+            }
+
+            return response;
+        }
+
+        [CashierAllowed]
+        [HttpGet("HoldOnly")]
+        public ActionResult<CollectionResponse<Transaction>> GetHoldOnly()
+        {
+            var response = new CollectionResponse<Transaction>();
+
+            try
+            {
+                var transactions = _dacTransaction
+                    .Where(t => t.PaymentStatus.Equals(Constant.PaymentStatus.Hold));
+
+                response.Collections = TranslateToModel(transactions);
+                response.Status.SetSuccess();
+            }
+            catch (Exception e)
+            {
+                response.Status.SetError(e);
+            }
+
+            return response;
+        }
+
+        [CashierAllowed]
         [HttpPost]
         public ActionResult<CollectionResponse<Transaction>> Create(Transaction request)
         {
@@ -118,76 +191,6 @@ namespace Uarung.API.Controllers
             {
                 Console.WriteLine(e);
                 response.Status.SetError(e.Message);
-            }
-
-            return response;
-        }
-
-        [CashierAllowed]
-        [HttpGet("{id=}")]
-        public ActionResult<CollectionResponse<Transaction>> Get(string id)
-        {
-            var response = new CollectionResponse<Transaction>();
-
-            try
-            {
-                var transactions = string.IsNullOrEmpty(id)
-                    ? _dacTransaction.All().OrderByDescending(t => t.CreatedDate)
-                    : new[] {_dacTransaction.Single(id)}.AsEnumerable();
-
-                response.Collections = TranslateToModel(transactions);
-                response.Status.SetSuccess();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                response.Status.SetError(e);
-            }
-
-            return response;
-        }
-
-        [HttpGet("Report")]
-        public ActionResult<CollectionResponse<Transaction>> GetReport([FromQuery] TransactionReportRequest request)
-        {
-            var response = new CollectionResponse<Transaction>();
-
-            try
-            {
-                var transactions = _dacTransaction
-                    .Where(t => 
-                        t.CreatedDate.Date >= request.StartDate.Date && 
-                        t.CreatedDate.Date <= request.EndDate.Date);
-
-                response.Collections = TranslateToModel(transactions);
-                response.Status.SetSuccess();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                response.Status.SetError(e);
-            }
-
-            return response;
-        }
-
-        [CashierAllowed]
-        [HttpGet("HoldOnly")]
-        public ActionResult<CollectionResponse<Transaction>> GetHoldOnly()
-        {
-            var response = new CollectionResponse<Transaction>();
-
-            try
-            {
-                var transactions = _dacTransaction
-                    .Where(t => t.PaymentStatus.Equals(Constant.PaymentStatus.Hold));
-
-                response.Collections = TranslateToModel(transactions);
-                response.Status.SetSuccess();
-            }
-            catch (Exception e)
-            {
-                response.Status.SetError(e);
             }
 
             return response;

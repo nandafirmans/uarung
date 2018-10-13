@@ -1,7 +1,68 @@
-﻿@{
+﻿@model DashboardViewModel
+
+@{
     ViewData[Constant.ViewDataKey.Title] = "Home Page";
 }
 
-<div class="d-flex mb-5">
-    <h3 class="mr-auto">Welcome @ViewData[Constant.ViewDataKey.UserName]</h3>
+<div class="row mb-5">
+    <div class="col-md-6 offset-md-3">
+        <h4 class="mb-4">Hello @Model.UserName, Here's how today is</h4>
+        
+        <div class="row mb-3">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="mb-1">Total Sales</p>
+                        <h5>@Model.TotalSales.ToString("N0")</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="mb-1">Total Transaction</p>
+                        <h5>@Model.TotalTransaction</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <p class="mb-1">Top Selling</p>
+                @if (Model.TopSellings.Any())
+                {
+                    <table class="table mb-0">
+                        <thead>
+                        <tr>
+                            <th class="border-top-0">#</th>
+                            <th class="border-top-0">Product Name</th>
+                            <th class="border-top-0">Product Price</th>
+                            <th class="border-top-0">Total Demand</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @{ var index = 1; }
+                        @foreach (var product in Model.TopSellings.OrderByDescending(t => t.Quantity)) 
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@product.Product.Name</td>
+                                <td>@product.Product.Price.ToString("N0")</td>
+                                <td>@product.Quantity</td>
+                            </tr>
+                            index++;
+                        }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p class="text-muted">
+                        no sales today...
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
 </div>
