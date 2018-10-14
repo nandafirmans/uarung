@@ -190,17 +190,21 @@ namespace Uarung.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult InsertCategory(string name)
+        public IActionResult SubmitCategory(ProductCategory request)
         {
             
             try
             {
+                var isInsert = string.IsNullOrEmpty(request.Id);
+
                 var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlProductCategory);
-                var response = Requestor().Post<BaseReponse>(url, new ProductCategory { Name = name });
+                var response =  isInsert
+                    ? Requestor().Post<BaseReponse>(url, request)
+                    : Requestor().Put<BaseReponse>(url, request);
 
                 CheckResponse(response);
 
-                return RedirectToAction("Category", new { ok = "insert success" });
+                return RedirectToAction("Category", new { ok = $"{(isInsert ? "insert" : "update")} success" });
             }
             catch (Exception e)
             {   

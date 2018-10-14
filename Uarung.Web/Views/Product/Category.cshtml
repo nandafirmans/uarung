@@ -4,6 +4,97 @@
     ViewData[Constant.ViewDataKey.Title] = "Product Category";
 }
 
+@section ScriptFooter
+{
+    <input type="hidden" id="source-data-table" value='@Json.Serialize(Model)'/>
+    <script type="text/javascript" src="~/lib/vue.js"></script>
+
+    <script type="text/x-template" id="delete-form">
+        <form :action="'@Url.Action("DeleteCategory", "Product")/' + id" method="delete">
+            <button type="submit" class="btn btn-danger btn-sm p-0 lh-0 rounded-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                     width="24" 
+                     height="24" 
+                     viewBox="0 0 24 24" 
+                     fill="none" 
+                     stroke="currentColor" 
+                     stroke-width="2" 
+                     stroke-linecap="round" 
+                     stroke-linejoin="round" 
+                     class="feather feather-x">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </form>
+    </script>
+
+    <script type="text/x-template" id="update-form">
+        <form action="@Url.Action("SubmitCategory", "Product")" method="post" role="form" autocomplete="off">
+            <input type="hidden" :value="id" name="Id"/>
+            <div class="input-group">
+                <input type="text" class="form-control" name="Name" v-model="nameInside" :class="{ 'form-control-plaintext' : !isEdited }"/>
+                <div class="input-group-append" v-if="isEdited">
+                    <button class="btn btn-outline-primary" type="submit">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </form>
+    </script>
+
+    <script type="text/javascript">
+        const sourceData = JSON.parse(document.getElementById("source-data-table").value);
+
+        Vue.component("delete-form",
+            {
+                template: "#delete-form",
+                props: {
+                    id: {
+                        type: String,
+                        required: true,
+                        default: ""
+                    }
+                }
+            });
+
+        Vue.component("update-form",
+            {
+                template: "#update-form",
+                data: function() {
+                    return {
+                        nameInside: this.name,
+                        isEdited: false
+                    }
+                },
+                props: {
+                    id: {
+                        type: String,
+                        required: true,
+                        default: ""
+                    },
+                    name: {
+                        type: String,
+                        required: true,
+                        default: ""
+                    }
+                },
+                watch: {
+                    nameInside: function() {
+                        this.isEdited = this.nameInside !== this.name;
+                    }
+                }
+            });
+
+        const app = new Vue({
+            el: "#app",
+            data: {
+                categories: sourceData
+            }
+        });
+    </script>
+}
+
 <div class="d-flex mb-5">
     <h3>Product Category</h3>
     <button class="btn btn-outline-primary ml-auto" data-toggle="modal" data-target="#form-modal">
@@ -11,7 +102,7 @@
     </button>
 </div>
 
-<table class="table">
+<table class="table" id="app" v-cloak>
     <thead class="thead-light">
     <tr>
         <th scope="col">#</th>
@@ -21,34 +112,23 @@
     </tr>
     </thead>
     <tbody>
-    @if (Model != null)
-    {
-        var i = 1;
-        foreach (var category in Model)
-        {
-            <tr>
-                <td>@i</td>
-                <td>@category.Id</td>
-                <td>@category.Name</td>
-                <td>
-                    <form action="@Url.Action("DeleteCategory", "Product")/@category.Id">
-                        <button type="submit" class="btn btn-danger btn-sm p-0 lh-0 rounded-circle">
-                            <span data-feather="x"></span>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-
-            i++;
-        }
-    }
+    <tr v-for="(c, index) in categories">
+        <td>{{index + 1}}</td>
+        <td>{{ c.id }}</td>
+        <td>
+            <update-form :id="c.id" :name="c.name || ''"></update-form>
+        </td>
+        <td>
+            <delete-form :id="c.id"></delete-form>
+        </td>
+    </tr>
     </tbody>
 </table>
 
 <div class="modal fade" id="form-modal">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="@Url.Action("InsertCategory", "Product")" method="post">
+            <form action="@Url.Action("SubmitCategory", "Product")" method="post" role="form" autocomplete="off">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Add Product Category</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -57,7 +137,7 @@
                 </div>
                 <div class="modal-body">
                     <label>Category Name</label>
-                    <input class="form-control" type="text" name="name" required/>
+                    <input class="form-control" type="text" name="Name" required/>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
