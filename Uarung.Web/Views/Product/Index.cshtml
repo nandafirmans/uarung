@@ -34,21 +34,21 @@
         });
     </script>
 }
-
-<div class="d-flex mb-5">
-    <h3 class="mr-auto">Product</h3>
-    <a class="btn btn-primary mr-2" asp-controller="Product" asp-action="Category">
-        Product Category
-    </a>
-    <a class="btn btn-outline-primary" asp-controller="Product" asp-action="Add">
-        Add Product
-    </a>
-</div>
-
 <div id="app" class="mb-5" v-cloak>
     <data-table
         :size="size"
         :theads="theads"
-        :tbodies="tbodies">
+        :tbodies="tbodies"
+        :search-by-index="2"
+        search-placeholder="Search by Product Name"
+        title="Product">
+        <template slot="action">
+            <a class="btn btn-outline-primary" asp-controller="Product" asp-action="Add">
+                Add Product
+            </a>
+            <a class="btn btn-primary ml-1" asp-controller="Product" asp-action="Category">
+                Product Category
+            </a>
+        </template>
     </data-table>
 </div>

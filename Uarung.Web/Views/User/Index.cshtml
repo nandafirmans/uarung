@@ -40,17 +40,16 @@
     </script>
 }
 
-<div class="d-flex mb-5">
-    <h3 class="mr-auto">User</h3>
-    <a class="btn btn-outline-primary" asp-controller="User" asp-action="Add">
-        Add User
-    </a>
-</div>
-
 <div id="app" class="mb-5" v-cloak>
     <data-table
         :size="size"
         :theads="theads"
-        :tbodies="tbodies">
+        :tbodies="tbodies"
+        :search-by-index="2"
+        search-placeholder="Search by Name"
+        title="User">
+        <a class="btn btn-outline-primary" asp-controller="User" asp-action="Add" slot="action">
+            Add User
+        </a>
     </data-table>
 </div>

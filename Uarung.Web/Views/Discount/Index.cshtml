@@ -33,17 +33,16 @@
     </script>
 }
 
-<div class="d-flex mb-5">
-    <h3 class="mr-auto">Discount</h3>
-    <a class="btn btn-outline-primary" asp-controller="Discount" asp-action="Add">
-        Add Discount
-    </a>
-</div>
-
 <div id="app" class="mb-5" v-cloak>
     <data-table
         :size="size"
         :theads="theads"
-        :tbodies="tbodies">
+        :tbodies="tbodies"
+        :search-by-index="1"
+        search-placeholder="Search by Code"
+        title="Discount">
+        <a class="btn btn-outline-primary" asp-controller="Discount" asp-action="Add" slot="action">
+            Add Discount
+        </a>
     </data-table>
 </div>

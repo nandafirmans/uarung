@@ -43,17 +43,19 @@
     </script>
 }
 
-<div class="d-flex mb-5">
-    <h3 class="mr-auto">Transaction</h3>
-    <a class="btn btn-outline-primary" asp-controller="Transaction" asp-action="SalesRegister">
-        Add Transaction
-    </a>
-</div>
-
 <div id="app" class="mb-5" v-cloak>
     <data-table
         :size="size"
         :theads="theads"
-        :tbodies="tbodies">
+        :tbodies="tbodies"
+        :search-by-index="1"
+        search-placeholder="Search by Id"
+        title="Transaction">
+            <a class="btn btn-outline-primary"
+               asp-controller="Transaction"
+               asp-action="SalesRegister"
+               slot="action">
+                Add Transaction
+            </a>
     </data-table>
 </div>
