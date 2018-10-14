@@ -85,7 +85,7 @@
         var dismissFunction = !isError ? @"setTimeout(function() {$('#infoAlert').alert('close')}, 3000);" : string.Empty;
 
         return $@"
-            <div class='alert alert-{cssClass} alert-dismissible alert-error-message d-flex align-items-center p-2 fade' id='infoAlert'>
+            <div class='alert alert-{cssClass} alert-dismissible alert-error-message d-flex align-items-center p-3 shadow fade' id='infoAlert'>
                 <span class='text-monospace'>{messages}</span>
                 <button type='button' class='btn btn-outline-{cssClass} rounded-circle btn-times-close border-0 p-0 ml-2' data-dismiss='alert'>
                     <span>&times;</span>
@@ -111,13 +111,15 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - Uarung.Web</title>
+    <title>@ViewData["Title"] - @brandName</title>
     <partial name="_ScriptHeader.cshtml"/>
     @RenderSection("ScriptHeader", false)
 </head>
 <body>
 <nav class="navbar navbar-dark fixed-top bg-primary flex-md-nowrap p-0">
-    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">@brandName</a>
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0 pt-2 pb-2" href="#">
+        <img src="~/image/logo-bw.png" style="max-width: 160px"/>
+    </a>
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
             <a class="nav-link" asp-controller="Auth" asp-action="Logout">Sign out</a>

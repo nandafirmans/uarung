@@ -26,13 +26,13 @@
                 tbodies: data.map(function(t, i) {
                     return [
                         (i + 1),
-                        t.id + "<a> @Url.Action("Edit")/" + t.code,
+                        t.id + "<a> @Url.Action("Edit")/" + t.id,
                         t.name,
                         t.email,
                         t.role,
                         t.phone,
                         t.gender === "@Constant.UserGender.MaleValue" ? "@Constant.UserGender.MaleKey" : "@Constant.UserGender.FemaleKey",
-                        "@currentUserId" === t.id ? "" : "<x> @Url.Action("Delete")/" + t.code
+                        "@currentUserId" === t.id ? "" : "<x> @Url.Action("Delete")/" + t.id
                     ];
                 })
             }

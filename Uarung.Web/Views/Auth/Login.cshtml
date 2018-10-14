@@ -1,5 +1,9 @@
-﻿@{
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Config;
+
+@{
     var errorMessage = (string) ViewData[Constant.ViewDataKey.ErrorMessage];
+    var brandName = Config.GetValue<string>(Constant.ConfigKey.BrandName);
 }
 
 <!DOCTYPE html>
@@ -7,14 +11,14 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Uarung.Web</title>
+    <title>Login Page - @brandName</title>
     <partial name="../Shared/_ScriptHeader.cshtml"/>
     <link href="~/css/style-login.css" rel="stylesheet"/>
 </head>
 <body class="text-center">
 <form class="form-signin" action="@Url.Action("Validate", "Auth")" method="post">
-    <img class="mb-4 rounded-circle" src="https://picsum.photos/100" alt="" width="72" height="72">
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+    <img class="mb-5" src="~/image/logo-sawarna.png" alt="logo sawarna">
+    <h5 class="mb-3 font-weight-normal">Please sign in</h5>
 
     @if (!string.IsNullOrEmpty(errorMessage))
     {

@@ -28,7 +28,7 @@
     left: 0;
     z-index: 100;
     /* Behind the navbar */
-    padding: 48px 0 0;
+    padding: 55px 0 0;
     /* Height of navbar */
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
@@ -60,7 +60,7 @@
 }
 
 .sidebar .nav-link.active {
-    color: #007bff;
+    color: #d5403a;
 }
 
 .sidebar .nav-link:hover .feather,
@@ -79,7 +79,12 @@
 
 [role="main"] {
     padding-top: 75px;
-    /* Space for fixed navbar */
+}
+
+@media (max-width: 768px) {
+    [role="main"] {
+        padding-top: 100px;
+    }
 }
 
 /*
@@ -144,6 +149,6 @@
 }
 
 .swal-button {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: #d5403a;
+    border-color: #d5403a;
 }
