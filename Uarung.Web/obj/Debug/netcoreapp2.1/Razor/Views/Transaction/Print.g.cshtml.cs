@@ -75,7 +75,7 @@ using Microsoft.Extensions.Configuration;
             WriteLiteral("\r\n<html moznomarginboxes=\"\" mozdisallowselectionprint=\"\">\r\n");
             EndContext();
             BeginContext(321, 411, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("head", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "7fd4f76d63c640ceb690de7cf2bdca33", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("head", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "b94799c069624e44a119495abcc4325b", async() => {
                 BeginContext(327, 250, true);
                 WriteLiteral("\r\n    <title></title>\r\n    <style>\r\n        h3 { text-align: center; }\r\n\r\n        table {\r\n            font-size: 12px;\r\n            text-align: center;\r\n        }\r\n\r\n        hr { border-top: dotted 1px; }\r\n\r\n        body { width: 72mm; }\r\n\r\n        ");
                 EndContext();
@@ -101,7 +101,7 @@ using Microsoft.Extensions.Configuration;
             WriteLiteral("\r\n\r\n");
             EndContext();
             BeginContext(736, 2663, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "96398009c71f49dd9e890339dcfffb1d", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "735375f5d0a048d491f1d3b24e0f604e", async() => {
                 BeginContext(762, 192, true);
                 WriteLiteral("\r\n<font face=\"verdana\" size=\"2\">\r\n    <div id=\"receiptDetails\" style=\"page-break-after: always !important\">\r\n        <div style=\"font-weight: bold; text-align: center; word-wrap: break-word;\">");
                 EndContext();

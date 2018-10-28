@@ -46,3 +46,4 @@ D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Uarung.Web.V
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Uarung.Web.csproj.CopyComplete
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\User\Add.g.cshtml.cs
 D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\User\Edit.g.cshtml.cs
+D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\obj\Debug\netcoreapp2.1\Razor\Views\Shared\_DataTable.g.cshtml.cs

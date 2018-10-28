@@ -31,8 +31,8 @@ namespace Uarung.API.Controllers
             try
             {
                 var passwordHashed = Crypt.ToSHA256(request.Password);
-                var user = _dacUser.Single(
-                    u => u.Username.Equals(request.Username) && u.Password.Equals(passwordHashed));
+                var user = _dacUser.Single(u => 
+                    u.Username.Equals(request.Username) && u.Password.Equals(passwordHashed));
 
                 if (user == null)
                     throw new Exception("username or password doesn't match");

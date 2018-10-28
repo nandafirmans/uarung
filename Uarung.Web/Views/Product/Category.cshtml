@@ -33,7 +33,7 @@
         <form action="@Url.Action("SubmitCategory", "Product")" method="post" role="form" autocomplete="off">
             <input type="hidden" :value="id" name="Id"/>
             <div class="input-group">
-                <input type="text" class="form-control" name="Name" v-model="nameInside" :class="{ 'form-control-plaintext' : !isEdited }"/>
+                <input type="text" class="form-control" name="Name" v-model="nameInside" :class="{ 'form-control-plaintext' : !isEdited }" required />
                 <div class="input-group-append" v-if="isEdited">
                     <button class="btn btn-outline-primary" type="submit">
                         Save

@@ -69,7 +69,7 @@ using Uarung.Model;
             WriteLiteral("\r\n<div class=\"d-flex mb-3\">\r\n    <h3 class=\"mr-auto\">Add Discount</h3>\r\n</div>\r\n\r\n<div class=\"row\">\r\n    <div class=\"col-6\">\r\n        ");
             EndContext();
             BeginContext(201, 1460, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "435b8ba159664652ab9f545810885798", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "a30e87b75cf642be88f45eb16edd2b5e", async() => {
                 BeginContext(279, 607, true);
                 WriteLiteral(@"
             <input type=""hidden"" name=""mode"" value=""insert""/>
@@ -87,7 +87,7 @@ using Uarung.Model;
                             ");
                 EndContext();
                 BeginContext(886, 26, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "9ae664d0fc384ca3884e2ed647d8a8d6", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "ba350056384d423883e01447b9aa6b57", async() => {
                 }
                 );
                 __Microsoft_AspNetCore_Mvc_TagHelpers_OptionTagHelper = CreateTagHelper<global::Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper>();
@@ -115,7 +115,7 @@ using Uarung.Model;
                 WriteLiteral("                                ");
                 EndContext();
                 BeginContext(1097, 30, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "893c5f6eac8f4befa2e93ddf87772f74", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "8aac427777604ec489b6728b41fc3a09", async() => {
                     BeginContext(1117, 1, false);
 #line 27 "D:\Nanda\SKRIPSI\aplikasi\Uarung\Uarung.Web\Views\Discount\Add.cshtml"
                                               Write(t);

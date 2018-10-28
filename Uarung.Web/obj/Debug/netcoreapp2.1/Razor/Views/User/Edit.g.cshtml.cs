@@ -105,7 +105,7 @@ using Uarung.Model;
             WriteLiteral("</p>\r\n        </div>\r\n        ");
             EndContext();
             BeginContext(941, 3035, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "1945f800dbb647d18f38a328c2b91f6c", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "72ca48f002f04de79bdfee7211a230dd", async() => {
                 BeginContext(1023, 44, true);
                 WriteLiteral("\r\n            <input name=\"Id\" type=\"hidden\"");
                 EndContext();
@@ -182,7 +182,7 @@ WriteAttributeValue("", 1823, Model.Email, 1823, 12, false);
                 WriteLiteral("                                ");
                 EndContext();
                 BeginContext(2353, 155, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "edbccace559e497c99045f0ecff2bd01", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "02352214e04b458693c135b8a8691086", async() => {
                     BeginContext(2422, 38, true);
                     WriteLiteral("\r\n                                    ");
                     EndContext();
@@ -255,7 +255,7 @@ WriteAttributeValue("", 1823, Model.Email, 1823, 12, false);
                 WriteLiteral("                                ");
                 EndContext();
                 BeginContext(3037, 161, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "a3fa7d94c02044e097af31c4715f35f3", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("option", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "2f456a6f77f2470698ab6668947b59ba", async() => {
                     BeginContext(3111, 38, true);
                     WriteLiteral("\r\n                                    ");
                     EndContext();
