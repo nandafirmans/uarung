@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -27,6 +28,8 @@ namespace Uarung.API.Controllers
 
             try
             {
+                ValidateImageFiles(files);
+
                 var wwwrootPath = $"{_environment.ContentRootPath}\\wwwroot";
                 var physicalPath = $"{wwwrootPath}\\uploads\\{DateTime.Now:yyMMdd}\\";
 
@@ -58,6 +61,19 @@ namespace Uarung.API.Controllers
             }
 
             return response;
+        }
+
+        private void ValidateImageFiles(List<IFormFile> files) 
+        {
+            var supportedTypes = new[] { "jpg", "jpeg", "png" };
+
+            foreach (var file in files)
+            {
+                var extension = Path.GetExtension(file.FileName).Substring(1).ToLower();
+
+                if (!supportedTypes.Contains(extension))
+                    throw new Exception($"this extension [{extension}] is not supported");
+            }
         }
     }
 }
