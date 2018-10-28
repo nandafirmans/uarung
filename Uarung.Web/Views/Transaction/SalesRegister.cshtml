@@ -350,7 +350,6 @@
                         .then(function(response) {
                             const data = response.data;
                             this.showLoadingModal = false;
-                            this.clearAll();
 
                             if (data.status.type === "Error")
                                 throw data.status.message;
@@ -360,7 +359,8 @@
 
                             if (!this.isPayment || this.isSelectedTransaction)
                                 this.fetchHoldTransaction();
-
+                                
+                            this.clearAll();
                         }.bind(this))
                         .catch(axiosCatch);
                 },
