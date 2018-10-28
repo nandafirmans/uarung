@@ -270,9 +270,16 @@ namespace Uarung.API.Controllers
 
         private static string GetPaymentStatus(string paymentStatus)
         {
-            return paymentStatus.Equals(Constant.PaymentStatus.Paid, StringComparison.OrdinalIgnoreCase)
-                ? Constant.PaymentStatus.Paid
-                : Constant.PaymentStatus.Hold;
+            Func<string, bool> isValid = statusType => 
+                paymentStatus.Equals(statusType, StringComparison.OrdinalIgnoreCase);
+
+             if (isValid(Constant.PaymentStatus.Paid))
+                return Constant.PaymentStatus.Paid;
+                
+            else if (isValid(Constant.PaymentStatus.Hold))
+                return Constant.PaymentStatus.Hold;
+        
+            throw new Exception("Payment status not valid");
         }
 
         private static string ValidatePaymentType(string paymentType)
