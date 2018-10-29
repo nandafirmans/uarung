@@ -9,9 +9,11 @@ namespace Uarung.Web.Models
         {
             Products = new List<Product>();
             Categories = new List<ProductCategory>();
+            Discounts = new List<Discount>();
         }
 
         public List<Product> Products { get; set; }
         public List<ProductCategory> Categories { get; set; }
+        public List<Discount> Discounts { get; set; }
     }
 }

@@ -143,17 +143,22 @@ namespace Uarung.Web.Controllers
             try
             {
                 var requestor = Requestor();
+
                 var urlCategories = CreateServiceUrl(Constant.ConfigKey.ApiUrlProductCategory);
                 var urlProduct = CreateServiceUrl(Constant.ConfigKey.ApiUrlProduct);
+                var urlDiscount = CreateServiceUrl(Constant.ConfigKey.ApiUrlDiscount);
+
                 var responseCategory = requestor.Get<CollectionResponse<ProductCategory>>(urlCategories);
                 var responseProduct = requestor.Get<CollectionResponse<Product>>(urlProduct);
+                var responseDiscount = requestor.Get<CollectionResponse<Discount>>(urlDiscount);
 
-                CheckResponse(new BaseReponse[] {responseCategory, responseProduct});
+                CheckResponse(new BaseReponse[] {responseCategory, responseProduct, responseDiscount});
 
                 model.Categories = new List<ProductCategory> {new ProductCategory {Id = "0", Name = "All"}}
                     .Concat(responseCategory.Collections)
                     .ToList();
 
+                model.Discounts = responseDiscount.Collections;
                 model.Products = responseProduct.Collections;
             }
             catch (Exception e)

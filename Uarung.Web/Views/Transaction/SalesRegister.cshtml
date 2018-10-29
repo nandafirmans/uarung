@@ -77,7 +77,7 @@
 
 @section ScriptFooter
 {
-    <script type="text/javascript" src="~/lib/vue.min.js"></script>
+    <script type="text/javascript" src="~/lib/vue.js"></script>
     <script type="text/javascript" src="~/lib/axios.min.js"></script>
     <script type="text/javascript" src="~/lib/sweetalert.min.js"></script>
 
@@ -126,12 +126,10 @@
     </script>
 
     <script type="text/javascript">
-        const dataCategories = JSON.parse(document.getElementById("productCategory").value);
-        const dataProducts = JSON.parse(document.getElementById("product").value);
+        const model = JSON.parse(document.getElementById("modelJson").value);
         const dataPaymentTypes = JSON.parse(document.getElementById("paymentType").value);
 
         window.actionUrl = {
-            getDiscount: "@Url.Action("Get", "Discount")",
             createTransaction: "@Url.Action("Submit", "Transaction", new {id = string.Empty})",
             updateTransaction: "@Url.Action("Submit", "Transaction", new {id = "update"})",
             getTransactionHold: "@Url.Action("GetHoldOnly", "Transaction")",
@@ -189,23 +187,19 @@
             el: "#salesRegister",
             data: {
                 tabs: ["Current", "Open Bills"],
-                categories: dataCategories,
-                products: dataProducts,
+                categories: model.categories,
+                products: model.products,
+                discounts: model.discounts,
                 paymentTypes: dataPaymentTypes,
                 holdTransactions: [],
-                activeCategory: dataCategories[0].name,
+                activeCategory: model.categories[0].name,
                 selectedTab: "",
                 searchKeyword: "",
                 selectedProducts: [],
                 selectedPaymentType: "",
                 selectedTransaction: null,
+                selectedDiscountCode: "",
                 transactionNotes: "",
-                discount: {
-                    code: "",
-                    type: "",
-                    value: 0,
-                    isValid: false
-                },
                 isPayment: true,
                 showConfirmModal: false,
                 showLoadingModal: false,
@@ -261,37 +255,6 @@
                         this.selectedProducts[index].quantity;
                     this.selectedProducts[index].totalPrice = totalPrice;
                 },
-                setDiscount: function(discount) {
-                    if (discount === undefined)
-                        discount = {
-                            isValid: false,
-                            code: "",
-                            type: "",
-                            value: 0,
-                        };
-
-                    this.discount.isValid = discount.isValid;
-                    this.discount.type = discount.type;
-                    this.discount.value = discount.value;
-                    this.discount.code = discount.code;
-                },
-                fetchDiscount: function() {
-                    this.showLoadingModal = true;
-                    const url = window.actionUrl.getDiscount + "/" + this.discount.code;
-
-                    axios.get(url)
-                        .then(function(response) {
-                            this.showLoadingModal = false;
-                            const isOk = response.data.status.type === "Success";
-
-                            if (isOk) {
-                                const discount = response.data.collections[0];
-                                this.setDiscount(Object.assign(discount, { isValid: true }));
-                            } else
-                                this.setDiscount(undefined);
-
-                        }.bind(this));
-                },
                 fetchHoldTransaction: function() {
                     axios
                         .get(window.actionUrl.getTransactionHold)
@@ -325,7 +288,7 @@
                                 }
                             }),
                         discount: {
-                            code: this.discount.code
+                            code: this.selectedDiscountCode
                         },
                         notes: this.transactionNotes
                     };
@@ -372,9 +335,7 @@
 
                     printWindow.focus();
                     printWindow.addEventListener("beforeunload",
-                        function() {
-                            this.showPrintWindow = false;
-                        }.bind(this),
+                        function() { this.showPrintWindow = false; }.bind(this),
                         false);
                 },
                 selectTransaction: function(transactionId) {
@@ -397,16 +358,14 @@
                         }.bind(this));
 
                     const discountCode = this.selectedTransaction.discount.code;
-                    if (discountCode !== "" && discountCode !== null) {
-                        this.discount.code = discountCode;
-                        this.fetchDiscount();
-                    }
+                    if (discountCode !== "" && discountCode !== null) 
+                        this.selectedDiscountCode = discountCode;
 
                     this.selectTab(0);
                 },
                 clearAll: function() {
                     this.clearSelectedProducts();
-                    this.setDiscount(undefined);
+                    this.selectedDiscountCode = "";
                     this.selectedTransaction = null;
                     this.selectedPaymentType = "";
                     this.transactionNotes = "";
@@ -433,8 +392,8 @@
                 },
                 totalPriceWithDiscount: function() {
                     if (this.discountValue > this.totalPrice) {
+                        this.selectedDiscountCode = "";
                         swal("Sorry, discount cannot be applied", "", "warning");
-                        this.setDiscount(undefined);
 
                         return this.totalPrice;
                     }
@@ -442,10 +401,13 @@
                     return this.totalPrice - this.discountValue;
                 },
                 discountValue: function() {
-                    if (this.discount.type === "Percentage")
-                        return this.totalPrice * this.discount.value / 100;
+                    if (this.appliedDiscount === null)
+                        return 0;
 
-                    return this.discount.value;
+                    if (this.appliedDiscount.type === "Percentage")
+                        return this.totalPrice * this.appliedDiscount.value / 100;
+
+                    return this.appliedDiscount.value;
                 },
                 isAnySelectedProducts: function() {
                     return this.selectedProducts.length > 0;
@@ -455,11 +417,17 @@
                         ? this.selectedPaymentType !== ""
                         : this.transactionNotes !== "";
                 },
-                isDiscountCodeEmpty: function() {
-                    return this.discount.code === "";
-                },
                 isSelectedTransaction: function() {
                     return this.selectedTransaction !== null;
+                },
+                appliedDiscount: function () {
+                    const results = this.discounts.filter(function(d) {
+                        return d.code === this.selectedDiscountCode;
+                    }.bind(this));
+                    
+                    return results.length > 0 
+                        ? results[0] 
+                        : null;
                 }
             },
             mounted: function() {
@@ -470,8 +438,7 @@
     </script>
 }
 
-<input type="hidden" value='@Json.Serialize(Model.Categories)' id="productCategory" />
-<input type="hidden" value='@Json.Serialize(Model.Products)' id="product" />
+<input type="hidden" value='@Json.Serialize(Model)' id="modelJson" />
 <input type="hidden" value='@Json.Serialize(paymentTypes)' id="paymentType" />
 
 <div class="d-flex mb-3">
@@ -569,9 +536,9 @@
                                             <td class="text-left align-middle">{{ sp.product.name }}</td>
                                             <td class="align-middle">
                                                 <input type="number"
-                                                    class="form-control form-control-sm form-control-plaintext text-center"
-                                                    @@input="onQuantityUpdate(index)"
-                                                    v-model.number="sp.quantity"/>
+                                                       class="form-control form-control-sm form-control-plaintext text-center"
+                                                       @@input="onQuantityUpdate(index)"
+                                                       v-model.number="sp.quantity"/>
                                             </td>
                                             <td class="align-middle">{{ sp.totalPrice | toCurrency }}</td>
                                             <td class="align-middle">
@@ -580,7 +547,7 @@
                                                         class="btn btn-sm btn-outline-secondary border-0 lh-0 p-1 rounded-circle"
                                                         @@click="sp.showNotes = !sp.showNotes">
                                                     <svg v-if="!sp.showNotes" xmlns="http://www.w3.org/2000/svg"width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="feather feather-edit-2 sc-dnqmqq jxshSx">
+                                                         class="feather feather-edit-2 sc-dnqmqq jxshSx">
                                                         <polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon>
                                                     </svg>
                                                     <svg v-else-if="sp.showNotes" class="feather feather-edit sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -602,47 +569,37 @@
                                         <tr v-if="sp.showNotes">
                                             <td colspan="4" class="border-top-0">
                                                 <input type="text" 
-                                                    class="form-control form-control-sm"
-                                                    v-model="sp.notes"/>
+                                                       class="form-control form-control-sm"
+                                                       v-model="sp.notes"/>
                                             </td>
                                         </tr>
                                     </template>
                                 </table>
-                                <div class="input-group mb-3" v-if="!discount.isValid">
-                                    <input type="text" 
-                                            class="form-control form-control-sm pl-2 pr-2" 
-                                            placeholder="Apply discount code here..."
-                                            v-model="discount.code"
-                                            :class="{ 'form-control-plaintext' : isDiscountCodeEmpty }"
-                                            :readonly="discount.isValid"/>
-                                    <div class="input-group-append" v-if="!isDiscountCodeEmpty">
-                                        <button type="button" 
-                                                class="btn btn-outline-primary btn-sm"
-                                                @@click="fetchDiscount">
-                                            Apply
-                                        </button>
+                                <div class="input-group input-group-sm mb-3">
+                                    <select class="form-control" 
+                                            v-model="selectedDiscountCode" 
+                                            :class="{'form-control-plaintext' : appliedDiscount === null, 'border-right-0 bg-transparent' : appliedDiscount !== null}"
+                                        >
+                                        <option value="">Apply discount code here...</option>
+                                        <option v-for="d in discounts" :value="d.code">
+                                            Discount ({{d.code}})
+                                        </option>
+                                    </select>
+                                    <div class="input-group-append" v-if="appliedDiscount !== null">
+                                        <span class="input-group-text bg-transparent text-success border-left-0">
+                                            - {{ discountValue | toCurrency }}
+                                        </span>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center border mb-3 p-2 rounded" v-else>
-                                    <p class="mr-auto mb-0">
-                                        Discount ({{discount.code}})
-                                    </p>
-                                    <p class="mb-0 text-success">
-                                        - {{ discountValue | toCurrency }}
-                                    </p>
-                                    <button type="button" 
-                                        class="btn btn-outline-danger btn-sm border-0 rounded-circle btn-times-close ml-2"
-                                        @@click="setDiscount(undefined)">
-                                        <span>&times;</span>
-                                    </button>
-                                </div>
+                                <button class="btn btn-primary btn-block btn-lg" 
+                                        v-if="totalPrice > 0" 
+                                        @@click="showConfirmModal = true,isPayment = true">
+                                    Charge <span class="font-weight-bold">{{ totalPriceWithDiscount | toCurrency }}</span>
+                                </button>
                             </template>
                             <p v-else>
                                 Please choose products...
                             </p>
-                            <button class="btn btn-primary btn-block btn-lg" v-if="totalPrice > 0" @@click="showConfirmModal = true,isPayment = true">
-                                Charge <span class="font-weight-bold">{{ totalPriceWithDiscount | toCurrency }}</span>
-                            </button>
                         </div>
                     </div>
                 </div>
