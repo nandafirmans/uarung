@@ -112,7 +112,7 @@ namespace Uarung.API.Controllers
                 if (!request.SelectedProducts.Any())
                     throw new Exception("selected product cannot be empty");
 
-                var transactionId = GenerateId();
+                var transactionId = GenerateTransactionId();
                 var userId = GetUserId(Request, _distributedCache);
 
                 var transaction = new Data.Entity.Transaction
@@ -253,6 +253,14 @@ namespace Uarung.API.Controllers
             }
 
             return result;
+        }
+
+        private string GenerateTransactionId()
+        {
+            var now = DateTime.Now;
+            var todayCount = _dacTransaction.Count(t => t.CreatedDate.Date >= now.Date) + 1;
+
+            return $"TRX-{now:yyMMddHHmmss}-{todayCount:D3}";
         }
 
         private string FillDiscount(string discountCode, decimal totalPrice, out decimal discountValue)

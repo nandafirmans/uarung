@@ -14,6 +14,8 @@ namespace Uarung.Data.Contract
 
         int Count();
 
+        int Count(Expression<Func<T, bool>> expression);
+
         T Single(string id);
 
         Task<T> SingleAsync(string keyValue);

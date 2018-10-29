@@ -28,6 +28,11 @@ namespace Uarung.Data.DataAccess
             return _context.Set<T>().Count();
         }
 
+        public int Count(Expression<Func<T, bool>> expression)
+        {
+            return _context.Set<T>().Count(expression);
+        }
+
         public T Single(string id)
         {
             return _context.Set<T>().FirstOrDefault(e => ((IEntityBase) e).Id.Equals(id));
