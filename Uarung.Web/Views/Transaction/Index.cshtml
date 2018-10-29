@@ -25,7 +25,8 @@
                     "Payment Status",
                     "Payment Type",
                     "Created Date",
-                    "Total Price"
+                    "Total Price",
+                    ""
                 ],
                 tbodies: data.map(function(t, i) {
                     return [
@@ -35,7 +36,8 @@
                         t.paymentStatus,
                         t.paymentType,
                         formatDate(t.createdDate),
-                        toCurrency(t.totalPrice)
+                        toCurrency(t.totalPrice),
+                        "<x> @Url.Action("Delete")/" + t.id
                     ];
                 })
             }

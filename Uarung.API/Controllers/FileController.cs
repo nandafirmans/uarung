@@ -63,7 +63,7 @@ namespace Uarung.API.Controllers
             return response;
         }
 
-        private void ValidateImageFiles(List<IFormFile> files) 
+        private static void ValidateImageFiles(IEnumerable<IFormFile> files) 
         {
             var supportedTypes = new[] { "jpg", "jpeg", "png" };
 
