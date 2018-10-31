@@ -76,13 +76,13 @@ namespace Uarung.Web.Controllers
             SetErrorMessage(exception.Message);
         }
 
-        public void CheckResponse(BaseReponse response)
+        public void CheckResponse(BaseResponse response)
         {
             if (response.Status.Type.Equals(Constant.Status.TypeError))
                 throw new Exception(response.Status.Message);
         }
 
-        public void CheckResponse(IEnumerable<BaseReponse> responses)
+        public void CheckResponse(IEnumerable<BaseResponse> responses)
         {
             foreach (var r in responses)
                 CheckResponse(r);

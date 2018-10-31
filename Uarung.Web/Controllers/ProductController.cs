@@ -87,7 +87,7 @@ namespace Uarung.Web.Controllers
             try
             {
                 var url = $"{CreateServiceUrl(Constant.ConfigKey.ApiUrlProduct)}{id}";
-                var response = Requestor().Delete<BaseReponse>(url);
+                var response = Requestor().Delete<BaseResponse>(url);
 
                 CheckResponse(response);
 
@@ -119,7 +119,7 @@ namespace Uarung.Web.Controllers
                         .Select(path => path)
                         .ToList();
 
-                var response = requestor.Post<BaseReponse>(url, productRequest);
+                var response = requestor.Post<BaseResponse>(url, productRequest);
 
                 CheckResponse(response);
 
@@ -161,7 +161,7 @@ namespace Uarung.Web.Controllers
                             .ToList();
                 }
 
-                var response = requestor.Put<BaseReponse>(url, productRequest);
+                var response = requestor.Put<BaseResponse>(url, productRequest);
 
                 CheckResponse(response);
 
@@ -199,8 +199,8 @@ namespace Uarung.Web.Controllers
 
                 var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlProductCategory);
                 var response =  isInsert
-                    ? Requestor().Post<BaseReponse>(url, request)
-                    : Requestor().Put<BaseReponse>(url, request);
+                    ? Requestor().Post<BaseResponse>(url, request)
+                    : Requestor().Put<BaseResponse>(url, request);
 
                 CheckResponse(response);
 
@@ -217,7 +217,7 @@ namespace Uarung.Web.Controllers
             try
             {
                 var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlProductCategory);
-                var response = Requestor().Delete<BaseReponse>($"{url}{id}");
+                var response = Requestor().Delete<BaseResponse>($"{url}{id}");
 
                 CheckResponse(response);
 

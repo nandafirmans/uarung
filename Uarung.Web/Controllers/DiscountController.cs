@@ -71,7 +71,7 @@ namespace Uarung.Web.Controllers
             try
             {
                 var url = $"{CreateServiceUrl(Constant.ConfigKey.ApiUrlDiscount)}{id}";
-                var response = Requestor().Delete<BaseReponse>(url);
+                var response = Requestor().Delete<BaseResponse>(url);
 
                 CheckResponse(response);
 
@@ -88,7 +88,7 @@ namespace Uarung.Web.Controllers
         {
             try
             {
-                BaseReponse response;
+                BaseResponse response;
                 var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlDiscount);
                 var requestor = Requestor();
                 var request = new Discount()
@@ -101,10 +101,10 @@ namespace Uarung.Web.Controllers
                 switch (mode)
                 {
                     case "insert":
-                        response = requestor.Post<BaseReponse>(url, request);
+                        response = requestor.Post<BaseResponse>(url, request);
                         break;
                     case "update":
-                        response = requestor.Put<BaseReponse>(url, request);
+                        response = requestor.Put<BaseResponse>(url, request);
                         break;
 
                     default:

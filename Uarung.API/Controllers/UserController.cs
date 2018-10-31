@@ -56,9 +56,9 @@ namespace Uarung.API.Controllers
         }
 
         [HttpPut]
-        public ActionResult<BaseReponse> Update(User request)
+        public ActionResult<BaseResponse> Update(User request)
         {
-            var response = new BaseReponse();
+            var response = new BaseResponse();
 
             try
             {
@@ -104,9 +104,9 @@ namespace Uarung.API.Controllers
         }
 
         [HttpPost]
-        public ActionResult<BaseReponse> Create(User request)
+        public ActionResult<BaseResponse> Create(User request)
         {
-            var response = new BaseReponse();
+            var response = new BaseResponse();
 
             try
             {
@@ -142,9 +142,9 @@ namespace Uarung.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<BaseReponse> Delete(string id)
+        public ActionResult<BaseResponse> Delete(string id)
         {
-            var response = new BaseReponse();
+            var response = new BaseResponse();
 
             try
             {

@@ -63,7 +63,7 @@ namespace Uarung.Web.Controllers
             try
             {
                 var url = $"{CreateServiceUrl(Constant.ConfigKey.ApiUrlUser)}{id}";
-                var response = Requestor().Delete<BaseReponse>(url);
+                var response = Requestor().Delete<BaseResponse>(url);
 
                 CheckResponse(response);
 
@@ -83,8 +83,8 @@ namespace Uarung.Web.Controllers
                 var url = CreateServiceUrl(Constant.ConfigKey.ApiUrlUser);
 
                 var response = string.IsNullOrEmpty(user.Id) 
-                    ? Requestor().Post<BaseReponse>(url, user)
-                    : Requestor().Put<BaseReponse>(url, user);
+                    ? Requestor().Post<BaseResponse>(url, user)
+                    : Requestor().Put<BaseResponse>(url, user);
 
                 CheckResponse(response);
 

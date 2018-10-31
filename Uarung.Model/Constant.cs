@@ -26,6 +26,7 @@ namespace Uarung.Model
             public const string ApiUrlTransaction = "API.Url.Transaction";
             public const string ApiUrlTransactionGetHold = "API.Url.Transaction.GetHold";
             public const string ApiUrlTransactionReport = "API.Url.Transaction.Report";
+            public const string ApiUrlTransactionCancel = "API.Url.Transaction.Cancel";
             public const string ApiUrlDiscount = "API.Url.Discount";
             public const string ApiUrlUser = "API.Url.User";
             public const string ApiUrlFileUpload = "API.Url.FileUpload";
@@ -60,6 +61,7 @@ namespace Uarung.Model
         {
             public const string Hold = "Hold";
             public const string Paid = "Paid";
+            public const string Canceled = "Canceled";
         }
 
         public static class DiscountType

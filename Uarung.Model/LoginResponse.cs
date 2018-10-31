@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Uarung.Model
 {
-    public class LoginResponse : BaseReponse
+    public class LoginResponse : BaseResponse
     {
         public LoginResponse()
         {

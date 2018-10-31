@@ -100,7 +100,7 @@ namespace Uarung.API.Utility
 
         private static ContentResult CreateErrorMessage(string message)
         {
-            var response = new BaseReponse();
+            var response = new BaseResponse();
 
             response.Status.SetError(message);
 

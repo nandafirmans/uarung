@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Uarung.Model
 {
-    public class FileResponse : BaseReponse
+    public class FileResponse : BaseResponse
     {
         public FileResponse()
         {

@@ -2,9 +2,9 @@ using Newtonsoft.Json;
 
 namespace Uarung.Model
 {
-    public class BaseReponse 
+    public class BaseResponse 
     {
-        public BaseReponse()
+        public BaseResponse()
         {
             Status = new Status();
         }

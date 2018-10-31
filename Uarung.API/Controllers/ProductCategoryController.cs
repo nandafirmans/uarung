@@ -17,9 +17,9 @@ namespace Uarung.API.Controllers
         }
         
         [HttpPost]
-        public ActionResult<BaseReponse> Create(ProductCategory request)
+        public ActionResult<BaseResponse> Create(ProductCategory request)
         {
-            var response = new BaseReponse();
+            var response = new BaseResponse();
 
             try
             {
@@ -45,9 +45,9 @@ namespace Uarung.API.Controllers
         }
         
         [HttpPut]
-        public ActionResult<BaseReponse> Update(ProductCategory request)
+        public ActionResult<BaseResponse> Update(ProductCategory request)
         {
-            var response = new BaseReponse();
+            var response = new BaseResponse();
 
             try
             {
@@ -106,9 +106,9 @@ namespace Uarung.API.Controllers
         }
         
         [HttpDelete("{id}")]
-        public ActionResult<BaseReponse> Delete(string id)
+        public ActionResult<BaseResponse> Delete(string id)
         {
-            var response = new BaseReponse();
+            var response = new BaseResponse();
             try
             {
                 var category = _dacProductCategory.Single(id);
