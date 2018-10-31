@@ -92,6 +92,28 @@ namespace Uarung.Web.Controllers
                 model.Transactions = response.Collections;
                 model.StartDate = start;
                 model.EndDate = end;
+
+                if (response.Collections.Any())
+                {
+                    var paymentStatus = new[]
+                    {
+                        Constant.PaymentStatus.Hold,
+                        Constant.PaymentStatus.Paid,
+                        Constant.PaymentStatus.Canceled
+                    };
+
+                    var paymentTypes = new[]
+                    {
+                        Constant.PaymentType.Card,
+                        Constant.PaymentType.Cash,
+                        Constant.PaymentType.Other,
+                    };
+
+                    model.PaymentStatusTable =
+                        GenerateReportTable<ReportItemPayment>(response.Collections, paymentStatus, "PaymentStatus");
+                    model.PaymentTypeTable =
+                        GenerateReportTable<ReportItemBase>(response.Collections, paymentTypes, "PaymentType");
+                }
             }
             catch (Exception e)
             {
@@ -152,7 +174,7 @@ namespace Uarung.Web.Controllers
                 var responseProduct = requestor.Get<CollectionResponse<Product>>(urlProduct);
                 var responseDiscount = requestor.Get<CollectionResponse<Discount>>(urlDiscount);
 
-                CheckResponse(new BaseReponse[] {responseCategory, responseProduct, responseDiscount});
+                CheckResponse(new BaseResponse[] {responseCategory, responseProduct, responseDiscount});
 
                 model.Categories = new List<ProductCategory> {new ProductCategory {Id = "0", Name = "All"}}
                     .Concat(responseCategory.Collections)
@@ -228,13 +250,33 @@ namespace Uarung.Web.Controllers
             try
             {
                 var url = $"{CreateServiceUrl(Constant.ConfigKey.ApiUrlTransaction)}{id}";
-                var response = Requestor().Delete<BaseReponse>(url);
+                var response = Requestor().Delete<BaseResponse>(url);
+
+                CheckResponse(response);
 
                 return RedirectToAction("Index", new { ok = "delete success" });
             }
             catch (Exception e)
             {
                 return RedirectToAction("Index", new { err = e.Message });
+            }
+        }
+        
+        [HttpGet]
+        public IActionResult Cancel(string id)
+        {
+            try
+            {
+                var url = $"{CreateServiceUrl(Constant.ConfigKey.ApiUrlTransactionCancel)}{id}";
+                var response = Requestor().Get<BaseResponse>(url);
+
+                CheckResponse(response);
+
+                return RedirectToAction("Detail", new { id, ok = "transaction canceled" });
+            }
+            catch (Exception e)
+            {
+                return RedirectToAction("Detail", new { id, err = e.Message });
             }
         }
 
@@ -252,6 +294,35 @@ namespace Uarung.Web.Controllers
             CheckResponse(response);
 
             return response;
+        }
+
+        private static Dictionary<string, T> GenerateReportTable<T>(
+            IReadOnlyCollection<Transaction> transactions, 
+            IEnumerable<string> keys, 
+            string keyProp
+        ) where T : ReportItemBase, new()
+        {
+            var result = new Dictionary<string, T>();
+
+            foreach (var key in keys)
+            {
+                var trans = transactions
+                    .Where(t => t.GetType().GetProperty(keyProp).GetValue(t).ToString() == key)
+                    .ToList();
+
+                var item = new T()
+                {
+                    Name = key,
+                    Count = trans.Count()
+                };
+
+                if (item is ReportItemPayment)
+                    (item as ReportItemPayment).Total = trans.Sum(t => t.TotalPrice);
+
+                result.Add(key, item);
+            }
+
+            return result;
         }
     }
 }

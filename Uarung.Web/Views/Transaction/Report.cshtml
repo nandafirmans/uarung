@@ -6,49 +6,53 @@
 
 @section ScriptHeader
 {
-    <link href="~/lib/air-datepicker/datepicker.min.css" rel="stylesheet"/>
+    <link href="~/lib/daterangepicker/daterangepicker.min.css" rel="stylesheet"/>
     <style>
-        .datepicker--day-name {
-            color:var(--blue);
-            font-weight: bold;
+        .daterangepicker td.in-range {
+            background: rgba(220, 53, 69, 0.2);
         }
-        .datepicker--cell.-current-{
-            color:var(--blue);
-        }
-        .datepicker--cell.-in-range-{
-            background:#dc35467c;
-        }
-        .datepicker--cell.-selected-, .datepicker--cell.-selected-.-current- {
-            background: var(--blue);
+
+        .daterangepicker  td.active,
+        .daterangepicker  td.active:hover,
+        .daterangepicker  td.active:focus {
+            background: #dc3545;
         }
     </style>
 }
 
 @section ScriptFooter
 {
-    <script type="text/javascript" src="~/lib/air-datepicker/datepicker.min.js"></script>
-    <script type="text/javascript" src="~/lib/air-datepicker/datepicker.en.js"></script>
+    <script type="text/javascript" src="~/lib/moment.min.js"></script>
+    <script type="text/javascript" src="~/lib/daterangepicker/daterangepicker.min.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $('input[name="searchDate"]').daterangepicker({
+                autoApply: true,
+                opens:"left"
+            });
+        })();
+    </script>
 }
 
 <div class="mb-3 d-flex">
-    <h3 class="d-inline-flex">Report</h3>
+    <div class="d-inline-block">
+        <h3 class="mb-0">Report</h3>
+        <p class="mb-0 text-muted">Showing @Model.Transactions.Count transaction(s) from @Model.StartDate.ToString("dd MMM yyyy") to @Model.EndDate.ToString("dd MMM yyyy")</p>
+    </div>
     <div class="d-flex align-items-center ml-auto">
         <form action="@Url.Action("Report")" method="get">
             <div class="input-group">
                 <div class="input-group-prepend">
-                    <span class="input-group-text">
+                    <span class="input-group-text bg-transparent">
                         <span data-feather="calendar"></span>
                     </span>
                 </div>
                 <input type="text"
-                       data-range="true"
-                       data-multiple-dates-separator=" - "
-                       data-language="en"
-                       value="@Model.StartDate.ToString("d") - @Model.EndDate.ToString("d")"
-                       class="datepicker-here form-control"
                        name="searchDate"
+                       class="form-control"
                        autocomplete="off"
-                       style="min-width: 220px"/>
+                       style="min-width: 220px"
+                       value="@Model.StartDate.ToString("d") - @Model.EndDate.ToString("d")"/>
                 <div class="input-group-append">
                     <button class="btn btn-outline-primary">Search</button>
                 </div>
@@ -63,6 +67,121 @@
         </form>
     </div>
 </div>
+<hr class="mt-3 mb-4"/>
 
-<p>Showing result from @Model.StartDate.ToString("dd MMM yyyy") to @Model.EndDate.ToString("dd MMM yyyy")</p>
-<partial name="_TableTransactionPartial.cshtml" model="Model.Transactions"/>
+<div class="row mb-3">
+    <div class="col">
+        @if (Model.PaymentStatusTable.Any())
+        {
+            var psIndex = 1;
+
+            <h5>Payment Status Info</h5>
+            <table class="table border">
+                <thead class="thead-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Payment Status</th>
+                    <th scope="col">Transaction Count</th>
+                    <th scope="col">Total Price</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ps in Model.PaymentStatusTable)
+                    {
+                        var totalPrice = ps.Value.Total.ToString("N0");
+
+                        <tr>
+                            <td>@psIndex</td>
+                            <td>@ps.Value.Name</td>
+                            <td>@ps.Value.Count</td>
+                            @if (ps.Value.Name == Constant.PaymentStatus.Canceled)
+                            {
+                                <td class="text-danger">-@totalPrice</td>
+                            }
+                            else if (ps.Value.Name == Constant.PaymentStatus.Paid)
+                            {
+                                <td class="text-success">@totalPrice</td>
+                            }
+                            else
+                            {
+                                <td class="text-muted">@totalPrice</td>
+                            }
+                        </tr>
+
+                        psIndex++;
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    <div class="col">
+        @if (Model.PaymentTypeTable.Any())
+        {
+            var ptIndex = 1;
+
+            <h5>Payment Type Info</h5>
+            <table class="table border">
+                <thead class="thead-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Payment Types</th>
+                    <th scope="col">Transaction Count</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pt in Model.PaymentTypeTable)
+                    {
+                        <tr>
+                            <td>@ptIndex</td>
+                            <td>@pt.Value.Name</td>
+                            <td>@pt.Value.Count</td>
+                        </tr>
+
+                        ptIndex++;
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@if (Model.Transactions.Any())
+{
+    var tIndex = 1;
+    <h5>Transaction Info</h5>
+    <table class="table border">
+        <thead class="thead-light">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col" style="width: 20px">Id</th>
+            <th scope="col">Notes</th>
+            <th scope="col">Payment Status</th>
+            <th scope="col">Payment Type</th>
+            <th scope="col">Created Date</th>
+            <th scope="col">Total Price</th>
+        </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in Model.Transactions)
+            {
+                <tr>
+                    <td>@tIndex</td>
+                    <td>
+                        <a href="@Url.Action("Detail", new {id = transaction.Id})">
+                            @transaction.Id
+                        </a>
+                    </td>
+                    <td>@((string.IsNullOrEmpty(transaction.Notes) ? "-" : transaction.Notes))</td>
+                    <td>@transaction.PaymentStatus</td>
+                    <td>@transaction.PaymentType</td>
+                    <td>@transaction.CreatedDate.ToString("dd/MM/yyyy '-' HH:mm")</td>
+                    <td>@transaction.TotalPrice.ToString("N0")</td>
+                </tr>
+
+                tIndex++;
+            }
+        </tbody>
+    </table>
+}
+
+<div class="mb-5"></div>
