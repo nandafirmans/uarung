@@ -124,31 +124,66 @@ namespace Uarung.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Export(string jsonTransactions, string fileName)
+        public IActionResult Export(string reportModelJson)
         {
             try
             {
-                var transactions = JsonConvert.DeserializeObject<List<Transaction>>(jsonTransactions);
-
+                var model = JsonConvert.DeserializeObject<ReportViewModel>(reportModelJson);
+                var fileName = $"{model.StartDate:ddMMyy}-{model.EndDate:ddMMyy}";
                 var sb = new StringBuilder();
 
-                sb.AppendLine("Id, Notes, Payment Status, Payment Type, Created Date, Total Price,");
+                sb.AppendLine($"Transaction Reports from {model.StartDate:dd MMM yyyy} to {model.EndDate:dd MMM yyyy},");
 
-                foreach (var t in transactions)
+                sb.AppendLine("");
+                sb.AppendLine("No, Payment Status, Transaction Count, Total Price");
+                var psNum = 1;
+                foreach (var item in model.PaymentStatusTable)
                 {
-                    var datas = new[]
+                    sb.AppendLine(string.Join(",", new[]
                     {
+                        psNum.ToString(),
+                        item.Value.Name,
+                        item.Value.Count.ToString(),
+                        $"\"{item.Value.Total:N0}\""
+                    }));
+
+                    psNum++;
+                }
+
+                sb.AppendLine("");
+                sb.AppendLine("No, Payment Type, Transaction Count");
+                var ptNum = 1;
+                foreach (var item in model.PaymentTypeTable)
+                {
+                    sb.AppendLine(string.Join(",", new[]
+                    {
+                        ptNum.ToString(),
+                        item.Value.Name,
+                        item.Value.Count.ToString(),
+                    }));
+
+                    ptNum++;
+                }
+                
+                sb.AppendLine("");
+                sb.AppendLine("No, Id, Notes, Payment Status, Payment Type, Created Date, Total Price,");
+                var tNum = 1;
+                foreach (var t in model.Transactions.AsEnumerable())
+                {
+                    sb.AppendLine(string.Join(",", new[]
+                    {
+                        tNum.ToString(),
                         t.Id,
                         string.IsNullOrEmpty(t.Notes) ? "-" : t.Notes,
                         t.PaymentStatus,
                         t.PaymentType,
                         t.CreatedDate.ToString("g"),
                         $"\"{(t.TotalPrice - t.Discount.Value):N0}\""
-                    };
+                    }));
 
-                    sb.AppendLine(string.Join(",", datas));
+                    tNum++;
                 }
-
+                
                 return File(Encoding.Default.GetBytes(sb.ToString()), "text/csv", $"{fileName}.csv");
             }
             catch (Exception e)
@@ -317,7 +352,7 @@ namespace Uarung.Web.Controllers
                 };
 
                 if (item is ReportItemPayment)
-                    (item as ReportItemPayment).Total = trans.Sum(t => t.TotalPrice);
+                    (item as ReportItemPayment).Total = trans.Sum(t => t.TotalPrice - t.Discount.Value);
 
                 result.Add(key, item);
             }
