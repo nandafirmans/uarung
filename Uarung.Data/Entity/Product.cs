@@ -14,8 +14,11 @@ namespace Uarung.Data.Entity
         }
 
         [Key]
+        [MaxLength(50)]
+        [Column("ProductId")]
         public string Id { get; set; }
 
+        [MaxLength(50)]
         public string Name { get; set; }
 
         public decimal Price { get; set; }
@@ -23,6 +26,7 @@ namespace Uarung.Data.Entity
         [ForeignKey("CategoryId")]
         public ProductCategory ProductCategory { get; set; }
 
+        [MaxLength(50)]
         public string CategoryId { get; set; }
 
         public List<ProductImage> ProductImages { get; set; }
@@ -30,6 +34,7 @@ namespace Uarung.Data.Entity
         [ForeignKey("UserId")]
         public User User { get; set; }
 
+        [MaxLength(50)]
         public string UserId { get; set; }
 
         public DateTime CreatedDate { get; set; }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Uarung.Data.Provider;
@@ -9,9 +10,10 @@ using Uarung.Data.Provider;
 namespace Uarung.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20181101143935_SetKeysToVarchar")]
+    partial class SetKeysToVarchar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,13 +25,11 @@ namespace Uarung.API.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("DiscountCode")
                         .HasMaxLength(50);
 
                     b.Property<DateTime>("CreatedDate");
 
-                    b.Property<string>("Type")
-                        .HasMaxLength(15);
+                    b.Property<string>("Type");
 
                     b.Property<DateTime>("UpdatedDate");
 
@@ -49,7 +49,6 @@ namespace Uarung.API.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("ProductId")
                         .HasMaxLength(50);
 
                     b.Property<string>("CategoryId")
@@ -57,8 +56,7 @@ namespace Uarung.API.Migrations
 
                     b.Property<DateTime>("CreatedDate");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(50);
+                    b.Property<string>("Name");
 
                     b.Property<decimal>("Price");
 
@@ -80,13 +78,11 @@ namespace Uarung.API.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("CategoryId")
                         .HasMaxLength(50);
 
                     b.Property<DateTime>("CreatedDate");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(50);
+                    b.Property<string>("Name");
 
                     b.Property<DateTime>("UpdatedDate");
 
@@ -99,7 +95,6 @@ namespace Uarung.API.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("ImageId")
                         .HasMaxLength(50);
 
                     b.Property<DateTime>("CreatedDate");
@@ -122,19 +117,16 @@ namespace Uarung.API.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("SelectedId")
                         .HasMaxLength(50);
 
                     b.Property<DateTime>("CreatedDate");
 
-                    b.Property<string>("Notes")
-                        .HasMaxLength(200);
+                    b.Property<string>("Notes");
 
                     b.Property<string>("ProductId")
                         .HasMaxLength(50);
 
-                    b.Property<string>("ProductName")
-                        .HasMaxLength(50);
+                    b.Property<string>("ProductName");
 
                     b.Property<decimal>("ProductPrice");
 
@@ -160,7 +152,6 @@ namespace Uarung.API.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("TransactionId")
                         .HasMaxLength(50);
 
                     b.Property<DateTime>("CreatedDate");
@@ -170,14 +161,11 @@ namespace Uarung.API.Migrations
 
                     b.Property<decimal>("DiscountValue");
 
-                    b.Property<string>("Notes")
-                        .HasMaxLength(200);
+                    b.Property<string>("Notes");
 
-                    b.Property<string>("PaymentStatus")
-                        .HasMaxLength(10);
+                    b.Property<string>("PaymentStatus");
 
-                    b.Property<string>("PaymentType")
-                        .HasMaxLength(10);
+                    b.Property<string>("PaymentType");
 
                     b.Property<decimal>("TotalPrice");
 
@@ -197,32 +185,25 @@ namespace Uarung.API.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("UserId")
                         .HasMaxLength(50);
 
                     b.Property<DateTime>("CreatedDate");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(50);
+                    b.Property<string>("Email");
 
                     b.Property<char>("Gender");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(50);
+                    b.Property<string>("Name");
 
-                    b.Property<string>("Password")
-                        .HasMaxLength(200);
+                    b.Property<string>("Password");
 
-                    b.Property<string>("Phone")
-                        .HasMaxLength(15);
+                    b.Property<string>("Phone");
 
-                    b.Property<string>("Role")
-                        .HasMaxLength(10);
+                    b.Property<string>("Role");
 
                     b.Property<DateTime>("UpdatedDate");
 
-                    b.Property<string>("Username")
-                        .HasMaxLength(50);
+                    b.Property<string>("Username");
 
                     b.HasKey("Id");
 
