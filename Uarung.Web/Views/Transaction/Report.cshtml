@@ -58,13 +58,15 @@
                 </div>
             </div>
         </form>
-        <form action="@Url.Action("Export")" method="post">
-            <input type="hidden" name="jsonTransactions" value='@Json.Serialize(Model.Transactions)'/>
-            <input type="hidden" name="fileName" value="Transaction @Model.StartDate.ToString("ddMMyy") - @Model.EndDate.ToString("ddMMyy")"/>
-            <button class="btn btn-outline-primary ml-2">
-                Export Data
-            </button>
-        </form>
+        @if (Model.Transactions.Any())
+        {
+            <form action="@Url.Action("Export")" method="post">
+                <input type="hidden" name="reportModelJson" value='@Json.Serialize(Model)'/>
+                <button class="btn btn-outline-primary ml-2">
+                    Export Data
+                </button>
+            </form>
+        }
     </div>
 </div>
 <hr class="mt-3 mb-4"/>
