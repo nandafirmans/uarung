@@ -110,26 +110,8 @@ namespace Uarung.API.Controllers
 
             try
             {
-                if (_dacUser.Single(u => u.Username.Equals(request.Username)) != null)
-                    throw new Exception("username already used");
-
-                if (_dacUser.Single(u => u.Email.Equals(request.Email)) != null)
-                    throw new Exception("email already used");
-
-                var user = new Data.Entity.User
-                {
-                    Id = GenerateId(),
-                    Username = request.Username,
-                    Password = Crypt.ToSHA256(request.Password),
-                    Name = request.Name,
-                    Email = request.Email,
-                    Gender = request.Gender,
-                    Phone = request.Phone,
-                    Role = request.Role
-                };
-
-                _dacUser.Insert(user);
-                _dacUser.Commit();
+                request.Id = GenerateId();
+                Shared.CreateUser(request, _dacUser);
 
                 response.Status.SetSuccess();
             }

@@ -9,21 +9,42 @@ using Uarung.Model;
 
 namespace Uarung.API.Controllers
 {
-    public class LoginController : BaseController
+    public class AuthController : BaseController
     {
         private readonly IConfiguration _configuration;
         private readonly IDistributedCache _distributedCache;
         private readonly IDacUser _dacUser;
 
-        public LoginController(IDistributedCache distributedCache, IDacUser dacUser, IConfiguration configuration)
+        public AuthController(IDistributedCache distributedCache, IDacUser dacUser, IConfiguration configuration)
         {
             _distributedCache = distributedCache;
             _dacUser = dacUser;
             _configuration = configuration;
         }
 
-        [HttpPost]
         [UnAuthorize]
+        [HttpPost("signup")]
+        public ActionResult<BaseResponse> SignUp(User request)
+        {
+            var response = new BaseResponse();
+
+            try
+            {
+                request.Id = GenerateId();
+                Shared.CreateUser(request, _dacUser);
+
+                response.Status.SetSuccess();
+            }
+            catch (Exception e)
+            {
+                response.Status.SetError(e);
+            }
+
+            return response;
+        }
+
+        [UnAuthorize]
+        [HttpPost("login")]
         public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
         {
             var response = new LoginResponse();
