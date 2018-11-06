@@ -1,1 +1,10 @@
+/Uarung.API/bin/*
+/Uarung.API/obj/*
+/Uarung.Model/bin/*
+/Uarung.Model/obj/*
+/Uarung.Data/bin/*
+/Uarung.Data/obj/*
+/Uarung.Web/bin/*
+/Uarung.Web/obj/*
+
 /Uarung.API/wwwroot/uploads/*
