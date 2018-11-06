@@ -16,6 +16,16 @@
     };
 }
 
+@section ScriptFooter 
+{
+    <script type="text/javascript">
+        $(".phone").on("keypress", function(event) {
+            if(isNaN(event.key) || event.keyCode === 18)
+                return false;
+        });
+    </script>
+}
+
 <div class="row mb-5">
     <div class="col-md-6">
         <div class="d-flex mb-3">
@@ -24,19 +34,19 @@
         <form action="@Url.Action("Submit")" method="POST" role="form" autocomplete="off">
             <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" name="Name" class="form-control" required/>
+                <input type="text" name="Name" class="form-control" maxlength="50" required />
             </div>
             <div class="row">
                 <div class="col">
                     <div class="form-group">
                         <label>Phone</label>
-                        <input type="number" name="Phone" class="form-control" required/>
+                        <input type="text" name="Phone" class="form-control phone" maxlength="15" required/>
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" name="Email" class="form-control" required/>
+                        <input type="email" name="Email" class="form-control" maxlength="15" required/>
                     </div>
                 </div>
             </div>
@@ -67,11 +77,11 @@
             <hr/>
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" name="Username" class="form-control" required/>
+                <input type="text" name="Username" class="form-control" maxlength="50" required/>
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" name="Password" class="form-control" required/>
+                <input type="password" name="Password" class="form-control" maxlength="50" required/>
             </div>
             <div class="d-flex">
                 <button class="btn btn-primary ml-auto mt-1" type="submit">
