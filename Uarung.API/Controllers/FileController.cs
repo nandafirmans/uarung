@@ -30,8 +30,8 @@ namespace Uarung.API.Controllers
             {
                 ValidateImageFiles(files);
 
-                var wwwrootPath = $"{_environment.ContentRootPath}\\wwwroot";
-                var physicalPath = $"{wwwrootPath}\\uploads\\{DateTime.Now:yyMMdd}\\";
+                var wwwrootPath = $@"{_environment.ContentRootPath}/wwwroot";
+                var physicalPath = $@"{wwwrootPath}/uploads/{DateTime.Now:yyMMdd}/";
 
                 Directory.CreateDirectory(physicalPath);
 
