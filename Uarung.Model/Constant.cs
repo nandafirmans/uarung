@@ -20,6 +20,7 @@ namespace Uarung.Model
         public static class ConfigKey
         {
             public const string ApiHost = "API.Host";
+            public const string ApiUrlStaticFiles = "API.Url.StaticFiles";
             public const string ApiUrlLogin = "API.Url.Login";
             public const string ApiUrlProduct = "API.Url.Product";
             public const string ApiUrlProductCategory = "API.Url.ProductCategory";

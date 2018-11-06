@@ -195,7 +195,6 @@ namespace Uarung.Web.Controllers
         public IActionResult SalesRegister()
         {
             var model = new SalesRegisterViewModel();
-            ViewData[Constant.ConfigKey.ApiHost] = GetConfigValue(Constant.ConfigKey.ApiHost);
             
             try
             {

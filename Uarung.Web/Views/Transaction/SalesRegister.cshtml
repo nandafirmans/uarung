@@ -1,8 +1,10 @@
-﻿@model SalesRegisterViewModel
+﻿@using Microsoft.Extensions.Configuration
+@model SalesRegisterViewModel
+@inject IConfiguration Config;
 
 @{
     ViewData[Constant.ViewDataKey.Title] = "Sales Register";
-    var apiHost = ViewData[Constant.ConfigKey.ApiHost];
+    var apiHost = Config.GetValue<string>(Constant.ConfigKey.ApiUrlStaticFiles);
 
     var paymentTypes = new[]
     {
