@@ -127,6 +127,19 @@
         <h5 class="mt-2" v-else>There's no opened bills...</h5>
     </script>
 
+    <script type="text/x-template" id="cash-calc">
+        <div>
+            <div class="form-group">
+                <label>Cash Tendered</label>
+                <input type="text" class="form-control" v-model.number="cashTendered" @@keypress="isNumber($event)"/>
+            </div>
+            <div class="form-group">
+                <label>Balance to Customer</label>
+                <input type="text" class="form-control" :value="balanceToCustomer | toCurrency" readonly/>
+            </div>
+        </div>
+    </script>
+
     <script type="text/javascript">
         const model = JSON.parse(document.getElementById("modelJson").value);
         const dataPaymentTypes = JSON.parse(document.getElementById("paymentType").value);
@@ -185,6 +198,46 @@
                 }
             });
 
+        Vue.component("cash-calc",
+            {
+                template: "#cash-calc",
+                data: function() {
+                    return {
+                        cashTendered: null
+                    };
+                },
+                methods: {
+                    isNumber: function(evt) {
+                        evt = (evt) ? evt : window.event;
+                        const charCode = (evt.which) ? evt.which : evt.keyCode;
+                        if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
+                            evt.preventDefault();
+                        } else {
+                            return true;
+                        }
+                    }
+                },
+                props: {
+                    totalPrice: {
+                        type: Number,
+                        required: true
+                    }
+                },
+                computed: {
+                    balanceToCustomer: function() {
+                        if (this.isValid)
+                            return this.cashTendered - this.totalPrice;
+
+                        return 0;
+                    },
+                    isValid: function() {
+                        const isValid = this.cashTendered >= this.totalPrice;
+                        this.$emit("change", isValid);
+                        return isValid;
+                    }
+                }
+            });
+
         const app = new Vue({
             el: "#salesRegister",
             data: {
@@ -206,6 +259,7 @@
                 showConfirmModal: false,
                 showLoadingModal: false,
                 showPrintWindow: false,
+                isCashTendered: false,
             },
             methods: {
                 selectTab: function(tabIndex) {
@@ -217,8 +271,7 @@
                 selectProduct: function(product) {
                     const isAny = this.selectedProducts
                         .filter(function(p) { return p.product.id === product.id; })
-                        .length >
-                        0;
+                        .length > 0;
 
                     if (isAny) {
                         const index = this.selectedProducts
@@ -270,7 +323,7 @@
                         }.bind(this))
                         .catch(axiosCatch);
                 },
-                getRequest: function () {
+                getRequest: function() {
                     const paymentStatus = this.isPayment
                         ? "@Constant.PaymentStatus.Paid"
                         : "@Constant.PaymentStatus.Hold";
@@ -305,7 +358,7 @@
                 submitTransaction: function() {
                     this.showConfirmModal = false;
                     this.showLoadingModal = true;
-                    
+
                     const url = this.isSelectedTransaction
                         ? window.actionUrl.updateTransaction
                         : window.actionUrl.createTransaction;
@@ -324,7 +377,7 @@
 
                             if (!this.isPayment || this.isSelectedTransaction)
                                 this.fetchHoldTransaction();
-                                
+
                             this.clearAll();
                         }.bind(this))
                         .catch(axiosCatch);
@@ -360,7 +413,7 @@
                         }.bind(this));
 
                     const discountCode = this.selectedTransaction.discount.code;
-                    if (discountCode !== "" && discountCode !== null) 
+                    if (discountCode !== "" && discountCode !== null)
                         this.selectedDiscountCode = discountCode;
 
                     this.selectTab(0);
@@ -415,6 +468,9 @@
                     return this.selectedProducts.length > 0;
                 },
                 isAllowSubmit: function() {
+                    if (this.isCash)
+                        return this.isCashTendered;
+
                     return this.isPayment
                         ? this.selectedPaymentType !== ""
                         : this.transactionNotes !== "";
@@ -422,13 +478,16 @@
                 isSelectedTransaction: function() {
                     return this.selectedTransaction !== null;
                 },
-                appliedDiscount: function () {
+                isCash: function() {
+                    return this.selectedPaymentType === 'Cash';
+                },
+                appliedDiscount: function() {
                     const results = this.discounts.filter(function(d) {
                         return d.code === this.selectedDiscountCode;
                     }.bind(this));
-                    
-                    return results.length > 0 
-                        ? results[0] 
+
+                    return results.length > 0
+                        ? results[0]
                         : null;
                 }
             },
@@ -621,12 +680,19 @@
         <modal v-if="showConfirmModal" @@onOkClick="" @@request-close="showConfirmModal = false">
             <template v-if="isPayment">
                 <h5 class="mb-0" slot="header">Payment Confirmation</h5>
-                <div class="form-group" slot="body">
-                    <label>Payment Type</label>
-                    <select class="form-control" v-model="selectedPaymentType">
-                        <option disabled value="">Please select one</option>
-                        <option v-for="pt in paymentTypes" :value="pt">{{pt}}</option>
-                    </select>
+                <div slot="body">
+                    <div class="form-group">
+                        <label>Payment Type</label>
+                        <select class="form-control" v-model="selectedPaymentType">
+                            <option disabled value="">Please select one</option>
+                            <option v-for="pt in paymentTypes" :value="pt">{{pt}}</option>
+                        </select>
+                    </div>
+                    <cash-calc
+                        :total-price="totalPriceWithDiscount"
+                        @@change="v => {isCashTendered = v}"
+                        v-if="isCash">
+                    </cash-calc>
                 </div>
             </template>
             <template v-else>
