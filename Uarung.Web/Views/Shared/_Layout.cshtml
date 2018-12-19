@@ -122,10 +122,23 @@
     </a>
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
-            <a class="nav-link" asp-controller="Auth" asp-action="Logout">Sign out</a>
+            <a class="nav-link" style="cursor:pointer" data-toggle="modal" data-target="#logout-modal">Logout</a>
         </li>
     </ul>
 </nav>
+<div class="modal fade" id="logout-modal">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="exampleModalLabel">Confirm Logout</h5>
+            </div>
+            <div class="modal-footer  border-0">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a class="btn btn-primary" asp-controller="Auth" asp-action="Logout">Yes</a>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="container-fluid">
     <div class="row">
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
